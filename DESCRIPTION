@@ -1,0 +1,27 @@
+Package: vennLasso
+Type: Package
+Title: Lasso for Stratified Models with Overlapping
+Version: 0.1
+Date: 2016-03-27
+Author: Jared Huling
+Maintainer: Jared Huling <jared.huling@thegoogleemailservice.com>
+Description: Variable selection and estimation for stratified models where the
+    strata have significant overlap
+License: GPL (>= 2)
+LazyData: TRUE
+Depends:
+    methods,
+    Matrix,
+    VennDiagram,
+    diagram,
+    visNetwork,
+    GGally,
+    network,
+    sna,
+    networkD3,
+    igraph
+Imports:
+    Rcpp (>= 0.11.0),
+    ggplot2
+LinkingTo: Rcpp, RcppEigen, RcppNumerical
+RoxygenNote: 5.0.1
