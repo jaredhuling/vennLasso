@@ -172,7 +172,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     bool intercept      = as<bool>(intercept_);
     bool intercept_bin  = intercept;
     bool adaptive_lasso = as<bool>(adaptive_lasso_);
-    bool compute_se     = compute_se_;
+    //bool compute_se     = compute_se_; // not used
 
 
     const SpMat group(as<MSpMat>(group_));
@@ -325,7 +325,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
             if (p <= n)
             {
                 solver_tall->init(ilambda, rho);
-                int itertmp = solver_tall->solve(maxit);
+                solver_tall->solve(maxit);
                 //VectorXd res = solver_tall->get_aux_gamma();
                 VectorXd restmp = solver_tall->get_gamma();
 
@@ -335,7 +335,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                 VectorXd adaptive_weights(ngroups);
                 if (fullbetamat)
                 {
-                    double beta0;
+                    //double beta0;
                     //datstd.recover(beta0, res);
                     //d = res.tail(p);
 
@@ -343,7 +343,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                     beta_unpen = restmp; //.tail(p);
                 } else
                 {
-                    double beta0;
+                    //double beta0;
                     //datstd.recover(beta0, res);
                     //d = res;
                     //datstd.recover(beta0, restmp);
@@ -361,7 +361,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                                                         eps_abs, eps_rel);
 
                     solver_tall_2->init(ilambda, rho);
-                    int itertmp = solver_tall_2->solve(maxit);
+                    solver_tall_2->solve(maxit);
                     //VectorXd res = solver_tall->get_aux_gamma();
                     beta_unpen = solver_tall_2->get_gamma();
 

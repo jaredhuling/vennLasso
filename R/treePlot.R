@@ -1,6 +1,7 @@
 
 
 
+
 #' plotting function to investigate hierarchical structure of selection
 #'
 #' @param object fitted vennLasso object

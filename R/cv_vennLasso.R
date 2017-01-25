@@ -1,6 +1,6 @@
-#' Cross Validation for Hierarchical Shared Lasso
+#' Cross Validation for the vennLasso
 #'
-#' @param x input matrix or SparseMatrix of dimension nobs \times nvars. Each row is an observation,
+#' @param x input matrix or SparseMatrix of dimension nobs x nvars. Each row is an observation,
 #' each column corresponds to a covariate
 #' @param y numeric response vector of length nobs
 #' @param groups A list of length equal to the number of groups containing vectors of integers

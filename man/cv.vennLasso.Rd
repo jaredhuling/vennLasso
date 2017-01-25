@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv_vennLasso.R
 \name{cv.vennLasso}
 \alias{cv.vennLasso}
-\title{Cross Validation for Hierarchical Shared Lasso}
+\title{Cross Validation for the vennLasso}
 \usage{
 cv.vennLasso(x, y, groups, lambda = NULL, compute.se = FALSE,
   conf.int = NULL, type.measure = c("mse", "deviance", "class", "auc",
@@ -10,7 +10,7 @@ cv.vennLasso(x, y, groups, lambda = NULL, compute.se = FALSE,
   parallel = FALSE, ...)
 }
 \arguments{
-\item{x}{input matrix or SparseMatrix of dimension nobs \times nvars. Each row is an observation,
+\item{x}{input matrix or SparseMatrix of dimension nobs x nvars. Each row is an observation,
 each column corresponds to a covariate}
 
 \item{y}{numeric response vector of length nobs}
@@ -31,7 +31,7 @@ automatically computed, ranging uniformly on the log scale over the relevant ran
 An object with S3 class "cv.vennLasso"
 }
 \description{
-Cross Validation for Hierarchical Shared Lasso
+Cross Validation for the vennLasso
 }
 \examples{
 set.seed(123)

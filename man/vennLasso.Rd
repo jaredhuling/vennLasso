@@ -2,7 +2,7 @@
 % Please edit documentation in R/vennLasso.R
 \name{vennLasso}
 \alias{vennLasso}
-\title{Hierarchical Shared Lasso}
+\title{Fitting vennLasso models}
 \usage{
 vennLasso(x, y, groups, family = c("gaussian", "binomial", "coxph"),
   nlambda = 100L, lambda = NULL, lambda.min.ratio = NULL,
@@ -14,7 +14,7 @@ vennLasso(x, y, groups, family = c("gaussian", "binomial", "coxph"),
   irls.maxit = 100L, model.matrix = FALSE, ...)
 }
 \arguments{
-\item{x}{input matrix or SparseMatrix of dimension nobs \times nvars. Each row is an observation,
+\item{x}{input matrix or SparseMatrix of dimension nobs nvars. Each row is an observation,
 each column corresponds to a covariate}
 
 \item{y}{numeric response vector of length nobs}
@@ -81,7 +81,7 @@ Default is 10^{-5}, which is typically adequate.}
 An object with S3 class "vennLasso"
 }
 \description{
-Hierarchical Shared Lasso
+Fitting vennLasso models
 }
 \examples{
 set.seed(123)

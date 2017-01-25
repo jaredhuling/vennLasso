@@ -49,31 +49,34 @@ protected:
 
     int nobs;                 // number of observations
     int nvars;                // number of variables
-    int ngroups;              // number of groups
     int M;                    // length of nu (total size of all groups)
+    int ngroups;              // number of groups
+
 
     Vector XY;                    // X'Y
     MatrixXd XX;                  // X'X
+    SparseMatrix<double,Eigen::ColMajor> CCol;
     VectorXd CC;                  // C'C diagonal
     VectorXd Cbeta;               // C * beta
-    VectorXd savedEigs;           // saved eigenvalues
     VectorXd group_weights;       // group weight multipliers
     CharacterVector family;       // model family (gaussian, binomial, or Cox PH)
     IntegerVector group_idx;      // indices of groups
 
-    LLT solver;                   // matrix factorization
+
     double newton_tol;            // tolerance for newton iterations
     int newton_maxit;             // max # iterations for newton-raphson
     bool dynamic_rho;
-    bool rho_unspecified;         // was rho unspecified? if so, we must set it
 
-    Scalar lambda;                // L1 penalty
     Scalar lambda0;               // minimum lambda to make coefficients all zero
 
     double avg_group_weights;
+    VectorXd savedEigs;           // saved eigenvalues
+    LLT solver;                   // matrix factorization
+    Scalar lambda;                // L1 penalty
+    bool rho_unspecified;         // was rho unspecified? if so, we must set it
 
     //Eigen::DiagonalMatrix<double, Eigen::Dynamic> one_over_D_diag; // diag(1/D)
-    SparseMatrix<double,Eigen::ColMajor> CCol;
+
 
 
     virtual void block_soft_threshold(VectorXd &gammavec, VectorXd &d,
@@ -226,17 +229,17 @@ public:
               nvars(nvars_),
               M(M_),
               ngroups(ngroups_),
-              newton_tol(newton_tol_),
-              newton_maxit(newton_maxit_),
-              dynamic_rho(dynamic_rho_),
-              group_weights(group_weights_),
-              family(family_),
-              group_idx(group_idx_),
               XY(datX.transpose() * datY),
               XX(XtX(datX)),
               CCol(Eigen::SparseMatrix<double>(M_, nvars_)),
               CC(nvars_),
               Cbeta(C_.rows()),
+              group_weights(group_weights_),
+              family(family_),
+              group_idx(group_idx_),
+              newton_tol(newton_tol_),
+              newton_maxit(newton_maxit_),
+              dynamic_rho(dynamic_rho_),
               lambda0(XY.cwiseAbs().maxCoeff())
     { }
 
@@ -383,7 +386,7 @@ public:
         VectorXd beta_return(nvars);
         for (int k=0; k < CCol.outerSize(); ++k)
         {
-            int rowidx;
+            int rowidx = 0;
             bool current_zero = false;
             bool already_idx = false;
             for (SparseMatrix<double>::InnerIterator it(CCol,k); it; ++it)

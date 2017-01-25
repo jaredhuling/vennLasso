@@ -14,7 +14,7 @@ oglasso(x, y, delta = NULL, group, fused = NULL, family = c("gaussian",
   irls.tol = 1e-05, irls.maxit = 100L)
 }
 \arguments{
-\item{x}{input matrix or SparseMatrix of dimension nobs \times nvars. Each row is an observation,
+\item{x}{input matrix or SparseMatrix of dimension nobs x nvars. Each row is an observation,
 each column corresponds to a covariate}
 
 \item{y}{numeric response vector of length nobs}

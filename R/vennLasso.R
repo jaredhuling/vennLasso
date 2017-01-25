@@ -1,6 +1,6 @@
-#' Hierarchical Shared Lasso
+#' Fitting vennLasso models
 #'
-#' @param x input matrix or SparseMatrix of dimension nobs \times nvars. Each row is an observation,
+#' @param x input matrix or SparseMatrix of dimension nobs nvars. Each row is an observation,
 #' each column corresponds to a covariate
 #' @param y numeric response vector of length nobs
 #' @param groups A list of length equal to the number of groups containing vectors of integers
@@ -163,10 +163,6 @@ vennLasso <- function(x, y,
     family <- match.arg(family)
     this.call = match.call()
 
-    if (adaptive.fused | !is.null(lambda.fused))
-    {
-        stop("fused not available yet")
-    }
 
     nvars <- ncol(x)
     nobs <- nrow(x)
@@ -176,6 +172,8 @@ vennLasso <- function(x, y,
     stopifnot(leny == nobs)
 
     stopifnot(nobs == nrow(groups))
+    
+    if (!is.null(lambda.fused)) stop("fused not available yet")
 
     ## apply surv
     if (family == "coxph") {
