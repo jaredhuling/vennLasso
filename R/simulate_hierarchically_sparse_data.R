@@ -100,7 +100,7 @@ genHierSparseData <- function(ncats,
     family <- match.arg(family)
     x.list <- km.list <- y.list <- vector(length = 2 ^ ncats, mode = "list")
 
-    if (is.null(beta)) x.test.list <- y.test.list <- y.test.pred.list  <- z.test.list <- var.idx.list <- x.list
+    x.test.list <- y.test.list <- y.test.pred.list  <- z.test.list <- var.idx.list <- x.list
 
     stopifnot(covar[1] >= 0)
 
