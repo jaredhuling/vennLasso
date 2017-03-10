@@ -13,22 +13,18 @@
 #'
 #' dat.sim <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200)
 #'
-#' fit <- plotSelections(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
+#' fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 #'
-#' plotNetwork(fit, s = fit$lambda[35])
+#' plotSelections(fit, s = fit$lambda[35])
 #'
 #' dat.sim <- genHierSparseData(ncats = 4, nvars = 50, nobs = 200)
 #'
-#' fit <- plotSelections(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
+#' fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 #'
-#' plotSelections(fit, s = fit$lambda[27], type = "igraph.tree")
-#' plotSelections(fit, s = fit$lambda[31], type = "igraph.tree")
-#' plotSelections(fit, s = fit$lambda[35], type = "igraph.tree")
 #' plotSelections(fit, s = fit$lambda[38], type = "d3.tree")
 #'
 plotSelections <- function(object, s = NULL,
-                           type = c("d3.sankey", "d3.network", "d3.tree",
-                                    "igraph.tree", "diagram.tree", "ggnet.network"),
+                           type = c("d3.tree"),
                            ...)
 {
 
@@ -198,7 +194,7 @@ plotSelections <- function(object, s = NULL,
 
 
     node.sizes <- num.nz.per.strata[match(colnames(plotMat.keep), names(num.nz.per.strata))]
-    net <- network(plotMat.keep)
+    
 
     plotMat.keep.sqrt <- plotMat.keep
     plotMat.keep.sqrt[plotMat.keep.sqrt != 0] <- sqrt(plotMat.keep.sqrt[plotMat.keep.sqrt != 0])

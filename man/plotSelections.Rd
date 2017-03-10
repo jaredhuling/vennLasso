@@ -4,8 +4,7 @@
 \alias{plotSelections}
 \title{plotting function to investigate hierarchical structure of selection}
 \usage{
-plotSelections(object, s = NULL, type = c("d3.sankey", "d3.network",
-  "d3.tree", "igraph.tree", "diagram.tree", "ggnet.network"), ...)
+plotSelections(object, s = NULL, type = c("d3.tree"), ...)
 }
 \arguments{
 \item{object}{fitted vennLasso object}
@@ -22,17 +21,14 @@ set.seed(123)
 
 dat.sim <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200)
 
-fit <- plotSelections(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
+fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 
-plotNetwork(fit, s = fit$lambda[35])
+plotSelections(fit, s = fit$lambda[35])
 
 dat.sim <- genHierSparseData(ncats = 4, nvars = 50, nobs = 200)
 
-fit <- plotSelections(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
+fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 
-plotSelections(fit, s = fit$lambda[27], type = "igraph.tree")
-plotSelections(fit, s = fit$lambda[31], type = "igraph.tree")
-plotSelections(fit, s = fit$lambda[35], type = "igraph.tree")
 plotSelections(fit, s = fit$lambda[38], type = "d3.tree")
 
 }

@@ -13,13 +13,7 @@ Depends:
     methods,
     Matrix,
     VennDiagram,
-    diagram,
-    visNetwork,
-    GGally,
-    network,
-    sna,
-    networkD3,
-    igraph
+    visNetwork
 Imports:
     Rcpp (>= 0.11.0),
     ggplot2
