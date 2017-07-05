@@ -32,12 +32,15 @@
 #'
 #' # estimate hier.sparsity.param for 0.15 total proportion of nonzero variables
 #' # among vars with hierarchical zero patterns
-#' hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)
+#' # NOT RUN: Takes a long time
+#' # hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)
+#' # the above results in the following value
+#' hsp <- 0.6270698
 #'
 #' # check that this does indeed achieve the desired level of sparsity
 #' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
-#'                           nvars = 50, hier.sparsity.param = hsp) != 0)  ))
-#'
+#'                            nvars = 50, hier.sparsity.param = hsp) != 0)  ))
+#'                            
 #' dat.sim2 <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200, hier.sparsity.param = hsp)
 #'
 #' sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 100, hier.sparsity.param = hsp)
@@ -53,12 +56,12 @@
 #' ## 50% sparsity:
 #' hsp <- 0.2626451
 #'
-#' dat.sim <- genHierSparseData(ncats = 3, nvars = 100,
+#' dat.sim <- genHierSparseData(ncats = 3, nvars = 50,
 #'                              nobs = 250, nobs.test = 10000,
 #'                              hier.sparsity.param = hsp,
 #'                              prop.zero.vars = 0.5,
 #'                              effect.size.max = 0.25,
-#'                              family = "binomial")
+#'                              family = "gaussian")
 #'
 #' x        <- dat.sim$x
 #' x.test   <- dat.sim$x.test
@@ -67,21 +70,20 @@
 #' grp      <- dat.sim$group.ind
 #' grp.test <- dat.sim$group.ind.test
 #'
-#' fit.adapt <- vennLasso:::cv.vennLasso(x, y,
-#'                                       grp,
-#'                                       adaptive.lasso = TRUE,
-#'                                       nlambda        = 25,
-#'                                       family         = "binomial",
-#'                                       abs.tol        = 1e-5,
-#'                                       rel.tol        = 1e-5,
-#'                                       maxit          = 1000,
-#'                                       irls.maxit     = 15L,
-#'                                       gamma          = 0.2,
-#'                                       standardize    = FALSE,
-#'                                       intercept      = TRUE,
-#'                                       type.measure   = "auc",
-#'                                       nfolds         = 5,
-#'                                       model.matrix   = TRUE)
+#' fit.adapt <- vennLasso::cv.vennLasso(x, y,
+#'                                      grp,
+#'                                      adaptive.lasso = TRUE,
+#'                                      nlambda        = 25,
+#'                                      family         = "gaussian",
+#'                                      abs.tol        = 1e-5,
+#'                                      rel.tol        = 1e-5,
+#'                                      maxit          = 1000,
+#'                                      irls.maxit     = 15L,
+#'                                      gamma          = 0.2,
+#'                                      standardize    = FALSE,
+#'                                      intercept      = TRUE,
+#'                                      nfolds         = 5,
+#'                                      model.matrix   = TRUE)
 #'
 #' preds.a <- predict(fit.adapt$vennLasso.fit, x.test, grp.test, s = fit.adapt$lambda.min,
 #'                    type = 'response')
