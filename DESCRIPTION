@@ -8,7 +8,6 @@ Authors@R: c(
     person("Muxuan", "Liang", , , c("ctb")),
     person("Yixuan", "Qiu", , , c("ctb"))
     )
-Maintainer: Jared Huling <jared.huling@gmail.com>
 Description: Provides variable selection and estimation routines for models stratified based on binary factors. 
 URL: https://github.com/jaredhuling/vennLasso
 BugReports: https://github.com/jaredhuling/vennLasso/issues
