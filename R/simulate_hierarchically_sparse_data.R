@@ -328,7 +328,7 @@ genHierSparseData <- function(ncats,
 }
 
 
-#' function to generate beta with hierarchical sparsity
+#' function to generate coefficient matrix with hierarchical sparsity
 #'
 #' @param ncats number of categories to stratify on
 #' @param nvars number of variables
@@ -369,7 +369,8 @@ genHierSparseBeta <- function(ncats,
 
 
     ncmb <- 2 ^ ncats
-    for (i in 1:ncmb) {
+    for (i in 1:ncmb) 
+    {
         km.list[[i]] <- as.integer(intToBits(i)[1:ncats])
     }
     km.mat <- Reduce(rbind, km.list)
@@ -396,9 +397,11 @@ genHierSparseBeta <- function(ncats,
     beta.mat[which(rs == 0),] <- runif(n.nzvars, min = effect.size.max/2, max = effect.size.max) *
         (2 * rbinom(n.nzvars, 1,0.5)-1)
 
-    for (s in 2:ncats) {
+    for (s in 2:ncats) 
+    {
         id2 <- which(rs == s)
-        for (i in id2) {
+        for (i in id2) 
+        {
             rmeans <- numeric(n.nzvars)
             #for (k in 1:ncats) {
             #    if (km.mat[i, k] == 1) {
@@ -438,7 +441,7 @@ genHierSparseBeta <- function(ncats,
     beta.mat.sparse
 }
 
-#' function to estimate the hierarchical sparsity parameter for a given level of sparsity
+#' function to estimate the hierarchical sparsity parameter for a desired level of sparsity for simulated hierarchical coefficients
 #'
 #' @param ncats number of categories to stratify on
 #' @param nvars number of variables
@@ -490,7 +493,8 @@ estimate.hier.sparsity.param <- function(ncats,
     km.list <- vector(length = 2 ^ ncats, mode = "list")
 
     ncmb <- 2 ^ ncats
-    for (i in 1:ncmb) {
+    for (i in 1:ncmb) 
+    {
         km.list[[i]] <- as.integer(intToBits(i)[1:ncats])
     }
     km.mat <- Reduce(rbind, km.list)
@@ -518,15 +522,18 @@ estimate.hier.sparsity.param <- function(ncats,
     beta.mat[which(rs == 0),] <- runif(n.nzvars, min = effect.size.max/2, max = effect.size.max) *
         (2 * rbinom(n.nzvars, 1,0.5)-1)
 
-    for (s in 2:ncats) {
+    for (s in 2:ncats) 
+    {
         id2 <- which(rs == s)
-        for (i in id2) {
+        for (i in id2) 
+        {
             rmeans <- numeric(n.nzvars)
-            for (k in 1:ncats) {
-                if (km.mat[i, k] == 1) {
-                    rmeans <- rmeans  + beta.mat[id1[k],] * 0.75
-                }
-            }
+            #for (k in 1:ncats) {
+            #    if (km.mat[i, k] == 1) 
+            #    {
+            #        rmeans <- rmeans  + beta.mat[id1[k],] * 0.75
+            #    }
+            #}
             beta.mat[i,] <- runif(n.nzvars, min=effect.size.max/2, max=effect.size.max) *
                 (2 * rbinom(n.nzvars, 1,0.5)-1) #runif(n.nzvars, min=-0.5+rmeans, max=0.5+rmeans)#rnorm(n.nzvars, mean = rmeans, sd = 0.05)
         }
@@ -568,14 +575,18 @@ induce.hier.sparsity <- function(beta.mat, pct.zero.general,
         x <- sparsity.inducer[,o]
 
         res <- rep(1, length(x))
-        for (i in 1:ncmb) {
-
-            if (x[i] == 0) {
+        for (i in 1:ncmb) 
+        {
+            if (x[i] == 0) 
+            {
                 res[i] <- 0
                 cidxx <- (1:ncmb)[!(1:ncmb %in% i)]
-                for (j in cidxx) {
-                    if (sum(km.mat[j,]) < sum(km.mat[i,])) {
-                        if (any(km.mat[i,] == km.mat[j,] & (km.mat[j,] == 1 | all(km.mat[j,] == 0))   )) {
+                for (j in cidxx) 
+                {
+                    if (sum(km.mat[j,]) < sum(km.mat[i,])) 
+                    {
+                        if (any(km.mat[i,] == km.mat[j,] & (km.mat[j,] == 1 | all(km.mat[j,] == 0))   )) 
+                        {
                             res[j] <- 0
                         }
                     }
@@ -592,14 +603,18 @@ induce.hier.sparsity <- function(beta.mat, pct.zero.general,
         x <- sparsity.inducer[,o]
 
         res <- rep(1, length(x))
-        for (i in 1:ncmb) {
-
-            if (x[i] == 0) {
+        for (i in 1:ncmb) 
+        {
+            if (x[i] == 0) 
+            {
                 res[i] <- 0
                 cidxx <- (1:ncmb)[!(1:ncmb %in% i)]
-                for (j in cidxx) {
-                    if (sum(km.mat[j,]) < sum(km.mat[i,])) {
-                        if (any(km.mat[i,] == km.mat[j,] & (km.mat[j,] == 1 | all(km.mat[j,] == 0))   )) {
+                for (j in cidxx) 
+                {
+                    if (sum(km.mat[j,]) < sum(km.mat[i,])) 
+                    {
+                        if (any(km.mat[i,] == km.mat[j,] & (km.mat[j,] == 1 | all(km.mat[j,] == 0))   )) 
+                        {
                             res[j] <- 0
                         }
                     }

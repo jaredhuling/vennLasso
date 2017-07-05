@@ -26,6 +26,8 @@ against the percent deviance explained.}
 Prediction method for vennLasso fitted objects
 }
 \examples{
+library(Matrix)
+
 set.seed(123)
 n.obs <- 200
 n.vars <- 50

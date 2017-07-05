@@ -2,7 +2,7 @@
 % Please edit documentation in R/oglasso.R
 \name{oglasso}
 \alias{oglasso}
-\title{Overlapping Group Lasso (oglasso)}
+\title{Overlapping Group Lasso (OGLasso)}
 \usage{
 oglasso(x, y, delta = NULL, group, fused = NULL, family = c("gaussian",
   "binomial", "coxph"), nlambda = 100L, lambda = NULL,
@@ -14,7 +14,7 @@ oglasso(x, y, delta = NULL, group, fused = NULL, family = c("gaussian",
   irls.tol = 1e-05, irls.maxit = 100L)
 }
 \arguments{
-\item{x}{input matrix or SparseMatrix of dimension nobs x nvars. Each row is an observation,
+\item{x}{input matrix of dimension nobs by nvars. Each row is an observation,
 each column corresponds to a covariate}
 
 \item{y}{numeric response vector of length nobs}
@@ -23,7 +23,7 @@ each column corresponds to a covariate}
 observed time is a death and a 0 indicates the observed time is a censoring event}
 
 \item{group}{A list of length equal to the number of groups containing vectors of integers
-indicating the variable IDs for each group. For example, group=list(c(1,2), c(2,3), c(3,4,5)) specifies
+indicating the variable IDs for each group. For example, \code{group = list(c(1,2), c(2,3), c(3,4,5))} specifies
 that Group 1 contains variables 1 and 2, Group 2 contains variables 2 and 3, and Group 3 contains
 variables 3, 4, and 5. Can also be a matrix of 0s and 1s with the number of columns equal to the
 number of groups and the number of rows equal to the number of variables. A value of 1 in row i and
@@ -31,7 +31,7 @@ column j indicates that variable i is in group j and 0 indicates that variable i
 
 \item{fused}{matrix specifying generalized lasso penalty formulation. Each column corresponds to each variable
 and each row corresponds to a new penalty term, ie if row 1 has the first entry of 1 and the second
-entry of -1, then the penalty term lambda.fused * |beta_1 - beta_2| will be added.}
+entry of -1, then the penalty term lambda.fused * |beta_1 - beta_2| will be added. Not available now}
 
 \item{family}{"gaussian" for least squares problems, "binomial" for binary response}
 
@@ -41,11 +41,11 @@ entry of -1, then the penalty term lambda.fused * |beta_1 - beta_2| will be adde
 automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.}
 
 \item{lambda.min.ratio}{Smallest value for lambda, as a fraction of lambda.max, the (data derived) entry
-value (i.e. the smallest value for which all coefﬁcients are zero). The default
+value (i.e. the smallest value for which all parameter estimates are zero). The default
 depends on the sample size nobs relative to the number of variables nvars. If
-nobs > nvars, the default is 0.0001, close to zero. If nobs < nvars, the default
-is 0.01. A very small value of lambda.min.ratio will lead to a saturated ﬁt in
-the nobs < nvars case.}
+\code{nobs > nvars}, the default is 0.0001, close to zero. If \code{nobs < nvars}, the default
+is 0.01. A very small value of \code{lambda.min.ratio} will lead to a saturated fit in
+the \code{nobs < nvars} case.}
 
 \item{lambda.fused}{tuning parameter for fused (generalized) lasso penalty}
 
@@ -55,9 +55,9 @@ the nobs < nvars case.}
 be multiplied. Often, this is a function (such as the square root) of the number of predictors in each group.
 The default is to use the square root of group size for the group selection methods.}
 
-\item{adaptive.lasso}{Flag indicating whether or not to use adaptive lasso weights. If set to TRUE and
-group.weights is unspecified, then this will override group.weights. If a vector is supplied to group.weights,
-then the adaptive.lasso weights will be multiplied by the group.weights vector}
+\item{adaptive.lasso}{Flag indicating whether or not to use adaptive lasso weights. If set to \code{TRUE} and
+\code{group.weights} is unspecified, then this will override \code{group.weights}. If a vector is supplied to group.weights,
+then the \code{adaptive.lasso} weights will be multiplied by the \code{group.weights} vector}
 
 \item{adaptive.fused}{Flag indicating whether or not to use adaptive fused lasso weights.}
 
@@ -69,39 +69,37 @@ fused lasso penalty. A vector of length equal to the number of variables. mostly
 
 \item{gamma}{power to raise the MLE estimated weights by for the adaptive lasso. defaults to 1}
 
-\item{standardize}{Logical flag for x variable standardization, prior to fitting the models. 
+\item{standardize}{Logical flag for \code{x} variable standardization, prior to fitting the models. 
 The coefficients are always returned on the original scale. Default is \code{standardize = TRUE}. If 
-variables are in the same units already, you might not wish to standardize. Keep in mind that 
-standardization is done differently for sparse matrices, so results (when standardized) may be
-slightly different for a sparse matrix object and a dense matrix object}
+variables are in the same units already, you might not wish to standardize.}
 
 \item{intercept}{Should intercept(s) be fitted (\code{default = TRUE}) or set to zero (\code{FALSE})}
 
-\item{compute.se}{Should standard errors be computed? If TRUE, then models are re-fit with no penalization and the standard
+\item{compute.se}{Should standard errors be computed? If \code{TRUE}, then models are re-fit with no penalization and the standard
 errors are computed from the refit models. These standard errors are only theoretically valid for the
-adaptive lasso (when adaptive.lasso is set to TRUE)}
+adaptive lasso (when \code{adaptive.lasso} is set to \code{TRUE})}
 
 \item{rho}{ADMM parameter. must be a strictly positive value. By default, an appropriate value is automatically chosen}
 
-\item{dynamic.rho}{TRUE/FALSE indicating whether or not the rho value should be updated throughout the course of the ADMM iterations}
+\item{dynamic.rho}{\code{TRUE}/\code{FALSE} indicating whether or not the rho value should be updated throughout the course of the ADMM iterations}
 
 \item{maxit}{integer. Maximum number of ADMM iterations. Default is 500.}
 
 \item{abs.tol}{absolute convergence tolerance for ADMM iterations for the relative dual and primal residuals.
-Default is 10^{-5}, which is typically adequate.}
+Default is \code{10^{-5}}, which is typically adequate.}
 
 \item{rel.tol}{relative convergence tolerance for ADMM iterations for the relative dual and primal residuals.
-Default is 10^{-5}, which is typically adequate.}
+Default is \code{10^{-5}}, which is typically adequate.}
 
-\item{irls.tol}{convergence tolerance for IRLS iterations. Only used if family != "gaussian". Default is 10^{-5}.}
+\item{irls.tol}{convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is \code{10^{-5}}.}
 
-\item{irls.maxit}{integer. Maximum number of IRLS iterations. Only used if family != "gaussian". Default is 100.}
+\item{irls.maxit}{integer. Maximum number of IRLS iterations. Only used if \code{family != "gaussian"}. Default is 100.}
 }
 \value{
 An object with S3 class "oglasso"
 }
 \description{
-Overlapping Group Lasso (oglasso)
+Overlapping Group Lasso (OGLasso)
 }
 \examples{
 n.obs <- 1e4

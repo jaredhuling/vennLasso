@@ -23,6 +23,8 @@ plotVenn(conditions, condition.names = NULL, lty = "blank",
 plotting function for venn diagrams of overlapping conditions
 }
 \examples{
+library(Matrix)
+
 set.seed(123)
 n.obs <- 200
 n.vars <- 50

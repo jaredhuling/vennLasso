@@ -14,7 +14,7 @@ vennLasso(x, y, groups, family = c("gaussian", "binomial", "coxph"),
   irls.maxit = 100L, model.matrix = FALSE, ...)
 }
 \arguments{
-\item{x}{input matrix of dimension nobs nvars. Each row is an observation,
+\item{x}{input matrix of dimension nobs by nvars. Each row is an observation,
 each column corresponds to a covariate}
 
 \item{y}{numeric response vector of length nobs}
@@ -34,12 +34,12 @@ and \code{"coxph"} for time-to-event outcomes}
 \item{lambda}{A user-specified sequence of lambda values. Left unspecified, the a sequence of lambda values is
 automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.}
 
-\item{lambda.min.ratio}{Smallest value for lambda, as a fraction of lambda.max, the (data-derived) entry
-value (i.e. the smallest value for which all coefﬁcients are zero). The default
-depends on the sample size nobs relative to the number of variables nvars. If
-nobs > nvars, the default is 0.0001, close to zero. If nobs < nvars, the default
-is 0.01. A very small value of \code{lambda.min.ratio} will lead to a saturated ﬁt in
-the nobs < nvars case.}
+\item{lambda.min.ratio}{Smallest value for lambda, as a fraction of \code{lambda.max}, the (data derived) entry
+value (i.e. the smallest value for which all parameter estimates are zero). The default
+depends on the sample size \code{nobs} relative to the number of variables \code{nvars}. If
+\code{nobs > nvars}, the default is 0.0001, close to zero. If \code{nobs < nvars}, the default
+is 0.01. A very small value of \code{lambda.min.ratio} can lead to a saturated fit
+when \code{nobs < nvars}.}
 
 \item{lambda.fused}{tuning parameter for fused lasso penalty}
 
@@ -58,7 +58,7 @@ then the \code{adaptive.lasso} weights will be multiplied by the \code{group.wei
 
 \item{gamma}{power to raise the MLE estimated weights by for the adaptive lasso. defaults to 1}
 
-\item{standardize}{Should the data be standardized? Defaults to \code{FALSE} as standardization is most likely not desirable.}
+\item{standardize}{Should the data be standardized? Defaults to \code{FALSE}.}
 
 \item{intercept}{Should an intercept be fit? Defaults to \code{TRUE}}
 
@@ -99,6 +99,8 @@ An object with S3 class "vennLasso"
 Fitting vennLasso models
 }
 \examples{
+library(Matrix)
+
 set.seed(123)
 n.obs <- 200
 n.vars <- 50

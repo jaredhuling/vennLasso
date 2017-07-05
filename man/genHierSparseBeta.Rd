@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_hierarchically_sparse_data.R
 \name{genHierSparseBeta}
 \alias{genHierSparseBeta}
-\title{function to generate beta with hierarchical sparsity}
+\title{function to generate coefficient matrix with hierarchical sparsity}
 \usage{
 genHierSparseBeta(ncats, nvars, hier.sparsity.param = 0.5,
   avg.hier.zeros = NULL, effect.size.max = 0.5, misspecification.prop = 0)
@@ -24,7 +24,7 @@ override the given hier.sparsity.param value and estimate it. This takes a while
 \item{misspecification.prop}{proportion of variables with hierarchical missingness misspecified}
 }
 \description{
-function to generate beta with hierarchical sparsity
+function to generate coefficient matrix with hierarchical sparsity
 }
 \examples{
 set.seed(123)

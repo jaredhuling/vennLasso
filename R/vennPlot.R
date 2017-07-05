@@ -30,6 +30,8 @@ calcOverlap <- function(conditions, which.conditions = NULL)
 #' @importFrom grid grid.newpage
 #' @export
 #' @examples
+#' library(Matrix)
+#' 
 #' set.seed(123)
 #' n.obs <- 200
 #' n.vars <- 50

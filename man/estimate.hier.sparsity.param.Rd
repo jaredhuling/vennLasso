@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_hierarchically_sparse_data.R
 \name{estimate.hier.sparsity.param}
 \alias{estimate.hier.sparsity.param}
-\title{function to estimate the hierarchical sparsity parameter for a given level of sparsity}
+\title{function to estimate the hierarchical sparsity parameter for a desired level of sparsity for simulated hierarchical coefficients}
 \usage{
 estimate.hier.sparsity.param(ncats, nvars, avg.hier.zeros = 0.3,
   nsims = 150, effect.size.max = 0.5, misspecification.prop = 0)
@@ -21,7 +21,7 @@ estimate.hier.sparsity.param(ncats, nvars, avg.hier.zeros = 0.3,
 \item{misspecification.prop}{proportion of variables with hierarchical missingness misspecified}
 }
 \description{
-function to estimate the hierarchical sparsity parameter for a given level of sparsity
+function to estimate the hierarchical sparsity parameter for a desired level of sparsity for simulated hierarchical coefficients
 }
 \examples{
 set.seed(123)

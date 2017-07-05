@@ -1,6 +1,6 @@
 #' Fitting vennLasso models
 #'
-#' @param x input matrix of dimension nobs nvars. Each row is an observation,
+#' @param x input matrix of dimension nobs by nvars. Each row is an observation,
 #' each column corresponds to a covariate
 #' @param y numeric response vector of length nobs
 #' @param groups A list of length equal to the number of groups containing vectors of integers
@@ -14,12 +14,12 @@
 #' @param nlambda The number of lambda values. Default is 100.
 #' @param lambda A user-specified sequence of lambda values. Left unspecified, the a sequence of lambda values is
 #' automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.
-#' @param lambda.min.ratio Smallest value for lambda, as a fraction of lambda.max, the (data-derived) entry
-#' value (i.e. the smallest value for which all coefﬁcients are zero). The default
-#' depends on the sample size nobs relative to the number of variables nvars. If
-#' nobs > nvars, the default is 0.0001, close to zero. If nobs < nvars, the default
-#' is 0.01. A very small value of \code{lambda.min.ratio} will lead to a saturated ﬁt in
-#' the nobs < nvars case.
+#' @param lambda.min.ratio Smallest value for lambda, as a fraction of \code{lambda.max}, the (data derived) entry
+#' value (i.e. the smallest value for which all parameter estimates are zero). The default
+#' depends on the sample size \code{nobs} relative to the number of variables \code{nvars}. If
+#' \code{nobs > nvars}, the default is 0.0001, close to zero. If \code{nobs < nvars}, the default
+#' is 0.01. A very small value of \code{lambda.min.ratio} can lead to a saturated fit
+#' when \code{nobs < nvars}.
 #' @param lambda.fused tuning parameter for fused lasso penalty
 #' @param penalty.factor vector of weights to be multiplied to the tuning parameter for the
 #' group lasso penalty. A vector of length equal to the number of groups
@@ -30,7 +30,7 @@
 #' \code{group.weights} is unspecified, then this will override \code{group.weights}. If a vector is supplied to group.weights,
 #' then the \code{adaptive.lasso} weights will be multiplied by the \code{group.weights} vector
 #' @param adaptive.fused Flag indicating whether or not to use adaptive fused lasso weights. 
-#' @param standardize Should the data be standardized? Defaults to \code{FALSE} as standardization is most likely not desirable.
+#' @param standardize Should the data be standardized? Defaults to \code{FALSE}.
 #' @param intercept Should an intercept be fit? Defaults to \code{TRUE}
 #' @param one.intercept Should a single intercept be fit for all subpopulations instead of one
 #' for each subpopulation? Defaults to \code{FALSE}.
@@ -59,6 +59,8 @@
 #'
 #' @export
 #' @examples
+#' library(Matrix)
+#' 
 #' set.seed(123)
 #' n.obs <- 200
 #' n.vars <- 50
