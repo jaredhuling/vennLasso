@@ -1,21 +1,24 @@
 Package: vennLasso
 Type: Package
-Title: Lasso for Stratified Models with Overlapping
+Title: Variable selection for heterogeneous populations 
 Version: 0.1
-Date: 2016-03-27
+Date: 2017-07-05
 Author: Jared Huling
-Maintainer: Jared Huling <jared.huling@thegoogleemailservice.com>
-Description: Variable selection and estimation for stratified models where the
-    strata have significant overlap
+Maintainer: Jared Huling <jared.huling@gmail.com>
+Description: Provides variable selection and estimation routines for models stratified based on binary factors. 
 License: GPL (>= 2)
 LazyData: TRUE
 Depends:
-    methods,
-    Matrix,
-    VennDiagram,
-    visNetwork
+    R (>= 3.2.0)
 Imports:
     Rcpp (>= 0.11.0),
+    foreach,
+    survival,
+    MASS,
+    Matrix,
+    VennDiagram,
+    visNetwork,
+    methods,
     ggplot2
 LinkingTo: Rcpp, RcppEigen, RcppNumerical
 RoxygenNote: 5.0.1

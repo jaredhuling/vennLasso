@@ -1,4 +1,5 @@
 
+#' @importFrom stats sd
 checkWhichVarsMissingForWhichConditions <- function(x, group.indicators) {
     # checks if any variables are missing for an entire disease condition
     # returns logical matrix of dimension (num.vars)x(num.groups) with TRUE
@@ -59,7 +60,8 @@ getmin=function(lambda,cvm,cvsd){
 }
 
 # taken from glmnet
-lambdaInterp=function(lambda,s){
+lambdaInterp <- function(lambda,s)
+{
     ### lambda is the index sequence that is produced by the model
     ### s is the new vector at which evaluations are required.
     ### the value is a vector of left and right indices, and a vector of fractions.

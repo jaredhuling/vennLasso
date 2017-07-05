@@ -11,7 +11,30 @@
 #' column j indicates that variable i is in group j and 0 indicates that variable i is not in group j.
 #' @param lambda A user-specified sequence of lambda values. Left unspecified, the a sequence of lambda values is
 #' automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.
+#' @param compute.se logical flag. If \code{TRUE}, standard errors will be computed, otherwise if \code{FALSE} they will not
+#' @param conf.int value between 0 and 1 indicating the level of the confidence intervals to be computed. For example
+#' if \code{conf.int = 0.95}, 95 percent confidence intervals will be computed.
+#' @param type.measure One of \code{c("mse","deviance","class","auc","mae","brier")} indicating measure to evaluate for cross-validation. The default is \code{type.measure = "deviance"}, 
+#' which uses squared-error for gaussian models (a.k.a \code{type.measure = "mse"} there), deviance for logistic
+#' regression. \code{type.measure = "class"} applies to binomial only. \code{type.measure = "auc"} is for two-class logistic 
+#' regression only. \code{type.measure = "mse"} or \code{type.measure = "mae"} (mean absolute error) can be used by all models;
+#' they measure the deviation from the fitted mean to the response. \code{type.measure = "brier"} is for models with 
+#' \code{family = "coxph"} and will compute the Brier score.
+#' @param nfolds number of folds for cross-validation. default is 10. 3 is smallest value allowed. 
+#' @param foldid an optional vector of values between 1 and nfold specifying which fold each observation belongs to.
+#' @param grouped Like in \pkg{glmnet}, this is an experimental argument, with default \code{TRUE}, and can be ignored by most users. 
+#' For all models, this refers to computing nfolds separate statistics, and then using their mean and estimated standard 
+#' error to describe the CV curve. If \code{grouped = FALSE}, an error matrix is built up at the observation level from the 
+#' predictions from the \code{nfold} fits, and then summarized (does not apply to \code{type.measure = "auc"}). 
+#' @param keep If \code{keep = TRUE}, a prevalidated list of arrasy is returned containing fitted values for each observation 
+#' and each value of lambda for each model. This means these fits are computed with this observation and the rest of its
+#' fold omitted. The folid vector is also returned. Default is \code{keep = FALSE}
+#' @param parallel If TRUE, use parallel foreach to fit each fold. Must register parallel before hand, such as \pkg{doMC}.
 #' @param ... parameters to be passed to vennLasso
+#' @importFrom stats predict
+#' @importFrom stats stepfun
+#' @importFrom stats weighted.mean
+#' @import foreach
 #' @return An object with S3 class "cv.vennLasso"
 #'
 #'
@@ -19,6 +42,9 @@
 #'
 #' @export
 #' @examples
+#' 
+#' library(Matrix)
+#' 
 #' set.seed(123)
 #' n.obs <- 200
 #' n.vars <- 50
@@ -44,19 +70,22 @@
 #' fit <- cv.vennLasso(x = x, y = y, groups = conditions)
 #'
 #' fitted.coef <- predict(fit$vennLasso.fit, type = "coefficients", s = fit$lambda.min)
-#' (true.coef <- true.beta.mat[match(dimnames(fit$vennLasso.fit$beta)[[1]], rownames(true.beta.mat)),])
+#' (true.coef <- true.beta.mat[match(dimnames(fit$vennLasso.fit$beta)[[1]], 
+#'                                   rownames(true.beta.mat)),])
 #' round(fitted.coef, 2)
 #'
 #' ## effects need to be smaller for logistic regression
 #' true.beta.mat <- true.beta.mat / 10
 #' true.beta <- true.beta / 10
 #' # logistic regression example#'
-#' y <- rbinom(n.obs * 3, 1, prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta))))
+#' y <- rbinom(n.obs * 3, 1, 
+#'        prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta))))
 #'
 #' bfit <- cv.vennLasso(x = x, y = y, groups = conditions, family = "binomial")
 #'
 #' fitted.coef <- predict(bfit$vennLasso.fit, type = "coefficients", s = bfit$lambda.min)
-#' (true.coef <- true.beta.mat[match(dimnames(bfit$vennLasso.fit$beta)[[1]], rownames(true.beta.mat)),])
+#' (true.coef <- true.beta.mat[match(dimnames(bfit$vennLasso.fit$beta)[[1]], 
+#'                                   rownames(true.beta.mat)),])
 #' round(fitted.coef, 2)
 #'
 cv.vennLasso <- function(x, y,
@@ -114,7 +143,7 @@ cv.vennLasso <- function(x, y,
   outlist=as.list(seq(nfolds))
   ###Now fit the nfold models and store them
   ###First try and do it using foreach if parallel is TRUE
-  if (parallel && require(foreach)) {
+  if (parallel) {
     outlist = foreach (i=seq(nfolds), .packages=c("vennLasso")) %dopar% {
       which=foldid==i
       if(is.matrix(y))y_sub=y[!which,]else y_sub=y[!which]
@@ -277,7 +306,6 @@ cv.venncoxph=function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,keep
             devmat[i,seq(nlami)] = -logpl(link,y)+logpl(linkout,y[!which,,drop=FALSE])
         } else {
             surv = predict(fitobj, newx = x[which,], group.mat = groups[which,,drop=FALSE], type="survival")
-            require(survival)
             cenSurv = Surv(time = y[which,1], event = 1-y[which,2])
             cenSurvFun = c(1,1, survfit(cenSurv~1)$surv)
             cenTime = c(0, survfit(cenSurv~1)$time)

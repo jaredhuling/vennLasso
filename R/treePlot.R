@@ -7,6 +7,8 @@
 #' @param object fitted vennLasso object
 #' @param s lambda value for the predictions. Only one can be specified at a time
 #' @param ... other graphical parameters for the plot
+#' @importFrom graphics plot
+#' @import visNetwork
 #' @export
 #' @examples
 #' set.seed(123)
@@ -226,41 +228,41 @@ plotSelections <- function(object, s = NULL,
 
     if (type == "d3.network")
     {
-        forceNetwork(Links = edges2, Nodes = nodes.df2, Source = "source",
-                     Target = "target", Value = "value", NodeID = "label",
-                     Group = "group", opacity = 0.8, opacityNoHover = 0.5,
-                     fontSize = 12)
+        #forceNetwork(Links = edges2, Nodes = nodes.df2, Source = "source",
+        #             Target = "target", Value = "value", NodeID = "label",
+        #             Group = "group", opacity = 0.8, opacityNoHover = 0.5,
+        #             fontSize = 12)
     } else if (type == "d3.sankey")
     {
-        sankeyNetwork(Links = edges2, Nodes = nodes.df2, Source = "source",
-                      Target = "target", Value = "value", NodeID = "label",
-                      fontSize = 16, nodePadding = 20)
+        #sankeyNetwork(Links = edges2, Nodes = nodes.df2, Source = "source",
+        #              Target = "target", Value = "value", NodeID = "label",
+        #              fontSize = 16, nodePadding = 20)
     } else if (type == "igraph.tree")
     {
         ### igraph
 
-        nodes.df2b <- cbind.data.frame(nodes.df2, grp.memberships)
-
-        net <- graph.data.frame(edges2, directed=FALSE, nodes.df2b)
-        E(net)$width <- E(net)$value/4
-        V(net)$size <- V(net)$value/1.5
-
-        net.h <- net - E(net)[E(net)$type=="mention"]
-        #plot(net.h, vertex.color="orange", main="Tie: Hyperlink")
-        l <- layout.fruchterman.reingold(net, niter = 100000)
-
-        root.nodes <- nodes.df2b$id[which(rowSums(grp.memberships) == 1)]
-
-        l <- layout.reingold.tilford(net)
-        grp.member.list <- lapply(grp.memberships, function(x) which(x == 1))
-
-
-
-        plot(net.h, vertex.color="darkgoldenrod1", edge.color = "grey40",
-             layout=l, main="Selection Patterns",
-             mark.groups = grp.member.list, mark.border = NA, mark.expand = 35,
-             vertex.frame.color = NA,
-             vertex.label.degree = 0)
+        # nodes.df2b <- cbind.data.frame(nodes.df2, grp.memberships)
+        # 
+        # net <- graph.data.frame(edges2, directed=FALSE, nodes.df2b)
+        # E(net)$width <- E(net)$value/4
+        # V(net)$size  <- V(net)$value/1.5
+        # 
+        # net.h <- net - E(net)[E(net)$type=="mention"]
+        # #plot(net.h, vertex.color="orange", main="Tie: Hyperlink")
+        # l <- layout.fruchterman.reingold(net, niter = 100000)
+        # 
+        # root.nodes <- nodes.df2b$id[which(rowSums(grp.memberships) == 1)]
+        # 
+        # l <- layout.reingold.tilford(net)
+        # grp.member.list <- lapply(grp.memberships, function(x) which(x == 1))
+        # 
+        # 
+        # 
+        # plot(net.h, vertex.color="darkgoldenrod1", edge.color = "grey40",
+        #      layout=l, main="Selection Patterns",
+        #      mark.groups = grp.member.list, mark.border = NA, mark.expand = 35,
+        #      vertex.frame.color = NA,
+        #      vertex.label.degree = 0)
     } else if (type == "d3.tree")
     {
         nodes.df$title = paste0("<p>Num vars selected: ", nodes.df$value,"</p>")
@@ -275,30 +277,30 @@ plotSelections <- function(object, s = NULL,
     } else if (type == "ggnet.network")
     {
 
-        net %v% "num.vars" <- node.sizes
-        net %v% "names" <- colnames(plotMat.keep)
-        net %e% "num.vars" <- plotMat.keep
-        net %e% "edge.sizes" <- plotMat.keep.sqrt
-
-
-
-        ggnet2(net, size = "num.vars",
-               max_size = 16, label = TRUE,
-               edge.label = "num.vars",
-               edge.size = "edge.sizes") ##, mode = "hall
+        # net %v% "num.vars" <- node.sizes
+        # net %v% "names" <- colnames(plotMat.keep)
+        # net %e% "num.vars" <- plotMat.keep
+        # net %e% "edge.sizes" <- plotMat.keep.sqrt
+        # 
+        # 
+        # 
+        # ggnet2(net, size = "num.vars",
+        #        max_size = 16, label = TRUE,
+        #        edge.label = "num.vars",
+        #        edge.size = "edge.sizes") ##, mode = "hall
     } else if (type == "diagram.tree")
     {
 
-        num.vars.per.node <- colSums(plotMat.ordered)
-
-        box.size <- 0.06
-
-        plotmat(plotMat.ordered, main = "Selection Patterns",
-                pos = positions, curve = 0,
-                name = names,
-                arr.lwd = plotMat.ordered / (0.25 * max(plotMat.ordered)), arr.type = "circle",
-                arr.width = plotMatZero, arr.length = plotMatZero,
-                shadow.size = 0, box.size = box.size, box.cex = 0.9, cex = 0.9)
+        # num.vars.per.node <- colSums(plotMat.ordered)
+        # 
+        # box.size <- 0.06
+        # 
+        # plotmat(plotMat.ordered, main = "Selection Patterns",
+        #         pos = positions, curve = 0,
+        #         name = names,
+        #         arr.lwd = plotMat.ordered / (0.25 * max(plotMat.ordered)), arr.type = "circle",
+        #         arr.width = plotMatZero, arr.length = plotMatZero,
+        #         shadow.size = 0, box.size = box.size, box.cex = 0.9, cex = 0.9)
     }
 
 

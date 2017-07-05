@@ -19,6 +19,14 @@
 #'
 #'
 #' @import Rcpp
+#' @import methods
+#' @import Matrix
+#' @import survival
+#' @importFrom stats qnorm
+#' @importFrom stats vcov
+#' @importFrom stats glm
+#' @importFrom stats coef
+#' @importFrom stats binomial
 #'
 #' @rdname predict
 #' @export

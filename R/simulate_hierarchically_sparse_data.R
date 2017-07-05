@@ -14,8 +14,16 @@
 #' @param misspecification.prop proportion of variables with hierarchical missingness misspecified
 #' @param family family for the response variable
 #' @param sd standard devation for gaussian simulations
+#' @param snr signal-to-noise ratio (only used for \code{family = "gaussian"})
 #' @param beta a matrix of true beta values. If given, then no beta will be created and data will be simulated from the given beta
-#'
+#' @param tau rate parameter for \code{rexp()} for generating time-to-event outcomes
+#' @param covar scalar, pairwise covariance term for covariates
+#' @importFrom stats rnorm
+#' @importFrom stats rexp
+#' @importFrom stats var
+#' @importFrom stats approx
+#' @importFrom stats runif
+#' @import MASS
 #' @export
 #' @examples
 #' set.seed(123)
@@ -27,7 +35,8 @@
 #' hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)
 #'
 #' # check that this does indeed achieve the desired level of sparsity
-#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, nvars = 50, hier.sparsity.param = hsp) != 0)  ))
+#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
+#'                           nvars = 50, hier.sparsity.param = hsp) != 0)  ))
 #'
 #' dat.sim2 <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200, hier.sparsity.param = hsp)
 #'
@@ -105,7 +114,8 @@ genHierSparseData <- function(ncats,
     stopifnot(covar[1] >= 0)
 
     ncmb <- 2 ^ ncats
-    for (i in 1:ncmb) {
+    for (i in 1:ncmb) 
+    {
         km.list[[i]] <- as.integer(intToBits(i)[1:ncats])
     }
     km.mat <- Reduce(rbind, km.list)
@@ -117,8 +127,9 @@ genHierSparseData <- function(ncats,
     n.zero.cols <- floor(prop.zero.vars * nvars)
     n.nzvars    <- nvars - n.zero.cols
     zero.cols   <- (n.nzvars + 1):nvars
-    if (is.null(beta)) {
-
+    
+    if (is.null(beta)) 
+    {
         rs <- rowSums(km.mat)
         id1 <- which(rs == 1)
         id2 <- which(rs > 1)
@@ -134,25 +145,24 @@ genHierSparseData <- function(ncats,
     }
 
     xb.all <- NULL
-    if (family == "coxph"){
-        t.list <- NULL
-        ct.list <- NULL
-        c.list <- NULL
-        t.test.list <- NULL
+    if (family == "coxph")
+    {
+        t.list       <- NULL
+        ct.list      <- NULL
+        c.list       <- NULL
+        t.test.list  <- NULL
         ct.test.list <- NULL
-        c.test.list <- NULL
+        c.test.list  <- NULL
     }
 
-    for (i in 1:(2 ^ ncats)) {
-
+    for (i in 1:(2 ^ ncats)) 
+    {
         if (covar[1] == 0)
         {
             x.list[[i]] <- matrix(rnorm(nobs * nvars), ncol = nvars)
             x.test.list[[i]] <- matrix(rnorm(nobs.test * nvars), ncol = nvars)
         } else
         {
-            require(MASS)
-
             sigma <- covar[1] ^ abs(outer(1:nvars, 1:nvars, FUN = "-"))
 
             x.list[[i]] <- mvrnorm(n = nobs, mu = rep(0, nvars), Sigma = sigma)
@@ -204,7 +214,8 @@ genHierSparseData <- function(ncats,
 
 
 
-    for (c in 1:(2 ^ ncats)) {
+    for (c in 1:(2 ^ ncats)) 
+    {
         indi <- which(km.mat[c,] == 1)
         # this returns indices of all g terms to be included in the
         # product for the beta coefficient
@@ -247,7 +258,8 @@ genHierSparseData <- function(ncats,
 
 
     var.idx.list2 <- var.idx.list
-    for (c in 1:(2 ^ ncats)) {
+    for (c in 1:(2 ^ ncats)) 
+    {
         indi <- which(km.mat[c,] == 1)
         # this returns indices of all g terms to be included in the
         # product for the beta coefficient
@@ -257,7 +269,8 @@ genHierSparseData <- function(ncats,
 
     gg.mat2 <- beta.mat.sparse2
     completed <- NULL
-    for (i in 0:ncats) {
+    for (i in 0:ncats) 
+    {
         cur.idx <- which(sapply(var.idx.list2, function(x) length(x)==2^i))
         for (j in 1:length(cur.idx)) {
             cur.vars <- var.idx.list2[[cur.idx[j]]]
@@ -278,16 +291,19 @@ genHierSparseData <- function(ncats,
 
     beta.mat2 <- beta.mat.sparse2
 
-    for (cc in 1:(2 ^ ncats)) {
+    for (cc in 1:(2 ^ ncats)) 
+    {
         #indi <- which(km.mat[c,] == 1)
         # this returns indices of all g terms to be included in the
         # product for the beta coefficient
         #var.idx <- which(apply(km.mat, 1, function(x) all(x[indi] == 1)))
 
         # compute beta
-        if (length(var.idx.list2[[cc]]) > 1) {
+        if (length(var.idx.list2[[cc]]) > 1) 
+        {
             beta.mat2[cc, ] <- apply(gg.mat2[var.idx.list2[[cc]],], 2, function(x) prod(x))
-        } else {
+        } else 
+        {
             beta.mat2[cc, ] <- gg.mat2[var.idx.list2[[cc]],]
         }
 
@@ -295,7 +311,6 @@ genHierSparseData <- function(ncats,
 
     if (family == "coxph")
     {
-        library(survival)
 
         y.all <- Surv(y.all,c.all)
         y.test.all <- Surv(y.test.all,c.test.all)
@@ -311,7 +326,6 @@ genHierSparseData <- function(ncats,
            x.test = x.test.all, y.test = y.test.all, group.ind.test = group.test.ind,
            beta.mat.2 = beta.mat.sparse2)
     }
-
 }
 
 
@@ -324,7 +338,6 @@ genHierSparseData <- function(ncats,
 #' function 'estimate.hier.sparsity.param'
 #' @param avg.hier.zeros desired percent of zero variables among the variables with hierarchical zero patterns. If this is specified, it will
 #' override the given hier.sparsity.param value and estimate it. This takes a while
-#' @param prop.zero.vars proportion of all variables that will be zero across all strata
 #' @param effect.size.max maximum magnitude of the true effect sizes
 #' @param misspecification.prop proportion of variables with hierarchical missingness misspecified
 #'
@@ -337,7 +350,8 @@ genHierSparseData <- function(ncats,
 #' hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 25, avg.hier.zeros = 0.15, nsims = 100)
 #'
 #' # check that this does indeed achieve the desired level of sparsity
-#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp) != 0)  ))
+#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
+#'                            nvars = 25, hier.sparsity.param = hsp) != 0)  ))
 #'
 #' sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp)
 #'
@@ -430,7 +444,9 @@ genHierSparseBeta <- function(ncats,
 #' @param nsims number of simulations to estimate the average sparsity. A larger number will be more accurate but take much longer.
 #' @param effect.size.max maximum magnitude of the true effect sizes
 #' @param misspecification.prop proportion of variables with hierarchical missingness misspecified
-#'
+#' @importFrom stats runif
+#' @importFrom stats rbinom
+#' @importFrom stats uniroot
 #' @export
 #' @examples
 #' set.seed(123)
@@ -441,15 +457,20 @@ genHierSparseBeta <- function(ncats,
 #' hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 25, avg.hier.zeros = 0.15, nsims = 100)
 #'
 #' # check that this does indeed achieve the desired level of sparsity
-#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp) != 0)  ))
+#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
+#'                            nvars = 25, hier.sparsity.param = hsp) != 0)  ))
 #'
 #' sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp)
 #'
 #'
-#' hsp2 <- estimate.hier.sparsity.param(ncats = 2, nvars = 100, avg.hier.zeros = 0.30, nsims = 50) # 0.5778425
-#' hsp3 <- estimate.hier.sparsity.param(ncats = 3, nvars = 100, avg.hier.zeros = 0.30, nsims = 50) # 0.4336312
-#' hsp4 <- estimate.hier.sparsity.param(ncats = 4, nvars = 100, avg.hier.zeros = 0.30, nsims = 50) # 0.2670061
-#' hsp5 <- estimate.hier.sparsity.param(ncats = 5, nvars = 100, avg.hier.zeros = 0.30, nsims = 50) # 0.146682
+#' hsp2 <- estimate.hier.sparsity.param(ncats = 2, nvars = 100, 
+#'                         avg.hier.zeros = 0.30, nsims = 50) # 0.5778425
+#' hsp3 <- estimate.hier.sparsity.param(ncats = 3, nvars = 100, 
+#'                         avg.hier.zeros = 0.30, nsims = 50) # 0.4336312
+#' hsp4 <- estimate.hier.sparsity.param(ncats = 4, nvars = 100, 
+#'                         avg.hier.zeros = 0.30, nsims = 50) # 0.2670061
+#' hsp5 <- estimate.hier.sparsity.param(ncats = 5, nvars = 100, 
+#'                         avg.hier.zeros = 0.30, nsims = 50) # 0.146682
 #'
 #' # 0.07551241 for hsp6
 #'

@@ -134,7 +134,8 @@ true.beta.mat.b <- true.beta.mat
 true.beta.b <- true.beta
 
 # logistic regression example
-y <- rbinom(n.obs * 3, 1, prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) \%*\% true.beta.b))))
+y <- rbinom(n.obs * 3, 1, 
+       prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) \%*\% true.beta.b))))
 
 bfit <- vennLasso(x = x, y = y, groups = conditions, family = "binomial")
 
@@ -154,7 +155,8 @@ round(cfit$beta, 2)
 
 ## fit adaptive version and compute confidence intervals
 acfit <- vennLasso(x = x, y = y, groups = conditions, family = "coxph",
-                   conf.int = 0.95, adaptive.lasso = TRUE, lambda = seq(5, 0.05, length.out = 20) * 10^(-2))
+                   conf.int = 0.95, adaptive.lasso = TRUE, 
+                   lambda = seq(5, 0.05, length.out = 20) * 10^(-2))
 
 true.coef[,1:10]
 round(acfit$beta[,1:10,18], 2)

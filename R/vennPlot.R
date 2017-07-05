@@ -26,6 +26,8 @@ calcOverlap <- function(conditions, which.conditions = NULL)
 #' @param fill.colors vector of colors for plotting. Set fill.colors = NULL for no colors
 #' @param lty standard 'lty' graphical parameter for line type around circles. default is no lines
 #' @param ... other graphical parameters for the plot
+#' @import VennDiagram
+#' @importFrom grid grid.newpage
 #' @export
 #' @examples
 #' set.seed(123)

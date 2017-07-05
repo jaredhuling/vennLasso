@@ -22,8 +22,6 @@ override the given hier.sparsity.param value and estimate it. This takes a while
 \item{effect.size.max}{maximum magnitude of the true effect sizes}
 
 \item{misspecification.prop}{proportion of variables with hierarchical missingness misspecified}
-
-\item{prop.zero.vars}{proportion of all variables that will be zero across all strata}
 }
 \description{
 function to generate beta with hierarchical sparsity
@@ -36,7 +34,8 @@ set.seed(123)
 hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 25, avg.hier.zeros = 0.15, nsims = 100)
 
 # check that this does indeed achieve the desired level of sparsity
-mean(replicate(100, mean(genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp) != 0)  ))
+mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
+                           nvars = 25, hier.sparsity.param = hsp) != 0)  ))
 
 sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp)
 

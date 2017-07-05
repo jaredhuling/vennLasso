@@ -36,7 +36,13 @@ override the given hier.sparsity.param value and estimate it. This takes a while
 
 \item{sd}{standard devation for gaussian simulations}
 
+\item{snr}{signal-to-noise ratio (only used for \code{family = "gaussian"})}
+
 \item{beta}{a matrix of true beta values. If given, then no beta will be created and data will be simulated from the given beta}
+
+\item{tau}{rate parameter for \code{rexp()} for generating time-to-event outcomes}
+
+\item{covar}{scalar, pairwise covariance term for covariates}
 }
 \description{
 function to generate data with hierarchical sparsity
@@ -51,7 +57,8 @@ dat.sim <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200)
 hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)
 
 # check that this does indeed achieve the desired level of sparsity
-mean(replicate(100, mean(genHierSparseBeta(ncats = 3, nvars = 50, hier.sparsity.param = hsp) != 0)  ))
+mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
+                          nvars = 50, hier.sparsity.param = hsp) != 0)  ))
 
 dat.sim2 <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200, hier.sparsity.param = hsp)
 

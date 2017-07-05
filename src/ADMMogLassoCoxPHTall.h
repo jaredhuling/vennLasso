@@ -150,10 +150,10 @@ protected:
     {
         if (res(debug) != res(debug))
         {
-            std::cout << "adj_nu=" << adj_nu(debug) << std::endl;
-            std::cout << "adj_gamma=" << adj_gamma(debug) << std::endl;
-            std::cout << "rhs=" << rhs(debug) << std::endl;
-            std::cout << "XY(" << debug << ") is NA" << std::endl;
+            //std::cout << "adj_nu=" << adj_nu(debug) << std::endl;
+            //std::cout << "adj_gamma=" << adj_gamma(debug) << std::endl;
+            //std::cout << "rhs=" << rhs(debug) << std::endl;
+            //std::cout << "XY(" << debug << ") is NA" << std::endl;
             break;
         }
     }
@@ -196,7 +196,7 @@ protected:
       //std::cout << "start" << std::endl;
       //Spectra::SymEigsSolver< Double, Spectra::LARGEST_ALGE, MatOpSymLower<Double> > eigs(&op, 1, 3);
       Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
-      srand(0);
+      // srand(0);
       eigs.init();
       eigs.compute(100, 0.1);
       //std::cout << "stop" << std::endl;
@@ -438,7 +438,7 @@ public:
 
      int solve(int maxit)
     {
-        std::cout << "main_beta1=" << main_beta(0) << std::endl;
+        // std::cout << "main_beta1=" << main_beta(0) << std::endl;
         VectorXd beta_prev;
 
 
@@ -472,12 +472,12 @@ public:
             {
                 maxit = 0;
                 newton_maxit = 0;
-                std::cout << "i=" << i << std::endl;
+                //std::cout << "i=" << i << std::endl;
                 int k = (datX * main_beta).maxCoeff()/100;
                 expeta = ((datX * main_beta).array() - 100 * k).exp().array() + 1e-20;
-                std::cout << "max z=" << expeta.maxCoeff() << std::endl;
-                std::cout << "datX=" << datX.topLeftCorner(2,2) << std::endl;
-                std::cout << "main_beta2=" << main_beta(0) << std::endl;
+                //std::cout << "max z=" << expeta.maxCoeff() << std::endl;
+                //std::cout << "datX=" << datX.topLeftCorner(2,2) << std::endl;
+                //std::cout << "main_beta2=" << main_beta(0) << std::endl;
             }
 
 

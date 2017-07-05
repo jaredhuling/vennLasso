@@ -100,7 +100,8 @@
 #' true.beta.b <- true.beta
 #'
 #' # logistic regression example
-#' y <- rbinom(n.obs * 3, 1, prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta.b))))
+#' y <- rbinom(n.obs * 3, 1, 
+#'        prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta.b))))
 #'
 #' bfit <- vennLasso(x = x, y = y, groups = conditions, family = "binomial")
 #'
@@ -120,7 +121,8 @@
 #'
 #' ## fit adaptive version and compute confidence intervals
 #' acfit <- vennLasso(x = x, y = y, groups = conditions, family = "coxph",
-#'                    conf.int = 0.95, adaptive.lasso = TRUE, lambda = seq(5, 0.05, length.out = 20) * 10^(-2))
+#'                    conf.int = 0.95, adaptive.lasso = TRUE, 
+#'                    lambda = seq(5, 0.05, length.out = 20) * 10^(-2))
 #'
 #' true.coef[,1:10]
 #' round(acfit$beta[,1:10,18], 2)
@@ -176,9 +178,10 @@ vennLasso <- function(x, y,
     if (!is.null(lambda.fused)) stop("fused not available yet")
 
     ## apply surv
-    if (family == "coxph") {
+    if (family == "coxph") 
+    {
         ## taken from glmnet
-        if(!is.matrix(y)||!all(match(c("time","status"),dimnames(y)[[2]],0)))stop("Cox model requires a matrix with columns 'time' (>0) and 'status'  (binary) as a response; a 'Surv' object suffices",call.=FALSE)
+        if(!is.matrix(y)||!all(match(c("time","status"),dimnames(y)[[2]],0))) stop("Cox model requires a matrix with columns 'time' (>0) and 'status'  (binary) as a response; a 'Surv' object suffices",call.=FALSE)
         y.surv <- y
         delta = as.double(y[,"status"])
         if(sum(delta) == 0)stop("All data are censored; not permitted for Cox family")
@@ -186,7 +189,8 @@ vennLasso <- function(x, y,
         if(any(y <= 0))stop("negative event times encountered;  not permitted for Cox family")
         maxit=as.integer(maxit)
     }
-    else{
+    else
+    {
         delta <- rep(0L, nrow(x));
     }
 

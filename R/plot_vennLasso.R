@@ -8,6 +8,8 @@
 #' against the percent deviance explained.
 #' @param ... other graphical parameters for the plot
 #' @rdname plot
+#' @importFrom graphics matplot
+#' @importFrom stats na.omit
 #' @export
 #' @examples
 #' set.seed(123)
