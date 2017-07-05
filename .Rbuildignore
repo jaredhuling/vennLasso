@@ -4,3 +4,14 @@
 README.html
 README.Rmd
 README_files
+^\.travis\.yml$
+^/\.gitattributes$
+^notes$
+^cran-comments.md$
+^CONTRIBUTING\.md$
+^NEWS$
+src/old
+^NEWS\.md$
+^.*\docs$
+^\_pkgdown\.yml$
+docs

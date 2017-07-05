@@ -47,7 +47,7 @@
 #' 
 #' set.seed(123)
 #' n.obs <- 200
-#' n.vars <- 50
+#' n.vars <- 25
 #'
 #' true.beta.mat <- array(NA, dim = c(3, n.vars))
 #' true.beta.mat[1,] <- c(-0.5, -1, 0, 0, 2, rep(0, n.vars - 5))
@@ -81,7 +81,8 @@
 #' y <- rbinom(n.obs * 3, 1, 
 #'        prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta))))
 #'
-#' bfit <- cv.vennLasso(x = x, y = y, groups = conditions, family = "binomial")
+#' bfit <- cv.vennLasso(x = x, y = y, groups = conditions, family = "binomial",
+#'                      nfolds = 5)
 #'
 #' fitted.coef <- predict(bfit$vennLasso.fit, type = "coefficients", s = bfit$lambda.min)
 #' (true.coef <- true.beta.mat[match(dimnames(bfit$vennLasso.fit$beta)[[1]], 
