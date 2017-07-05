@@ -1,47 +1,56 @@
 #' Fitting vennLasso models
 #'
-#' @param x input matrix or SparseMatrix of dimension nobs nvars. Each row is an observation,
+#' @param x input matrix of dimension nobs nvars. Each row is an observation,
 #' each column corresponds to a covariate
 #' @param y numeric response vector of length nobs
 #' @param groups A list of length equal to the number of groups containing vectors of integers
-#' indicating the variable IDs for each group. For example, groups=list(c(1,2), c(2,3), c(3,4,5)) specifies
+#' indicating the variable IDs for each group. For example, \code{groups = list(c(1,2), c(2,3), c(3,4,5))} specifies
 #' that Group 1 contains variables 1 and 2, Group 2 contains variables 2 and 3, and Group 3 contains
 #' variables 3, 4, and 5. Can also be a matrix of 0s and 1s with the number of columns equal to the
 #' number of groups and the number of rows equal to the number of variables. A value of 1 in row i and
 #' column j indicates that variable i is in group j and 0 indicates that variable i is not in group j.
-#' @param family "gaussian" for least squares problems, "binomial" for binary response
+#' @param family \code{"gaussian"} for least squares problems, \code{"binomial"} for binary response, 
+#' and \code{"coxph"} for time-to-event outcomes
 #' @param nlambda The number of lambda values. Default is 100.
 #' @param lambda A user-specified sequence of lambda values. Left unspecified, the a sequence of lambda values is
 #' automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.
-#' @param lambda.min.ratio Smallest value for lambda, as a fraction of lambda.max, the (data derived) entry
+#' @param lambda.min.ratio Smallest value for lambda, as a fraction of lambda.max, the (data-derived) entry
 #' value (i.e. the smallest value for which all coefﬁcients are zero). The default
 #' depends on the sample size nobs relative to the number of variables nvars. If
 #' nobs > nvars, the default is 0.0001, close to zero. If nobs < nvars, the default
-#' is 0.01. A very small value of lambda.min.ratio will lead to a saturated ﬁt in
+#' is 0.01. A very small value of \code{lambda.min.ratio} will lead to a saturated ﬁt in
 #' the nobs < nvars case.
+#' @param lambda.fused tuning parameter for fused lasso penalty
+#' @param penalty.factor vector of weights to be multiplied to the tuning parameter for the
+#' group lasso penalty. A vector of length equal to the number of groups
 #' @param group.weights A vector of values representing multiplicative factors by which each group's penalty is to
 #' be multiplied. Often, this is a function (such as the square root) of the number of predictors in each group.
 #' The default is to use the square root of group size for the group selection methods.
-#' @param adaptive.lasso Flag indicating whether or not to use adaptive lasso weights. If set to TRUE and
-#' group.weights is unspecified, then this will override group.weights. If a vector is supplied to group.weights,
-#' then the adaptive.lasso weights will be multiplied by the group.weights vector
-#' @param standardize Should the data be standardized? Defaults to FALSE as standardization is most likely not desirable.
-#' @param intercept Should an intercept be fit? Defaults to TRUE.
-#' @param compute.se Should standard errors be computed? If TRUE, then models are re-fit with no penalization and the standard
+#' @param adaptive.lasso Flag indicating whether or not to use adaptive lasso weights. If set to \code{TRUE} and
+#' \code{group.weights} is unspecified, then this will override \code{group.weights}. If a vector is supplied to group.weights,
+#' then the \code{adaptive.lasso} weights will be multiplied by the \code{group.weights} vector
+#' @param adaptive.fused Flag indicating whether or not to use adaptive fused lasso weights. 
+#' @param standardize Should the data be standardized? Defaults to \code{FALSE} as standardization is most likely not desirable.
+#' @param intercept Should an intercept be fit? Defaults to \code{TRUE}
+#' @param one.intercept Should a single intercept be fit for all subpopulations instead of one
+#' for each subpopulation? Defaults to \code{FALSE}.
+#' @param compute.se Should standard errors be computed? If \code{TRUE}, then models are re-fit with no penalization and the standard
 #' errors are computed from the refit models. These standard errors are only theoretically valid for the
-#' adaptive lasso (when adaptive.lasso is set to TRUE)
-#' @param conf.int level for confidence intervals. Defaults to NULL (no confidence intervals). Should be a value between 0 and 1. If confidence
-#' intervals are to be computed, compute.se will be automatically set to TRUE.
+#' adaptive lasso (when \code{adaptive.lasso} is set to \code{TRUE})
+#' @param conf.int level for confidence intervals. Defaults to \code{NULL} (no confidence intervals). Should be a value between 0 and 1. If confidence
+#' intervals are to be computed, compute.se will be automatically set to \code{TRUE}
 #' @param gamma power to raise the MLE estimated weights by for the adaptive lasso. defaults to 1
 #' @param rho ADMM parameter. must be a strictly positive value. By default, an appropriate value is automatically chosen
-#' @param dynamic.rho TRUE/FALSE indicating whether or not the rho value should be updated throughout the course of the ADMM iterations
+#' @param dynamic.rho \code{TRUE}/\code{FALSE} indicating whether or not the rho value should be updated throughout the course of the ADMM iterations
 #' @param maxit integer. Maximum number of ADMM iterations. Default is 500.
 #' @param abs.tol absolute convergence tolerance for ADMM iterations for the relative dual and primal residuals.
-#' Default is 10^{-5}, which is typically adequate.
+#' Default is \code{10^{-5}}, which is typically adequate.
 #' @param rel.tol relative convergence tolerance for ADMM iterations for the relative dual and primal residuals.
-#' Default is 10^{-5}, which is typically adequate.
-#' @param irls.maxit integer. Maximum number of IRLS iterations. Only used if family != "gaussian". Default is 100.
-#' @param irls.tol convergence tolerance for IRLS iterations. Only used if family != "gaussian". Default is 10^{-5}.
+#' Default is \code{10^{-5}}, which is typically adequate.
+#' @param irls.maxit integer. Maximum number of IRLS iterations. Only used if \code{family != "gaussian"}. Default is 100.
+#' @param irls.tol convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is 10^{-5}.
+#' @param model.matrix logical flag. Should the design matrix used be returned?
+#' @param ... not used
 #' @return An object with S3 class "vennLasso"
 #'
 #' @useDynLib vennLasso
@@ -147,7 +156,7 @@ vennLasso <- function(x, y,
                       gamma            = 1,
                       standardize      = FALSE,
                       intercept        = TRUE,
-                      one.intercept    = TRUE,
+                      one.intercept    = FALSE,
                       compute.se       = FALSE,
                       conf.int         = NULL,
                       rho              = NULL,
@@ -191,7 +200,7 @@ vennLasso <- function(x, y,
     }
     else
     {
-        delta <- rep(0L, nrow(x));
+        delta <- rep(0L, nrow(x))
     }
 
     if (!is.null(conf.int))

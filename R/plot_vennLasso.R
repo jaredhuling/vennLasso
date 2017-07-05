@@ -1,11 +1,13 @@
 
 #' Prediction method for vennLasso fitted objects
-#'
-#' @param object fitted "vennLasso" model object
+#' 
+#' @param x fitted "vennLasso" model object
 #' @param which.row which row in the coefficient matrix should be plotting? Each row corresponds to
 #' a particular combination of the specified stratifying variables
 #' @param xvar What is on the X-axis. "norm" plots against the L1-norm of the coefficients, "lambda" against the log-lambda sequence, and "dev"
 #' against the percent deviance explained.
+#' @param xlab character value supplied for x-axis label
+#' @param ylab character value supplied for y-axis label
 #' @param ... other graphical parameters for the plot
 #' @rdname plot
 #' @importFrom graphics matplot

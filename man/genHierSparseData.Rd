@@ -103,8 +103,7 @@ fit.adapt <- vennLasso:::cv.vennLasso(x, y,
                                       intercept      = TRUE,
                                       type.measure   = "auc",
                                       nfolds         = 5,
-                                      model.matrix   = TRUE,
-                                      parallel       = TRUE)
+                                      model.matrix   = TRUE)
 
 preds.a <- predict(fit.adapt$vennLasso.fit, x.test, grp.test, s = fit.adapt$lambda.min,
                    type = 'response')

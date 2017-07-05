@@ -8,15 +8,19 @@
   "loglambda", "dev"), xlab = iname, ylab = "Coefficients", ...)
 }
 \arguments{
+\item{x}{fitted "vennLasso" model object}
+
 \item{which.row}{which row in the coefficient matrix should be plotting? Each row corresponds to
 a particular combination of the specified stratifying variables}
 
 \item{xvar}{What is on the X-axis. "norm" plots against the L1-norm of the coefficients, "lambda" against the log-lambda sequence, and "dev"
 against the percent deviance explained.}
 
-\item{...}{other graphical parameters for the plot}
+\item{xlab}{character value supplied for x-axis label}
 
-\item{object}{fitted "vennLasso" model object}
+\item{ylab}{character value supplied for y-axis label}
+
+\item{...}{other graphical parameters for the plot}
 }
 \description{
 Prediction method for vennLasso fitted objects

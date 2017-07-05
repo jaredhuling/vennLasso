@@ -6,7 +6,7 @@
 \usage{
 \method{predict}{vennLasso}(object, newx, group.mat, s = NULL,
   use.refit = FALSE, type = c("link", "response", "coefficients", "nonzero",
-  "class", "nvars", "median", "survival"), offset, ...)
+  "class", "nvars", "median", "survival"), ...)
 }
 \arguments{
 \item{object}{fitted vennLasso object}
@@ -26,7 +26,8 @@ column j indicates that variable i is in group j and 0 indicates that variable i
 \item{use.refit}{Should the refitted beta estimates be used for prediction? Defaults to FALSE. If TRUE
 then the beta estimates from the model refit on just the selected covariates are used}
 
-\item{type}{type of predictions to be made}
+\item{type}{type of predictions to be made. \code{type = "median"} is for the median survival time and 
+\code{type = "survival"} is for the predicted hazard function}
 
 \item{...}{parameters to be passed to vennLasso}
 }

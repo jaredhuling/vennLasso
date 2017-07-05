@@ -6,6 +6,7 @@
 #'
 #' @param object fitted vennLasso object
 #' @param s lambda value for the predictions. Only one can be specified at a time
+#' @param type type of plot to make. Currently only "d3.tree" available
 #' @param ... other graphical parameters for the plot
 #' @importFrom graphics plot
 #' @import visNetwork

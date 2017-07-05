@@ -19,6 +19,9 @@ each column corresponds to a covariate}
 
 \item{y}{numeric response vector of length nobs}
 
+\item{delta}{vector of length equal to the number of observations with values in 1 and 0, where a 1 indicates the
+observed time is a death and a 0 indicates the observed time is a censoring event}
+
 \item{group}{A list of length equal to the number of groups containing vectors of integers
 indicating the variable IDs for each group. For example, group=list(c(1,2), c(2,3), c(3,4,5)) specifies
 that Group 1 contains variables 1 and 2, Group 2 contains variables 2 and 3, and Group 3 contains
@@ -46,6 +49,8 @@ the nobs < nvars case.}
 
 \item{lambda.fused}{tuning parameter for fused (generalized) lasso penalty}
 
+\item{alpha}{currently not used. Will be used later for fused lasso}
+
 \item{group.weights}{A vector of values representing multiplicative factors by which each group's penalty is to
 be multiplied. Often, this is a function (such as the square root) of the number of predictors in each group.
 The default is to use the square root of group size for the group selection methods.}
@@ -54,13 +59,27 @@ The default is to use the square root of group size for the group selection meth
 group.weights is unspecified, then this will override group.weights. If a vector is supplied to group.weights,
 then the adaptive.lasso weights will be multiplied by the group.weights vector}
 
+\item{adaptive.fused}{Flag indicating whether or not to use adaptive fused lasso weights.}
+
 \item{penalty.factor}{vector of weights to be multiplied to the tuning parameter for the
 group lasso penalty. A vector of length equal to the number of groups}
 
 \item{penalty.factor.fused}{vector of weights to be multiplied to the tuning parameter for the
-group lasso penalty. A vector of length equal to the number of variables. mostly for internal usage}
+fused lasso penalty. A vector of length equal to the number of variables. mostly for internal usage}
 
 \item{gamma}{power to raise the MLE estimated weights by for the adaptive lasso. defaults to 1}
+
+\item{standardize}{Logical flag for x variable standardization, prior to fitting the models. 
+The coefficients are always returned on the original scale. Default is \code{standardize = TRUE}. If 
+variables are in the same units already, you might not wish to standardize. Keep in mind that 
+standardization is done differently for sparse matrices, so results (when standardized) may be
+slightly different for a sparse matrix object and a dense matrix object}
+
+\item{intercept}{Should intercept(s) be fitted (\code{default = TRUE}) or set to zero (\code{FALSE})}
+
+\item{compute.se}{Should standard errors be computed? If TRUE, then models are re-fit with no penalization and the standard
+errors are computed from the refit models. These standard errors are only theoretically valid for the
+adaptive lasso (when adaptive.lasso is set to TRUE)}
 
 \item{rho}{ADMM parameter. must be a strictly positive value. By default, an appropriate value is automatically chosen}
 

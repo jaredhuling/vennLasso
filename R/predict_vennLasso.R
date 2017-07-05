@@ -13,7 +13,8 @@
 #' @param s lambda value for the predictions. defaults to all values computed in the vennLasso object
 #' @param use.refit Should the refitted beta estimates be used for prediction? Defaults to FALSE. If TRUE
 #' then the beta estimates from the model refit on just the selected covariates are used
-#' @param type type of predictions to be made
+#' @param type type of predictions to be made. \code{type = "median"} is for the median survival time and 
+#' \code{type = "survival"} is for the predicted hazard function
 #' @param ... parameters to be passed to vennLasso
 #' @return predictions or coefficients
 #'
@@ -32,14 +33,14 @@
 #' @export
 predict.vennLasso <- function(object, newx,
                               group.mat, s = NULL, use.refit = FALSE,
-                              type=c("link", "response", "coefficients", "nonzero", "class", "nvars", "median", "survival"),
-                              offset, ...)
+                              type = c("link", "response", "coefficients", "nonzero", "class", "nvars", "median", "survival"),
+                              ...)
 {
   type=match.arg(type)
   if(missing(newx)){
-    if(!match(type,c("coefficients","nonzero","nvars"),FALSE))stop("You need to supply a value for 'newx'")
+    if(!match(type,c("coefficients","nonzero","nvars"),FALSE))stop("You must supply a value for 'newx'")
   }
-  if( (type == "median" || type == "survival") & object$family != "coxph")stop("Median option is only available for cox model")
+  if( (type == "median" || type == "survival") & object$family != "coxph") stop("Median option is only available for cox model")
   #if(exact&&(!is.null(s))){
   #  ###we augment the lambda sequence with the new values, if they are different,and refit the model using update
   #  lambda=object$lambda
