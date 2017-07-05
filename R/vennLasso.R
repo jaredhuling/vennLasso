@@ -10,7 +10,7 @@
 #' number of groups and the number of rows equal to the number of variables. A value of 1 in row i and
 #' column j indicates that variable i is in group j and 0 indicates that variable i is not in group j.
 #' @param family \code{"gaussian"} for least squares problems, \code{"binomial"} for binary response, 
-#' and \code{"coxph"} for time-to-event outcomes
+#' and \code{"coxph"} for time-to-event outcomes (not yet available)
 #' @param nlambda The number of lambda values. Default is 100.
 #' @param lambda A user-specified sequence of lambda values. Left unspecified, the a sequence of lambda values is
 #' automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.
@@ -120,33 +120,9 @@
 #' round(bfit$beta[,,37], 2)
 #'
 #'
-#' # cox regression example
-#' library(survival)
-#' t <- rexp(n.obs * 3, exp(-10+drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta)))
-#' c <- rbinom(n.obs *3, 1,0.6)
-#' y <- Surv(t,c)
-#' cfit <- vennLasso(x = x, y = y, groups = conditions, family = "coxph",lambda=1.5*10^(-2))
-#'
-#' true.coef
-#' round(cfit$beta, 2)
-#'
-#' ## fit adaptive version and compute confidence intervals
-#' acfit <- vennLasso(x = x, y = y, groups = conditions, family = "coxph",
-#'                    conf.int = 0.95, adaptive.lasso = TRUE, 
-#'                    lambda = seq(5, 0.05, length.out = 20) * 10^(-2))
-#'
-#' true.coef[,1:10]
-#' round(acfit$beta[,1:10,18], 2)
-#' round(acfit$lower.ci[,1:10,18], 2)
-#' round(acfit$upper.ci[,1:10,18], 2)
-#'
-#' # proper coverage?
-#' (covered <- true.coef >= acfit$lower.ci[,,15] & true.coef <= acfit$upper.ci[,,15])
-#' mean(covered)
-#'
 vennLasso <- function(x, y,
                       groups,
-                      family           = c("gaussian", "binomial", "coxph"),
+                      family           = c("gaussian", "binomial"),
                       nlambda          = 100L,
                       lambda           = NULL,
                       lambda.min.ratio = NULL,
