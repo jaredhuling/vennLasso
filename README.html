@@ -121,7 +121,8 @@ $(document).ready(function () {
 <div id="TOC">
 <ul>
 <li><a href="#vennlasso">vennLasso</a><ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation-and-help-files">Installation and Help Files</a></li>
+<li><a href="#a-quick-example">A Quick Example</a></li>
 </ul></li>
 </ul>
 </div>
@@ -129,8 +130,8 @@ $(document).ready(function () {
 <div id="vennlasso" class="section level1">
 <h1>vennLasso</h1>
 <p>Hierarchical variable selection for models stratified on binary factors</p>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<div id="installation-and-help-files" class="section level2">
+<h2>Installation and Help Files</h2>
 <p>Install using the <strong>devtools</strong> package:</p>
 <pre class="r"><code>devtools::install_github(&quot;jaredhuling/vennLasso&quot;)</code></pre>
 <p>or by cloning and building.</p>
@@ -138,6 +139,65 @@ $(document).ready(function () {
 <pre class="r"><code>library(vennLasso)</code></pre>
 <p>Access help file for the main fitting function <code>vennLasso()</code> by running:</p>
 <pre class="r"><code>?vennLasso</code></pre>
+<p>Help file for cross validation function <code>cv.vennLasso()</code> can be accessed by running:</p>
+<pre class="r"><code>?cv.vennLasso</code></pre>
+</div>
+<div id="a-quick-example" class="section level2">
+<h2>A Quick Example</h2>
+<p>Simulate heterogeneous data:</p>
+<pre class="r"><code>dat.sim &lt;- genHierSparseData(ncats = 3,  # number of stratifying factors
+                             nvars = 25, # number of variables
+                             nobs = 150, # number of observations per strata
+                             nobs.test = 10000,
+                             hier.sparsity.param = 0.5,
+                             prop.zero.vars = 0.75, # proportion of variables
+                                                   # zero for all strata
+                             snr = 0.5,  # signal-to-noise ratio
+                             family = &quot;gaussian&quot;)
+
+# design matrices
+x        &lt;- dat.sim$x
+x.test   &lt;- dat.sim$x.test
+
+# response vectors
+y        &lt;- dat.sim$y
+y.test   &lt;- dat.sim$y.test
+
+# binary stratifying factors
+grp      &lt;- dat.sim$group.ind
+grp.test &lt;- dat.sim$group.ind.test</code></pre>
+<p>Fit vennLasso model with tuning parameter selected with 5-fold cross validation:</p>
+<pre class="r"><code>fit.adapt &lt;- cv.vennLasso(x, y,
+                          grp,
+                          adaptive.lasso = TRUE,
+                          nlambda        = 50,
+                          family         = &quot;gaussian&quot;,
+                          standardize    = FALSE,
+                          intercept      = TRUE,
+                          nfolds         = 5)</code></pre>
+<p>Predict response for test data:</p>
+<pre class="r"><code>preds.vl &lt;- predict(fit.adapt, x.test, grp.test, s = &quot;lambda.min&quot;,
+                    type = 'response')</code></pre>
+<p>Evaluate mean squared error:</p>
+<pre class="r"><code>mean((y.test - preds.vl) ^ 2)</code></pre>
+<pre><code>## [1] 0.5733229</code></pre>
+<pre class="r"><code>mean((y.test - mean(y.test)) ^ 2)</code></pre>
+<pre><code>## [1] 0.8359014</code></pre>
+<p>Compare with naive model with all interactions between covariates and stratifying binary factors:</p>
+<pre class="r"><code>df.x &lt;- data.frame(y = y, x = x, grp = grp)
+df.x.test &lt;- data.frame(x = x.test, grp = grp.test)
+
+# create formula for interactions between factors and covariates
+form &lt;- paste(&quot;y ~ (&quot;, paste(paste0(&quot;x.&quot;, 1:ncol(x)), collapse = &quot;+&quot;), &quot;)*(grp.1*grp.2*grp.3)&quot; )</code></pre>
+<p>Fit linear model and generate predictions for test set:</p>
+<pre class="r"><code>lmf &lt;- lm(as.formula(form), data = df.x)
+
+preds.lm &lt;- predict(lmf, df.x.test)</code></pre>
+<p>Evaluate mean squared error:</p>
+<pre class="r"><code>mean((y.test - preds.lm) ^ 2)</code></pre>
+<pre><code>## [1] 0.6810668</code></pre>
+<pre class="r"><code>mean((y.test - preds.vl) ^ 2)</code></pre>
+<pre><code>## [1] 0.5733229</code></pre>
 </div>
 </div>
 
