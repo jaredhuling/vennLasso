@@ -143,7 +143,7 @@ bic.idx <- which.min(afit$bic)
 mean(true.coef[afit$beta[,,aic.idx] != 0] >= afit$lower.ci[,,aic.idx][afit$beta[,,aic.idx] != 0] &
      true.coef[afit$beta[,,aic.idx] != 0] <= afit$upper.ci[,,aic.idx][afit$beta[,,aic.idx] != 0])
 
-(covered <- true.coef >= afit$lower.ci[,,aic.idx] & true.coef <= afit$upper.ci[,,aic.idx])
+(covered <- true.coef >= afit$lower.ci[,-1,aic.idx] & true.coef <= afit$upper.ci[,-1,aic.idx])
 mean(covered)
 
 ## effects need to be smaller for logistic regression
