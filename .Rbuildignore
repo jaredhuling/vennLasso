@@ -1,6 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-.html
+^.*\.Rhistory$
 README.html
 README.Rmd
 README_files

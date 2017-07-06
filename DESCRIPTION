@@ -25,7 +25,10 @@ Imports:
     visNetwork,
     igraph,
     methods
-LinkingTo: Rcpp, RcppEigen, RcppNumerical
+LinkingTo: 
+    Rcpp, 
+    RcppEigen, 
+    RcppNumerical
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
