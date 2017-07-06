@@ -44,4 +44,3 @@ fit <- vennLasso(x = x, y = y, groups = conditions)
 logLik(fit)
 
 }
-

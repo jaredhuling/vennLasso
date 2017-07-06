@@ -34,4 +34,3 @@ fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 plotSelections(fit, s = fit$lambda[38], type = "d3.tree")
 
 }
-

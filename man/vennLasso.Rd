@@ -161,4 +161,3 @@ round(bfit$beta[,,37], 2)
 
 
 }
-

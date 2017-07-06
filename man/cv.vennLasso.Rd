@@ -109,4 +109,3 @@ fitted.coef <- predict(bfit$vennLasso.fit, type = "coefficients", s = bfit$lambd
 round(fitted.coef, 2)
 
 }
-

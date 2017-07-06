@@ -37,4 +37,3 @@ predictions or coefficients
 \description{
 Prediction for Hierarchical Shared Lasso
 }
-

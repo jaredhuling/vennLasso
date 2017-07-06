@@ -112,4 +112,3 @@ preds.a <- predict(fit.adapt$vennLasso.fit, x.test, grp.test, s = fit.adapt$lamb
 
 
 }
-

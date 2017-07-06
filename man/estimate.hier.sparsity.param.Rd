@@ -53,4 +53,3 @@ sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp
 # 0.07551241 for hsp6
 
 }
-

@@ -43,4 +43,3 @@ mean(replicate(100, mean(genHierSparseBeta(ncats = 3,
 sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp)
 
 }
-

@@ -58,4 +58,3 @@ plot(fit, which.row = 2)
 plot(fit, which.row = 3)
 
 }
-

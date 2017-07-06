@@ -33,4 +33,3 @@ predictions or coefficients
 \description{
 Prediction for Cross Validation Hierarchical Lasso Object
 }
-
