@@ -273,6 +273,7 @@ public:
 
     virtual double get_loss() { return 1e99; }
     virtual double get_lambda_zero() const { return 0; }
+    virtual int get_nselected(VecTypeBeta &beta_vector) { return 0; }
 
     virtual void update_adaptive_group_weights(Eigen::VectorXd &weights_) {}
     virtual void init(double lambda_, double rho_) {}

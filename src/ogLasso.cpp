@@ -3,6 +3,7 @@
 #define EIGEN_DONT_PARALLELIZE
 
 #include "ADMMogLassoTall.h"
+#include "ADMMogLassoWide.h"
 #include "ADMMogLassoLogisticTall.h"
 #include "ADMMogLassoCoxPHTall.h"
 //#include "ADMMogLassoWide.h"
@@ -173,6 +174,8 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     bool intercept_bin  = intercept;
     bool adaptive_lasso = as<bool>(adaptive_lasso_);
     //bool compute_se     = compute_se_; // not used
+    
+    bool tall_condition = n > 2 * p || p < 2500;
 
 
     const SpMat group(as<MSpMat>(group_));
@@ -233,6 +236,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
     FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> *solver_tall = NULL; // obj doesn't point to anything yet
     FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> *solver_tall_2 = NULL;
+    FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> *solver_wide = NULL; // obj doesn't point to anything yet
     //ADMMogLassoTall *solver_tall;
     //ADMMogLassoWide *solver_wide;
 
@@ -243,7 +247,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     }
 
 
-    if(n > 2 * p || p < 4500)
+    if(tall_condition)
     {
 
         if (family(0) == "gaussian")
@@ -268,14 +272,14 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     }
     else
     {
-        /*
+        
         if (family(0) == "gaussian")
         {
-            solver_wide = new ADMMogLassoTallWide(datX, datY, C, n, p, M, ngroups,
+            solver_wide = new ADMMogLassoWide(datX, datY, C, n, p, M, ngroups,
                                               family, group_weights, group_idx,
                                               dynamic_rho, irls_tol, irls_maxit,
                                               eps_abs, eps_rel);
-        } else if (family(0) == "binomial")
+        } /* else if (family(0) == "binomial")
         {
             solver_wide = new ADMMogLassoLogisticWide(datX, datY, C, n, p, M, ngroups,
                                                       family, group_weights, group_idx,
@@ -289,13 +293,13 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     if(nlambda < 1)
     {
         double lmax = 0.0;
-        if(n > 2 * p || p < 4500)
+        if(tall_condition)
         {
             lmax = solver_tall->get_lambda_zero() / n * datstd.get_scaleY();
         }
         else
         {
-            //lmax = solver_wide->get_lambda_zero() / n * datstd.get_scaleY();
+            lmax = solver_wide->get_lambda_zero() / n * datstd.get_scaleY();
         }
 
         double lmin = as<double>(lambda_min_ratio_) * lmax;
@@ -303,6 +307,8 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
         lambda = lambda.exp();
         nlambda = lambda.size();
     }
+    
+    int nkeep = nlambda;
 
     VectorXd loss(nlambda);
 
@@ -320,7 +326,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
         VectorXd d;
         ilambda = 1e-2 * lambda[nlambda - 1] * n / datstd.get_scaleY();
-        if(n > 2 * p || p < 4500)
+        if(tall_condition)
         {
             if (p <= n)
             {
@@ -483,9 +489,12 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
             group_weights(g) *= ada_wt; // multiply weights by adaptive lasso weights
         }
 
-        if(n > 2 * p || p < 4500)
+        if(tall_condition)
         {
             solver_tall->update_adaptive_group_weights(group_weights);
+        } else 
+        {
+            solver_wide->update_adaptive_group_weights(group_weights);
         }
 
     }
@@ -498,7 +507,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     {
         ilambda = lambda[i] * n / datstd.get_scaleY();
 
-        if(n > 2 * p || p < 4500)
+        if(tall_condition)
         {
             if(i == 0)
                 solver_tall->init(ilambda, rho);
@@ -533,22 +542,46 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
 
 
-        } else {
-            /*
+        } else 
+        {
             if(i == 0)
-            solver_wide->init(ilambda, rho);
+                solver_wide->init(ilambda, rho);
             else
-            solver_wide->init_warm(ilambda);
-
+                solver_wide->init_warm(ilambda);
+            
             niter[i] = solver_wide->solve(maxit);
-            SpVec res = solver_wide->get_x();
-            double beta0 = 0.0;
-            if (!fullbetamat)
+            
+            // get computed beta
+            VectorXd res = solver_wide->get_gamma();
+            
+            double nselected = solver_wide->get_nselected(res);
+            
+            if (nselected <= n || i < 2)
             {
-                datstd.recover(beta0, res);
+                // get associated loss
+                loss(i) = solver_wide->get_loss();
+                
+                
+                double beta0 = 0.0;
+                
+                // if the design matrix includes the intercept
+                // then don't back into the intercept with
+                // datastd and include it to beta directly.
+                if (fullbetamat)
+                {
+                    datstd.recover(beta0, res);
+                    beta.block(0, i, p+1, 1) = res;
+                } else
+                {
+                    datstd.recover(beta0, res);
+                    beta(0,i) = beta0;
+                    beta.block(1, i, p, 1) = res;
+                }
+            } else
+            {
+                nkeep = i;
+                break;
             }
-            write_beta_matrix(beta, i, beta0, res);
-            */
         }
     }
 
@@ -560,15 +593,16 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     VectorXd XY; // XtY
 
     // need to deallocate dynamic object
-    if(n > 2 * p || p < 4500)
+    if(tall_condition)
     {
         XX = solver_tall->get_hessian();
         XY = solver_tall->get_xty();
         delete solver_tall;
-    }
-    else
+    } else 
     {
-        //delete solver_wide;
+        XX = solver_wide->get_hessian();
+        XY = solver_wide->get_xty();
+        delete solver_wide;
     }
 
 
@@ -584,7 +618,8 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                         Named("XtX")              = XX,
                         Named("XtY")              = XY,
                         Named("C")                = C,
-                        Named("group.idx")        = group_idx);
+                        Named("group.idx")        = group_idx,
+                        Named("nkeep")            = nkeep);
 
     END_RCPP
 }

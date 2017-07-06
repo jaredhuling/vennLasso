@@ -228,10 +228,12 @@ vennLasso <- function(x, y,
     if (!one.intercept) vnames <- c("(Intercept)", vnames)
 
 
-    if (family == "binomial" ) {
+    if (family == "binomial" ) 
+    {
         nc=dim(y)
         maxit=as.integer(maxit)
-        if(is.null(nc)){
+        if(is.null(nc))
+        {
             ## Need to construct a y matrix, and include the weights
             yy=as.factor(y)
             ntab=table(yy)
@@ -239,13 +241,15 @@ vennLasso <- function(x, y,
             nc=as.integer(length(ntab))
             #y=diag(nc)[as.numeric(y),]
             rm(yy)
-        } else {
+        } else 
+        {
             noo=nc[1]
             if(noo!=N)stop("x and y have different number of rows in call to glmnet",call.=FALSE)
             nc=as.integer(nc[2])
             classnames=colnames(y)
         }
-    } else {
+    } else 
+    {
         classnames <- NULL
     }
 
@@ -287,7 +291,8 @@ vennLasso <- function(x, y,
     direct.above.idx.list <- above.idx.list <- vector(mode = "list", length = M)
 
 
-    for (c in 1:M) {
+    for (c in 1:M) 
+    {
         indi <- which(combin.mat[c,] == 1)
 
         # get all indices of g terms which are directly above the current var
@@ -296,10 +301,13 @@ vennLasso <- function(x, y,
         # the index for ABC. for none, it will return the indices for
         # A, B, and C, etc
         inner.loop <- (1:(M))[-c]
-        for (j in inner.loop) {
+        for (j in inner.loop) 
+        {
             diffs.tmp <- combin.mat[j,] - combin.mat[c,]
-            if (all( diffs.tmp >= 0 )) {
-                if (sum( diffs.tmp == 1 ) == 1) {
+            if (all( diffs.tmp >= 0 )) 
+            {
+                if (sum( diffs.tmp == 1 ) == 1) 
+                {
                     direct.above.idx.list[[c]] <- c(direct.above.idx.list[[c]], j)
                 }
                 above.idx.list[[c]] <- c(above.idx.list[[c]], j)
@@ -308,7 +316,8 @@ vennLasso <- function(x, y,
         above.idx.list[[c]] <- c(above.idx.list[[c]], c)
     }
     rsc <- rowSums(combin.mat)
-    if (any(rsc == 0)) {
+    if (any(rsc == 0)) 
+    {
         above.idx.list[[which(rsc == 0)]] <- which(rsc == 0)
     }
 
@@ -810,7 +819,8 @@ vennLasso <- function(x, y,
 
     ## place the coefficient results
     ## in an array instead of a long vector
-    for (c in 1:M) {
+    for (c in 1:M) 
+    {
         cur.var.idx <- which(which.not.missing.idx.combin[,c]==1)
         for (l in 1:nlambda) {
             beta.array[c, cur.var.idx, l] <- beta.tmp[1+(col.idx.vec[c]+1):col.idx.vec[c+1],l]

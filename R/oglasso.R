@@ -250,9 +250,8 @@ oglasso <- function(x, y,
 
     if(is.null(lambda.min.ratio))
     {
-        lambda.min.ratio <- ifelse(nrow(x) < ncol(x), 0.01, 0.0001)
+        lambda.min.ratio <- ifelse(nrow(x) < ncol(x), 0.05, 0.0001)
     }
-
 
     gamma       <- as.double(gamma)
     irls.tol    <- as.double(irls.tol)
@@ -309,9 +308,15 @@ oglasso <- function(x, y,
                        intercept,
                        compute.se,
                        opts)
+    
+    fit$beta    <- fit$beta[, 1:fit$nkeep, drop = FALSE]
+    fit$lambda  <- fit$lambda[1:fit$nkeep]
+    fit$loss    <- fit$loss[1:fit$nkeep]
+    fit$niter   <- fit$niter[1:fit$nkeep]
+    fit$nlambda <- fit$nkeep
 
-    fit$family = family
-    fit$call = this.call
+    fit$family  <- family
+    fit$call    <- this.call
     fit
 }
 
