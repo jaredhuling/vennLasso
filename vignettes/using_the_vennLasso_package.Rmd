@@ -15,8 +15,6 @@ vignette: >
 
 # `vennLasso` intro 
 
-[![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
-
 
 ## Installation
 

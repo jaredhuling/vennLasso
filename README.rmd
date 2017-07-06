@@ -3,7 +3,7 @@ output:
     html_document:
         toc: true
         keep_md: true
-        fig_width: 10
+        fig_width: 7
         fig_height: 5
 ---
 
@@ -12,8 +12,11 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "vignettes/readme_figs/")
 ```
 
 
+
 # vennLasso
 Hierarchical variable selection for models stratified on binary factors 
+
+
 
 
 ## Installation and Help Files
@@ -50,6 +53,7 @@ Help file for cross validation function ``cv.vennLasso()`` can be accessed by ru
 Simulate heterogeneous data:
 
 ```{r}
+set.seed(100)
 dat.sim <- genHierSparseData(ncats = 3,  # number of stratifying factors
                              nvars = 25, # number of variables
                              nobs = 150, # number of observations per strata
@@ -74,6 +78,12 @@ grp.test <- dat.sim$group.ind.test
 
 ```
 
+Inspect the populations for each strata:
+
+```{r}
+plotVenn(grp)
+```
+
 Fit vennLasso model with tuning parameter selected with 5-fold cross validation:
 
 ```{r}
@@ -85,6 +95,14 @@ fit.adapt <- cv.vennLasso(x, y,
                           standardize    = FALSE,
                           intercept      = TRUE,
                           nfolds         = 5)
+```
+
+
+Plot selected variables for each strata (not run): 
+
+```{r, eval = FALSE}
+library(igraph)
+plotSelections(fit.adapt)
 ```
 
 Predict response for test data:

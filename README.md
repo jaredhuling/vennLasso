@@ -2,8 +2,11 @@
 
 
 
+
 # vennLasso
 Hierarchical variable selection for models stratified on binary factors 
+
+
 
 
 ## Installation and Help Files
@@ -45,6 +48,7 @@ Simulate heterogeneous data:
 
 
 ```r
+set.seed(100)
 dat.sim <- genHierSparseData(ncats = 3,  # number of stratifying factors
                              nvars = 25, # number of variables
                              nobs = 150, # number of observations per strata
@@ -68,6 +72,15 @@ grp      <- dat.sim$group.ind
 grp.test <- dat.sim$group.ind.test
 ```
 
+Inspect the populations for each strata:
+
+
+```r
+plotVenn(grp)
+```
+
+![](vignettes/readme_figs/unnamed-chunk-6-1.png)<!-- -->
+
 Fit vennLasso model with tuning parameter selected with 5-fold cross validation:
 
 
@@ -80,6 +93,15 @@ fit.adapt <- cv.vennLasso(x, y,
                           standardize    = FALSE,
                           intercept      = TRUE,
                           nfolds         = 5)
+```
+
+
+Plot selected variables for each strata (not run): 
+
+
+```r
+library(igraph)
+plotSelections(fit.adapt)
 ```
 
 Predict response for test data:
@@ -98,7 +120,7 @@ mean((y.test - preds.vl) ^ 2)
 ```
 
 ```
-## [1] 0.5733229
+## [1] 0.6852124
 ```
 
 
@@ -107,7 +129,7 @@ mean((y.test - mean(y.test)) ^ 2)
 ```
 
 ```
-## [1] 0.8359014
+## [1] 1.011026
 ```
 
 
@@ -137,7 +159,7 @@ mean((y.test - preds.lm) ^ 2)
 ```
 
 ```
-## [1] 0.6810668
+## [1] 0.8056107
 ```
 
 ```r
@@ -145,7 +167,7 @@ mean((y.test - preds.vl) ^ 2)
 ```
 
 ```
-## [1] 0.5733229
+## [1] 0.6852124
 ```
 
 

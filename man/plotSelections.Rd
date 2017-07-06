@@ -11,7 +11,7 @@ plotSelections(object, s = NULL, type = c("d3.tree"), ...)
 
 \item{s}{lambda value for the predictions. Only one can be specified at a time}
 
-\item{type}{type of plot to make. Currently only "d3.tree" available}
+\item{type}{type of plot to make. Currently only "d3.tree" and "igraph.tree" available}
 
 \item{...}{other graphical parameters for the plot}
 }

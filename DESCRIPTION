@@ -24,8 +24,7 @@ Imports:
     VennDiagram,
     visNetwork,
     igraph,
-    methods,
-    ggplot2
+    methods
 LinkingTo: Rcpp, RcppEigen, RcppNumerical
 RoxygenNote: 6.0.1
 Suggests: knitr,

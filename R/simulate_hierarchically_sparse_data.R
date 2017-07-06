@@ -51,13 +51,12 @@
 #'
 #'
 #'
-#'
 #' ## complete example:
 #' ## 50% sparsity:
 #' hsp <- 0.2626451
 #'
 #' dat.sim <- genHierSparseData(ncats = 3, nvars = 25,
-#'                              nobs = 250, nobs.test = 10000,
+#'                              nobs = 150, nobs.test = 1000,
 #'                              hier.sparsity.param = hsp,
 #'                              prop.zero.vars = 0.5,
 #'                              effect.size.max = 0.25,
@@ -82,7 +81,7 @@
 #'                                      gamma          = 0.2,
 #'                                      standardize    = FALSE,
 #'                                      intercept      = TRUE,
-#'                                      nfolds         = 5,
+#'                                      nfolds         = 4,
 #'                                      model.matrix   = TRUE)
 #'
 #' preds.a <- predict(fit.adapt$vennLasso.fit, x.test, grp.test, s = fit.adapt$lambda.min,

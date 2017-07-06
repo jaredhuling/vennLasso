@@ -65,7 +65,7 @@ Cross Validation for the vennLasso
 library(Matrix)
 
 set.seed(123)
-n.obs <- 200
+n.obs <- 150
 n.vars <- 25
 
 true.beta.mat <- array(NA, dim = c(3, n.vars))
@@ -86,7 +86,7 @@ conditions <- as.matrix(cbind(c(rep(1, 2 * n.obs), rep(0, n.obs)),
 
 y <- rnorm(n.obs * 3, sd = 3) + drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) \%*\% true.beta)
 
-fit <- cv.vennLasso(x = x, y = y, groups = conditions, nfolds = 5)
+fit <- cv.vennLasso(x = x, y = y, groups = conditions, nfolds = 3)
 
 fitted.coef <- predict(fit$vennLasso.fit, type = "coefficients", s = fit$lambda.min)
 (true.coef <- true.beta.mat[match(dimnames(fit$vennLasso.fit$beta)[[1]], 
@@ -101,7 +101,7 @@ y <- rbinom(n.obs * 3, 1,
        prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) \%*\% true.beta))))
 
 bfit <- cv.vennLasso(x = x, y = y, groups = conditions, family = "binomial",
-                     nfolds = 5)
+                     nfolds = 3)
 
 fitted.coef <- predict(bfit$vennLasso.fit, type = "coefficients", s = bfit$lambda.min)
 (true.coef <- true.beta.mat[match(dimnames(bfit$vennLasso.fit$beta)[[1]], 

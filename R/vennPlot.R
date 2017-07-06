@@ -187,9 +187,14 @@ plotVenn <- function(conditions,
             ...
         )
     }
+    
     if (!exists("out"))
-        out <- "Too many conditions; cannot plot venn diagram"
-    return(out)
+    {
+        return("Too many conditions; cannot plot venn diagram")
+    } else 
+    {
+        return(invisible(out))
+    }
 }
 
 
