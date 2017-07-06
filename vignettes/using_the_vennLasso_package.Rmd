@@ -1,0 +1,38 @@
+---
+title: "Using the vennLasso Package"
+author: "Jared Huling"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        toc: true
+        fig_width: 7
+        fig_height: 4
+vignette: >
+  %\VignetteIndexEntry{Using the vennLasso Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# `vennLasso` intro 
+
+[![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
+
+
+## Installation
+
+
+Install `vennLasso` from GitHub:
+
+```{r, eval = FALSE}
+install.packages("devtools")
+devtools::install_github("jaredhuling/vennLasso")
+```
+
+Load the **vennLasso** package:
+```{r, warning=FALSE, message=FALSE}
+library(vennLasso)
+```
+
+
+
+

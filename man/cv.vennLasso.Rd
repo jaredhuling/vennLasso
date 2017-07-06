@@ -86,7 +86,7 @@ conditions <- as.matrix(cbind(c(rep(1, 2 * n.obs), rep(0, n.obs)),
 
 y <- rnorm(n.obs * 3, sd = 3) + drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) \%*\% true.beta)
 
-fit <- cv.vennLasso(x = x, y = y, groups = conditions)
+fit <- cv.vennLasso(x = x, y = y, groups = conditions, nfolds = 5)
 
 fitted.coef <- predict(fit$vennLasso.fit, type = "coefficients", s = fit$lambda.min)
 (true.coef <- true.beta.mat[match(dimnames(fit$vennLasso.fit$beta)[[1]], 

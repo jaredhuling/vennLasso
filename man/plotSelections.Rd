@@ -21,16 +21,11 @@ plotting function to investigate hierarchical structure of selection
 \examples{
 set.seed(123)
 
-dat.sim <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200)
+dat.sim <- genHierSparseData(ncats = 3, nvars = 25, nobs = 200)
 
 fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 
 plotSelections(fit, s = fit$lambda[35])
 
-dat.sim <- genHierSparseData(ncats = 4, nvars = 50, nobs = 200)
-
-fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
-
-plotSelections(fit, s = fit$lambda[38], type = "d3.tree")
 
 }

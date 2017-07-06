@@ -56,7 +56,7 @@
 #' ## 50% sparsity:
 #' hsp <- 0.2626451
 #'
-#' dat.sim <- genHierSparseData(ncats = 3, nvars = 50,
+#' dat.sim <- genHierSparseData(ncats = 3, nvars = 25,
 #'                              nobs = 250, nobs.test = 10000,
 #'                              hier.sparsity.param = hsp,
 #'                              prop.zero.vars = 0.5,

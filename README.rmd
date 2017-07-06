@@ -1,5 +1,15 @@
+---
+output: 
+    html_document:
+        toc: true
+        keep_md: true
+        fig_width: 10
+        fig_height: 5
+---
 
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "vignettes/readme_figs/")
+```
 
 
 # vennLasso
@@ -11,8 +21,7 @@ Hierarchical variable selection for models stratified on binary factors
 
 Install using the **devtools** package:
 
-
-```r
+```{r, eval = FALSE}
 devtools::install_github("jaredhuling/vennLasso")
 ```
 
@@ -20,15 +29,13 @@ devtools::install_github("jaredhuling/vennLasso")
 or by cloning and building.
 
 Load the **vennLasso** package:
-
-```r
+```{r, warning=FALSE, message=FALSE}
 library(vennLasso)
 ```
 
 Access help file for the main fitting function ``vennLasso()`` by running:
 
-
-```r
+```{r, eval = FALSE}
 ?vennLasso
 ```
 

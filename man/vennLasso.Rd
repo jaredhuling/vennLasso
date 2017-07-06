@@ -103,7 +103,7 @@ library(Matrix)
 
 set.seed(123)
 n.obs <- 200
-n.vars <- 50
+n.vars <- 25
 
 true.beta.mat <- array(NA, dim = c(3, n.vars))
 true.beta.mat[1,] <- c(-0.5, -1, 0, 0, 2, rep(0, n.vars - 5))
