@@ -102,7 +102,7 @@ An object with S3 class "oglasso"
 Overlapping Group Lasso (OGLasso)
 }
 \examples{
-n.obs <- 1e4
+n.obs <- 1e3
 n.vars <- 50
 
 true.beta <- c(rep(0,2), 1, -1, rep(0, 8), 0.5, -0.5, 1, rep(0, 35))
