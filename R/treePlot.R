@@ -299,8 +299,6 @@ plotSelections <- function(object, s = NULL,
         #         shadow.size = 0, box.size = box.size, box.cex = 0.9, cex = 0.9)
     }
 
-
-
 }
 
 
