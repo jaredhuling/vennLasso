@@ -275,7 +275,7 @@ public:
               group_weights(group_weights_),
               family(family_),
               group_idx(group_idx_),
-              lambda0((XY-1/2*datX.transpose().rowwise().sum()).cwiseAbs().maxCoeff())
+              lambda0((XY - 0.5 * datX.transpose().rowwise().sum()).cwiseAbs().maxCoeff())
     { }
 
     double get_lambda_zero() const { return lambda0; }
@@ -301,7 +301,7 @@ public:
         // each variable is in a group
         for (int k=0; k < CCol.outerSize(); ++k)
         {
-            double tmp_val = 0;
+            double tmp_val = 0.0;
             for (SparseMatrix<double>::InnerIterator it(CCol,k); it; ++it)
             {
                 tmp_val += it.value();
@@ -530,6 +530,20 @@ public:
     virtual VectorXd get_xty()
     {
         return XY;
+    }
+    
+    virtual int get_nselected(VectorXd &beta_vector)
+    {
+        int len = beta_vector.size();
+        int nselected = 0;
+        for (int j = 0; j < len; ++j)
+        {
+            if (beta_vector(j) != 0)
+            {
+                nselected++;    
+            }
+        }
+        return nselected;
     }
 
 };

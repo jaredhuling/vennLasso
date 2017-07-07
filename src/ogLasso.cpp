@@ -5,6 +5,7 @@
 #include "ADMMogLassoTall.h"
 #include "ADMMogLassoWide.h"
 #include "ADMMogLassoLogisticTall.h"
+#include "ADMMogLassoLogisticWide.h"
 #include "ADMMogLassoCoxPHTall.h"
 //#include "ADMMogLassoWide.h"
 #include "DataStd.h"
@@ -49,7 +50,6 @@ inline void write_beta_matrix(SpMat &betas, int col, double beta0, SpVec &coef)
         betas.insert(iter.index() + 1, col) = iter.value();
     }
 }
-
 
 
 
@@ -175,6 +175,8 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     bool adaptive_lasso = as<bool>(adaptive_lasso_);
     //bool compute_se     = compute_se_; // not used
     
+    // only use wide version of solver if 
+    // p >> n and p is very large
     bool tall_condition = n > 2 * p || p < 2500;
 
 
@@ -279,14 +281,14 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                                               family, group_weights, group_idx,
                                               dynamic_rho, irls_tol, irls_maxit,
                                               eps_abs, eps_rel);
-        } /* else if (family(0) == "binomial")
+        } else if (family(0) == "binomial")
         {
-            solver_wide = new ADMMogLassoLogisticWide(datX, datY, C, n, p, M, ngroups,
+            solver_wide = new ADMMogLassoLogisticWide(datX, datY, C, n, p + add, M, ngroups,
                                                       family, group_weights, group_idx,
                                                       dynamic_rho, irls_tol, irls_maxit,
                                                       eps_abs, eps_rel);
         }
-         */
+         
     }
 
 
@@ -518,30 +520,36 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
             // get computed beta
             VectorXd res = solver_tall->get_gamma();
-
-            // get associated loss
-            loss(i) = solver_tall->get_loss();
-
-
-
-            double beta0 = 0.0;
-
-            // if the design matrix includes the intercept
-            // then don't back into the intercept with
-            // datastd and include it to beta directly.
-            if (fullbetamat)
+            
+            double nselected = solver_tall->get_nselected(res);
+            
+            if (nselected <= n || i < 2)
             {
-                datstd.recover(beta0, res);
-                beta.block(0, i, p+1, 1) = res;
+                // get associated loss
+                loss(i) = solver_tall->get_loss();
+                
+                
+                double beta0 = 0.0;
+                
+                // if the design matrix includes the intercept
+                // then don't back into the intercept with
+                // datastd and include it to beta directly.
+                if (fullbetamat)
+                {
+                    datstd.recover(beta0, res);
+                    beta.block(0, i, p+1, 1) = res;
+                } else
+                {
+                    datstd.recover(beta0, res);
+                    beta(0,i) = beta0;
+                    beta.block(1, i, p, 1) = res;
+                }
             } else
             {
-                datstd.recover(beta0, res);
-                beta(0,i) = beta0;
-                beta.block(1, i, p, 1) = res;
+                nkeep = i;
+                break;
             }
-
-
-
+            
         } else 
         {
             if(i == 0)

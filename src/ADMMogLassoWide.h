@@ -239,6 +239,7 @@ public:
               XX(XXt(datX)),
               CCol(Eigen::SparseMatrix<double>(M_, nvars_)),
               CC(nvars_),
+              CC_inv(nvars_),
               Cbeta(C_.rows()),
               group_weights(group_weights_),
               family(family_),
@@ -272,7 +273,7 @@ public:
         // each variable is in a group
         for (int k=0; k < CCol.outerSize(); ++k)
         {
-            double tmp_val = 0;
+            double tmp_val = 0.0;
             for (SparseMatrix<double>::InnerIterator it(CCol,k); it; ++it)
             {
                 tmp_val += it.value();
@@ -349,7 +350,7 @@ public:
 
         if (rho_unspecified)
         {
-            float lam_fact = lambda;
+            //float lam_fact = lambda;
             //rho = std::pow(evals[0], 1.0 / 3) * std::pow(lambda, 2.0 / 3);
 
             /*

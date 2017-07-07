@@ -1,5 +1,5 @@
-#ifndef ADMMOGLASSOTALL_H
-#define ADMMOGLASSOTALL_H
+#ifndef ADMMOGLASSOLOGISTICWIDE_H
+#define ADMMOGLASSOLOGISTICWIDE_H
 
 #include "FADMMBase.h"
 #include "Linalg/BlasWrapper.h"
@@ -9,8 +9,6 @@
 
 using Rcpp::IntegerVector;
 using Rcpp::CharacterVector;
-
-
 
 // minimize  1/2 * ||y - X * beta||^2 + lambda * ||beta||_1
 //
@@ -24,7 +22,7 @@ using Rcpp::CharacterVector;
 // b => y
 // f(x) => 1/2 * ||Ax - b||^2
 // g(z) => lambda * ||z||_1
-class ADMMogLassoTall: public FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
+class ADMMogLassoLogisticWide: public FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
 {
 protected:
     typedef float Scalar;
@@ -52,28 +50,31 @@ protected:
     int M;                    // length of nu (total size of all groups)
     int ngroups;              // number of groups
 
-
     Vector XY;                    // X'Y
     MatrixXd XX;                  // X'X
+    MatrixXd XCCinvXt;            // X(C'C)^(-1)X'
+    MatrixXd XXprime;             // XX'
     SparseMatrix<double,Eigen::ColMajor> CCol;
     VectorXd CC;                  // C'C diagonal
+    VectorXd CC_inv;              // (C'C)^(-1) diagonal
     VectorXd Cbeta;               // C * beta
-    VectorXd group_weights;       // group weight multipliers
-    CharacterVector family;       // model family (gaussian, binomial, or Cox PH)
-    IntegerVector group_idx;      // indices of groups
 
 
     double newton_tol;            // tolerance for newton iterations
     int newton_maxit;             // max # iterations for newton-raphson
     bool dynamic_rho;
+    VectorXd group_weights;       // group weight multipliers
+    CharacterVector family;       // model family (gaussian, binomial, or Cox PH)
+    IntegerVector group_idx;      // indices of groups
 
     Scalar lambda0;               // minimum lambda to make coefficients all zero
 
-    double avg_group_weights;
     VectorXd savedEigs;           // saved eigenvalues
-    LLT solver;                   // matrix factorization
     Scalar lambda;                // L1 penalty
+    LLT solver;                   // matrix factorization
     bool rho_unspecified;         // was rho unspecified? if so, we must set it
+    VectorXd W;                   // weight vector (prob * (1 - prob))
+    VectorXd prob;                // prob vector ( = 1 / (1 + exp(-x * b)))
 
     //Eigen::DiagonalMatrix<double, Eigen::Dynamic> one_over_D_diag; // diag(1/D)
 
@@ -135,10 +136,15 @@ protected:
 
     void next_beta(Vector &res)
     {
-        Vector rhs = XY - CCol.adjoint() * adj_nu;
-        rhs += rho * (CCol.adjoint() * adj_gamma);
-
-        res.noalias() = solver.solve(rhs);
+        Vector rhs2 = XY - CCol.adjoint() * adj_nu;
+        rhs2 += rho * (CCol.adjoint() * adj_gamma);
+        
+        Vector rhs = W.array() * ( datX * (rhs2.array() * CC_inv.array().square()).matrix() ).array();
+        
+        res.noalias() = datX.adjoint() * solver.solve(rhs);
+        
+        res.array() /= (-1.0 * rho * rho);
+        res.array() += (rhs2.array() * CC_inv.array()) / rho;
     }
 
     virtual void next_gamma(Vector &res)
@@ -147,14 +153,59 @@ protected:
         Vector vec = Cbeta + adj_nu / rho;
         block_soft_threshold(res, vec, lambda, 1/rho);
     }
-
     void next_residual(Vector &res)
     {
         res = Cbeta;
         res -= aux_gamma;
     }
-    void rho_changed_action() {}
+
+    void rho_changed_action()
+    {
+        const double one(1.0);
+        
+        MatrixXd matToSolve(W.asDiagonal() * XCCinvXt); 
+        matToSolve.array() /= rho;
+        matToSolve.diagonal().array() += one;
+
+        // precompute LLT decomposition of (I + (1 / rho) * W * X * (D'D)^(-1)X')
+        solver.compute(matToSolve.selfadjointView<Eigen::Lower>());
+    }
+    
     void update_rho() {}
+
+    void compute_rho()
+    {
+        if (rho_unspecified)
+        {
+            MatOpSymLower<Double> op(XX);
+            //Spectra::SymEigsSolver< Double, Spectra::LARGEST_ALGE, MatOpSymLower<Double> > eigs(&op, 1, 3);
+            Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
+            // srand(0);
+            eigs.init();
+            eigs.compute(1000, 0.01);
+            Vector evals = eigs.eigenvalues();
+            savedEigs = evals;
+
+            // float lam_fact = lambda;
+            rho = std::pow(evals[0], 1.0 / 3.0) * std::pow(lambda, 2.0 / 3.0);
+            
+            // an old way of computing rho.
+            // the old way seems to be inferior.
+            /*
+            if (lam_fact < savedEigs[1])
+            {
+                rho = std::sqrt(savedEigs[1] * std::pow(lam_fact * 4, 1.35));
+            } else if (lam_fact * 0.25 > savedEigs[0])
+            {
+                rho = std::sqrt(savedEigs[1] * std::pow(lam_fact * 0.25, 1.35));
+            } else
+            {
+                rho = std::pow(lam_fact, 1.05);
+            }
+             */
+
+        }
+    }
 
 
 
@@ -206,19 +257,19 @@ protected:
 
 
 public:
-    ADMMogLassoTall(ConstGenericMatrix &datX_,
-                     ConstGenericVector &datY_,
-                     const SpMatR &C_,// const VectorXd &D_,
-                     int nobs_, int nvars_, int M_,
-                     int ngroups_,
-                     Rcpp::CharacterVector family_,
-                     VectorXd group_weights_,
-                     Rcpp::IntegerVector group_idx_,
-                     bool dynamic_rho_,
-                     double newton_tol_ = 1e-5,
-                     int newton_maxit_ = 100,
-                     double eps_abs_ = 1e-6,
-                     double eps_rel_ = 1e-6) :
+    ADMMogLassoLogisticWide(ConstGenericMatrix &datX_,
+                            ConstGenericVector &datY_,
+                            const SpMatR &C_,// const VectorXd &D_,
+                            int nobs_, int nvars_, int M_,
+                            int ngroups_,
+                            Rcpp::CharacterVector family_,
+                            VectorXd group_weights_,
+                            Rcpp::IntegerVector group_idx_,
+                            bool dynamic_rho_,
+                            double newton_tol_ = 1e-5,
+                            int newton_maxit_ = 100,
+                            double eps_abs_ = 1e-6,
+                            double eps_rel_ = 1e-6) :
     FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
              (datX_.cols(), C_.rows(), C_.rows(),
               eps_abs_, eps_rel_),
@@ -230,17 +281,20 @@ public:
               M(M_),
               ngroups(ngroups_),
               XY(datX.transpose() * datY),
-              XX(XtX(datX)),
+              XX(datX_.rows(), datX_.rows()),
+              XCCinvXt(datX_.rows(), datX_.rows()),
+              XXprime(datX_.rows(), datX_.rows()),
               CCol(Eigen::SparseMatrix<double>(M_, nvars_)),
               CC(nvars_),
+              CC_inv(nvars_),
               Cbeta(C_.rows()),
-              group_weights(group_weights_),
-              family(family_),
-              group_idx(group_idx_),
               newton_tol(newton_tol_),
               newton_maxit(newton_maxit_),
               dynamic_rho(dynamic_rho_),
-              lambda0(XY.cwiseAbs().maxCoeff())
+              group_weights(group_weights_),
+              family(family_),
+              group_idx(group_idx_),
+              lambda0((XY - 0.5 * datX.transpose().rowwise().sum()).cwiseAbs().maxCoeff())
     { }
 
     double get_lambda_zero() const { return lambda0; }
@@ -273,50 +327,17 @@ public:
             }
             CC(k) = tmp_val;
         }
+        
+        CC_inv = 1.0 / CC.array();
+        
+        // pre-compute compute X(C'C)^(-1)X'
+        XCCinvXt = XWXt(datX, CC_inv);
+        XXprime  = XXt(datX);
+        
+        // if rho is negative, set a flag so 
+        // we know to compute a value for rho
+        rho_unspecified = rho <= 0;
 
-        //Linalg::cross_prod_lower(XX, datX);
-
-        avg_group_weights = group_weights.mean();
-
-        if(rho <= 0)
-        {
-            rho_unspecified = true;
-            MatOpSymLower<Double> op(XX);
-            //Spectra::SymEigsSolver< Double, Spectra::LARGEST_ALGE, MatOpSymLower<Double> > eigs(&op, 1, 3);
-            Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
-            // srand(0);
-            eigs.init();
-            eigs.compute(1000, 0.01);
-            Vector evals = eigs.eigenvalues();
-            savedEigs = evals;
-
-            double lam_fact = lambda;
-            //rho = std::pow(evals[0], 1.0 / 3.0) * std::pow(lambda, 2.0 / 3.0);
-
-            /*
-            if (lam_fact < savedEigs[1])
-            {
-                rho = std::sqrt(savedEigs[1] * std::pow(lam_fact * 4, 1.35));
-            } else if (lam_fact * 0.25 > savedEigs[0])
-            {
-                rho = std::sqrt(savedEigs[1] * std::pow(lam_fact * 0.25, 1.35));
-            } else
-            {
-                rho = std::pow(lam_fact, 1.05);
-            }*/
-
-            rho = std::pow(savedEigs[0], 0.333333) * std::pow(lam_fact, 0.666666);
-        } else {
-            rho_unspecified = false;
-        }
-
-        //XX.diagonal().array() += rho;
-
-        MatrixXd matToSolve(XX);
-        matToSolve.diagonal() += rho * CC;
-
-        // precompute LLT decomposition of (X'X + rho * D'D)
-        solver.compute(matToSolve.selfadjointView<Eigen::Lower>());
 
         eps_primal = 0.0;
         eps_dual = 0.0;
@@ -326,42 +347,12 @@ public:
         adj_a = 1.0;
         adj_c = 1e30;
 
-
-
-        rho_changed_action();
     }
     // when computing for the next lambda, we can use the
     // current main_beta, aux_gamma, dual_nu and rho as initial values
     void init_warm(double lambda_)
     {
         lambda = lambda_;
-
-        if (rho_unspecified)
-        {
-            float lam_fact = lambda;
-            //rho = std::pow(evals[0], 1.0 / 3) * std::pow(lambda, 2.0 / 3);
-
-            /*
-            if (lam_fact < savedEigs[1])
-            {
-                rho = std::sqrt(savedEigs[1] * std::pow(lam_fact * 4, 1.35));
-            } else if (lam_fact * 0.25 > savedEigs[0])
-            {
-                rho = std::sqrt(savedEigs[1] * std::pow(lam_fact * 0.25, 1.35));
-            } else
-            {
-                rho = std::pow(lam_fact, 1.05);
-            }
-             */
-
-            rho = std::pow(savedEigs[0], 0.333333) * std::pow(lam_fact, 0.666666);
-
-        }
-        MatrixXd matToSolve(XX);
-        matToSolve.diagonal() += rho * CC;
-
-        // precompute LLT decomposition of (X'X + rho * C'C)
-        solver.compute(matToSolve.selfadjointView<Eigen::Lower>());
 
         eps_primal = 0.0;
         eps_dual = 0.0;
@@ -370,19 +361,9 @@ public:
 
         // adj_a = 1.0;
         // adj_c = 9999;
-        rho_changed_action();
     }
 
-    virtual double get_loss()
-    {
-        double loss;
-        loss = (datY - datX * main_beta).array().square().sum();
-        return loss;
-    }
-
-    // this function actually returns beta
-    virtual VectorXd get_gamma()
-    {
+    virtual VectorXd get_gamma() {
         VectorXd beta_return(nvars);
         for (int k=0; k < CCol.outerSize(); ++k)
         {
@@ -409,6 +390,157 @@ public:
         return beta_return;
     }
 
+    virtual double get_loss()
+    {
+        double loss = 0;
+
+        // compute logistic loss
+        for (int ii = 0; ii < nobs; ++ii)
+        {
+            if (datY(ii) == 1)
+            {
+                if (prob(ii) > 1e-5)
+                {
+                    loss += std::log(1 / prob(ii));
+                } else
+                {
+                    // don't divide by zero
+                    loss += std::log(1 / 1e-5);
+                }
+
+            } else
+            {
+                if (prob(ii) <= 1 - 1e-5)
+                {
+                    loss += std::log(1 / (1 - prob(ii)));
+                } else
+                {
+                    // don't divide by zero
+                    loss += std::log(1 / 1e-5);
+                }
+
+            }
+        }
+        return loss;
+    }
+
+    virtual int solve(int maxit)
+    {
+
+        VectorXd beta_prev;
+
+
+        int i;
+        int j;
+        for (i = 0; i < newton_maxit; ++i)
+        {
+
+            
+            //VectorXd grad;
+
+            beta_prev = main_beta;
+
+            // calculate gradient
+            prob = 1 / (1 + (-1 * (datX * main_beta).array()).exp().array());
+
+
+            // calculate Jacobian
+            W = prob.array() * (1 - prob.array());
+
+            // make sure no weights are too small
+            for (int kk = 0; kk < W.size(); ++kk)
+            {
+                if (W(kk) < 1e-5)
+                {
+                    W(kk) = 1e-5;
+                }
+            }
+
+            // compute WXX'
+            XX = W.asDiagonal() * XXprime;
+
+            // compute X'Wz
+            // commented out code below is for tall case. keeping
+            // here for instructive purposes.
+            // grad = datX.adjoint() * (datY.array() - prob.array()).matrix();
+            // XY = XX * main_beta + grad;
+            XY = datX.adjoint() * (W.array() * (datX * main_beta).array() + 
+                                   datY.array() - prob.array()).matrix();
+
+            // compute rho after X'WX is computed
+            compute_rho();
+
+            // reset LDLT solver with new XX
+            rho_changed_action();
+
+
+            if (i > 0)
+            {
+                // reset values that need to be reset
+                // for ADMM
+                // and keep lambda the same
+                init_warm(lambda);
+            }
+
+            for(j = 0; j < maxit; ++j)
+            {
+                old_gamma = aux_gamma;
+                // old_nu = dual_nu;
+                std::copy(dual_nu.data(), dual_nu.data() + dim_dual, old_nu.data());
+
+                update_beta();
+                update_gamma();
+                update_nu();
+
+                // print_row(i);
+
+                if(converged())
+                    break;
+
+                double old_c = adj_c;
+                adj_c = compute_resid_combined();
+
+                if(adj_c < 0.999 * old_c)
+                {
+                    double old_a = adj_a;
+                    adj_a = 0.5 + 0.5 * std::sqrt(1 + 4.0 * old_a * old_a);
+                    double ratio = (old_a - 1.0) / adj_a;
+                    adj_gamma = (1 + ratio) * aux_gamma - ratio * old_gamma;
+                    adj_nu.noalias() = (1 + ratio) * dual_nu - ratio * old_nu;
+                } else 
+                {
+                    adj_a = 1.0;
+                    adj_gamma = old_gamma;
+                    // adj_nu = old_nu;
+                    std::copy(old_nu.data(), old_nu.data() + dim_dual, adj_nu.data());
+                    adj_c = old_c / 0.999;
+                }
+                // only update rho after a few iterations and after every 40 iterations.
+                // too many updates makes it slow.
+                if(i > 5 && i % 2500 == 0)
+                    update_rho();
+            }
+
+            //VectorXd dx = beta_prev - main_beta;
+            //if (std::abs(XY.adjoint() * dx) < newton_tol)
+            if (stopRule(main_beta, beta_prev, newton_tol))
+            {
+                //std::cout << "iters:\n" << i+1 << std::endl;
+                break;
+            }
+
+        }
+        // print_footer();
+        
+        if (i > newton_maxit)
+        {
+            return newton_maxit;
+        } else 
+        {
+            return i + 1;
+        }
+    }
+
     // this function returns gamma
     virtual VectorXd get_aux_gamma()
     {
@@ -420,6 +552,7 @@ public:
         group_weights = weights_;
     }
 
+    // this function returns XTX or XTWX
     virtual MatrixXd get_hessian()
     {
         return XX;
@@ -448,4 +581,4 @@ public:
 
 
 
-#endif // ADMMOGLASSOTALL_H
+#endif // ADMMOGLASSOLOGISTICWIDE_H
