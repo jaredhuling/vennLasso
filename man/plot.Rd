@@ -4,13 +4,13 @@
 \alias{plot.vennLasso}
 \title{Prediction method for vennLasso fitted objects}
 \usage{
-\method{plot}{vennLasso}(x, which.row = 1, xvar = c("norm", "lambda",
+\method{plot}{vennLasso}(x, which.subpop = 1, xvar = c("norm", "lambda",
   "loglambda", "dev"), xlab = iname, ylab = "Coefficients", ...)
 }
 \arguments{
 \item{x}{fitted "vennLasso" model object}
 
-\item{which.row}{which row in the coefficient matrix should be plotting? Each row corresponds to
+\item{which.subpop}{which row in the coefficient matrix should be plotting? Each row corresponds to
 a particular combination of the specified stratifying variables}
 
 \item{xvar}{What is on the X-axis. "norm" plots against the L1-norm of the coefficients, "lambda" against the log-lambda sequence, and "dev"
@@ -53,8 +53,8 @@ y <- rnorm(n.obs * 3, sd = 3) + drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) \%
 fit <- vennLasso(x = x, y = y, groups = conditions)
 
 layout(matrix(1:3, ncol = 3))
-plot(fit, which.row = 1)
-plot(fit, which.row = 2)
-plot(fit, which.row = 3)
+plot(fit, which.subpop = 1)
+plot(fit, which.subpop = 2)
+plot(fit, which.subpop = 3)
 
 }

@@ -2,7 +2,7 @@
 #' Prediction method for vennLasso fitted objects
 #' 
 #' @param x fitted "vennLasso" model object
-#' @param which.row which row in the coefficient matrix should be plotting? Each row corresponds to
+#' @param which.subpop which row in the coefficient matrix should be plotting? Each row corresponds to
 #' a particular combination of the specified stratifying variables
 #' @param xvar What is on the X-axis. "norm" plots against the L1-norm of the coefficients, "lambda" against the log-lambda sequence, and "dev"
 #' against the percent deviance explained.
@@ -41,25 +41,25 @@
 #' fit <- vennLasso(x = x, y = y, groups = conditions)
 #'
 #' layout(matrix(1:3, ncol = 3))
-#' plot(fit, which.row = 1)
-#' plot(fit, which.row = 2)
-#' plot(fit, which.row = 3)
+#' plot(fit, which.subpop = 1)
+#' plot(fit, which.subpop = 2)
+#' plot(fit, which.subpop = 3)
 #'
-plot.vennLasso <- function(x, which.row = 1,
+plot.vennLasso <- function(x, which.subpop = 1,
                            xvar = c("norm", "lambda", "loglambda", "dev"),
                            xlab = iname, ylab = "Coefficients",
                            ...)
 {
     num.condition.combinations <- dim(x$beta)[1]
-    if (which.row > num.condition.combinations)
+    if (which.subpop > num.condition.combinations)
     {
-        err.txt <- paste0("Row ", which.row, " specified, but only ",
+        err.txt <- paste0("Row ", which.subpop, " specified, but only ",
                           num.condition.combinations,
                           " condition combinations present in the model.")
         stop(err.txt)
     }
     xvar <- match.arg(xvar)
-    nbeta <- as.matrix(x$beta[which.row,,])
+    nbeta <- as.matrix(x$beta[which.subpop,,])
     switch(xvar,
            "norm" = {
                index <- apply(abs(nbeta), 2, sum)
@@ -85,7 +85,7 @@ plot.vennLasso <- function(x, which.row = 1,
     rn <- rownames(x$beta)
     if (!is.null(rn))
     {
-        main.txt <- rn[which.row]
+        main.txt <- rn[which.subpop]
     } else
     {
         main.txt <- ""
