@@ -7,7 +7,9 @@ r_check_args: --as-cran --compact-vignettes=both
 
 r_build_args: --compact-vignettes=both
 
-
+before_install:
+  - tlmgr install tikx sansmath
+  
 warnings_are_errors: true
 
 sudo: false
