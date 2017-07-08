@@ -1,7 +1,7 @@
 
 
 
-
+[![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
 
 # vennLasso
 Hierarchical variable selection for models stratified on binary factors 
