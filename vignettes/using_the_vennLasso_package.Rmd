@@ -297,6 +297,7 @@ The estimated coefficients are stored in a 3-dimensional array. The first dimens
 ```{r lookatcoefs}
 round(fit1$beta[,1:10,35], 3)
 ```
+Each row is labeled based on which binary factors are present for each subpopulation. For example the row labeled '0,1,0' is the vector of estimated coefficients for the subpopulation defined by those who have only the second binary factor, the row labeled '1,1,0' is the coefficients for the subpopulation of those with the first and second binary factor but not the third, and so on.
 
 Now compare the estimated coefficients above with the true coefficients that generated the data (the true intercepts are all zero):
 ```{r truecoefs}
@@ -308,6 +309,7 @@ The coefficient paths for each subpopulation can be plotted by using the `plot()
 layout(matrix(1:9, ncol = 3))
 for (i in 1:nrow(fit1$beta)) plot(fit1, which.subpop = i, xvar = "loglambda")
 ```
+
 
 Typical for penalized regression methods, the tunining parameter must be selected. The `cv.vennLasso()` function provides a routine to select the tuning parameter via $k$-fold cross validation. In the following example we use 5-fold cross validation:
 ```{r cvvennlasso}
@@ -330,5 +332,17 @@ mean((y.test - mean(y.test)) ^ 2)
 ```
 
 
+## Confidence Intervals Using the Adaptive Lasso
 
+```{r fitmodel_confint}
+fit2 <- vennLasso(x = x, y = y, groups = grp, 
+                  adaptive.lasso = TRUE,
+                  gamma = 1,
+                  conf.int = 0.90)   # specify the confidence level (90% here) for CIs
+```
+
+```{r lookatcis}
+round(fit2$lower.ci[,7:11,35], 3)
+round(fit2$upper.ci[,7:11,35], 3)
+```
 

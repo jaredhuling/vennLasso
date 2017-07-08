@@ -3,7 +3,10 @@ cache: packages
 r:
   - release
 
-r_check_args: --as-cran
+r_check_args: --as-cran --compact-vignettes=both
+
+r_build_args: --compact-vignettes=both
+
 
 warnings_are_errors: true
 

@@ -100,7 +100,7 @@ fit.adapt <- cv.vennLasso(x, y,
 
 Plot selected variables for each strata (not run): 
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 library(igraph)
 plotSelections(fit.adapt)
 ```
