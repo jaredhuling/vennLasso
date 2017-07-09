@@ -57,7 +57,7 @@
       <h1>Using the vennLasso Package</h1>
                         <h4 class="author">Jared Huling</h4>
             
-            <h4 class="date">2017-07-07</h4>
+            <h4 class="date">2017-07-09</h4>
           </div>
 
     
@@ -181,11 +181,17 @@ for (i in <span class="dv">1</span>:<span class="kw">nrow</span>(fit1$beta)) <sp
 Coefficient paths for each subpopulation. The subpopulation denoted by ‘0,1,1’ is the subpopulation of samples who have the second and third binary factor but not the first, the ‘0,1,0’ subpopulation is the subpopulation of those who have only the second binary factor, and so on.
 </p>
 </div>
+<div id="cross-validation-for-tuning-parameter-selection" class="section level3">
+<h3 class="hasAnchor">
+<a href="#cross-validation-for-tuning-parameter-selection" class="anchor"></a>Cross Validation for Tuning Parameter Selection</h3>
 <p>Typical for penalized regression methods, the tunining parameter must be selected. The <code><a href="../reference/cv.vennLasso.html">cv.vennLasso()</a></code> function provides a routine to select the tuning parameter via <span class="math inline">\(k\)</span>-fold cross validation. In the following example we use 5-fold cross validation:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cvfit1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cv.vennLasso.html">cv.vennLasso</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">groups =</span> grp, <span class="dt">adaptive.lasso =</span> <span class="ot">TRUE</span>, <span class="dt">nfolds =</span> <span class="dv">5</span>)</code></pre></div>
 <p>The tuning parameter which minimizes the cross validation error can be accessed via:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cvfit1$lambda.min</code></pre></div>
 <pre><code>## [1] 0.001470784</code></pre>
+<p>The curve and standard errors of the cross validation error can be plotted by using the <code>plot()</code> function on a fitted <code>cv.vennLasso</code> object:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(cvfit1)</code></pre></div>
+<p><img src="using_the_vennLasso_package_files/figure-html/plotcv-1.png" width="672"></p>
 <p>We can then use the model with the minimum cross validation error to generate predictions for the test set. Note that in addition to the design matrix, we must also provide the stratifying factors for the test set.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">preds &lt;-<span class="st"> </span><span class="kw">predict</span>(cvfit1, 
                  <span class="dt">newx =</span> x.test, 
@@ -196,9 +202,9 @@ Coefficient paths for each subpopulation. The subpopulation denoted by ‘0,1,1�
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>((y.test -<span class="st"> </span><span class="kw">mean</span>(y.test)) ^<span class="st"> </span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## [1] 1.683741</code></pre>
 </div>
-<div id="confidence-intervals-using-the-adaptive-lasso" class="section level2">
-<h2 class="hasAnchor">
-<a href="#confidence-intervals-using-the-adaptive-lasso" class="anchor"></a>Confidence Intervals Using the Adaptive Lasso</h2>
+<div id="confidence-intervals-using-the-adaptive-lasso" class="section level3">
+<h3 class="hasAnchor">
+<a href="#confidence-intervals-using-the-adaptive-lasso" class="anchor"></a>Confidence Intervals Using the Adaptive Lasso</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/vennLasso.html">vennLasso</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">groups =</span> grp, 
                   <span class="dt">adaptive.lasso =</span> <span class="ot">TRUE</span>,
                   <span class="dt">gamma =</span> <span class="dv">1</span>,
@@ -226,6 +232,7 @@ Coefficient paths for each subpopulation. The subpopulation denoted by ‘0,1,1�
 </div>
 </div>
 </div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -243,7 +250,6 @@ Coefficient paths for each subpopulation. The subpopulation denoted by ‘0,1,1�
 <a href="#using-the-vennlasso-package">Using the <code>vennLasso</code> Package</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#installation">Installation</a></li>
       <li><a href="#an-example-with-simulated-data">An Example with Simulated Data</a></li>
-      <li><a href="#confidence-intervals-using-the-adaptive-lasso">Confidence Intervals Using the Adaptive Lasso</a></li>
       </ul>
 </li>
       </ul>
