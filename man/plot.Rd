@@ -11,11 +11,11 @@
   "loglambda", "dev"), xlab = iname, ylab = "Coefficients", ...)
 }
 \arguments{
-\item{x}{fitted cv.vennLasso object}
+\item{x}{fitted \code{vennLasso} or \code{cv.vennLasso} model object}
 
 \item{sign.lambda}{Either plot against log(lambda) (default) or its negative if \code{sign.lambda = -1}.}
 
-\item{...}{other parameters to be passed to \code{plot()}}
+\item{...}{other graphical parameters for the plot}
 
 \item{which.subpop}{which row in the coefficient matrix should be plotting? Each row corresponds to
 a particular combination of the specified stratifying variables}
@@ -26,10 +26,6 @@ against the percent deviance explained.}
 \item{xlab}{character value supplied for x-axis label}
 
 \item{ylab}{character value supplied for y-axis label}
-
-\item{x}{fitted "vennLasso" model object}
-
-\item{...}{other graphical parameters for the plot}
 }
 \description{
 Plot method for cv.vennLasso fitted objects

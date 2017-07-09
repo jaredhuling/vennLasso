@@ -1,9 +1,7 @@
 
 #' Plot method for cv.vennLasso fitted objects
 #'
-#' @param x fitted cv.vennLasso object
 #' @param sign.lambda Either plot against log(lambda) (default) or its negative if \code{sign.lambda = -1}.
-#' @param ... other parameters to be passed to \code{plot()}
 #' @rdname plot
 #' @method plot cv.vennLasso
 #' @importFrom graphics abline
