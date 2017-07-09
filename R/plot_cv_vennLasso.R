@@ -1,12 +1,36 @@
 
 #' Plot method for cv.vennLasso fitted objects
 #'
+#' @param x fitted cv.vennLasso object
+#' @param sign.lambda Either plot against log(lambda) (default) or its negative if \code{sign.lambda = -1}.
+#' @param ... other parameters to be passed to \code{plot()}
 #' @rdname plot
 #' @method plot cv.vennLasso
 #' @export
 #' @examples
 #' set.seed(123)
 #' 
+#' dat.sim <- genHierSparseData(ncats = 3, nvars = 25,
+#'                              nobs = 100, 
+#'                              hier.sparsity.param = 0.5,
+#'                              prop.zero.vars = 0.5,
+#'                              effect.size.max = 0.25,
+#'                              family = "gaussian")
+#'
+#' x        <- dat.sim$x
+#' x.test   <- dat.sim$x.test
+#' y        <- dat.sim$y
+#' y.test   <- dat.sim$y.test
+#' grp      <- dat.sim$group.ind
+#' grp.test <- dat.sim$group.ind.test
+#'
+#' fit.adapt <- cv.vennLasso(x, y,
+#'                           grp,
+#'                           adaptive.lasso = TRUE,
+#'                           nlambda        = 25,
+#'                           nfolds         = 4)
+#'                                      
+#' plot(fit.adapt) 
 #' 
 plot.cv.vennLasso <- function(x, sign.lambda = 1, ...) 
 {
