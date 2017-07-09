@@ -6,6 +6,11 @@
 #' @param ... other parameters to be passed to \code{plot()}
 #' @rdname plot
 #' @method plot cv.vennLasso
+#' @importFrom graphics abline
+#' @importFrom graphics axis
+#' @importFrom graphics points
+#' @importFrom graphics segments
+#' @importFrom graphics title
 #' @export
 #' @examples
 #' set.seed(123)
