@@ -311,6 +311,8 @@ for (i in 1:nrow(fit1$beta)) plot(fit1, which.subpop = i, xvar = "loglambda")
 ```
 
 
+### Cross Validation for Tuning Parameter Selection
+
 Typical for penalized regression methods, the tunining parameter must be selected. The `cv.vennLasso()` function provides a routine to select the tuning parameter via $k$-fold cross validation. In the following example we use 5-fold cross validation:
 ```{r cvvennlasso}
 cvfit1 <- cv.vennLasso(x = x, y = y, groups = grp, adaptive.lasso = TRUE, nfolds = 5)
@@ -319,6 +321,11 @@ cvfit1 <- cv.vennLasso(x = x, y = y, groups = grp, adaptive.lasso = TRUE, nfolds
 The tuning parameter which minimizes the cross validation error can be accessed via:
 ```{r minlam}
 cvfit1$lambda.min
+```
+
+The curve and standard errors of the cross validation error can be plotted by using the `plot()` function on a fitted `cv.vennLasso` object:
+```{r plotcv}
+plot(cvfit1)
 ```
 
 We can then use the model with the minimum cross validation error to generate predictions for the test set. Note that in addition to the design matrix, we must also provide the stratifying factors for the test set.
@@ -332,7 +339,7 @@ mean((y.test - mean(y.test)) ^ 2)
 ```
 
 
-## Confidence Intervals Using the Adaptive Lasso
+### Confidence Intervals Using the Adaptive Lasso
 
 ```{r fitmodel_confint}
 fit2 <- vennLasso(x = x, y = y, groups = grp, 

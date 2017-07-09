@@ -149,7 +149,8 @@ nonzeroCoef = function (beta, bystep = FALSE)
     ### bystep = FALSE means which variables were ever nonzero
     ### bystep = TRUE means which variables are nonzero for each step
     nr=nrow(beta)
-    if (nr == 1) {#degenerate case
+    if (nr == 1) 
+    {               #degenerate case
         if (bystep)
             apply(beta, 2, function(x) if (abs(x) > 0)
                 1
@@ -159,15 +160,17 @@ nonzeroCoef = function (beta, bystep = FALSE)
                 1
             else NULL
         }
-    }
-    else {
+    } else 
+    {
         beta=abs(beta)>0 # this is sparse
         which=seq(nr)
         ones=rep(1,ncol(beta))
         nz=as.vector((beta%*%ones)>0)
         which=which[nz]
-        if (bystep) {
-            if(length(which)>0){
+        if (bystep) 
+        {
+            if(length(which)>0)
+            {
                 beta=as.matrix(beta[which,,drop=FALSE])
                 nzel = function(x, which) if (any(x))
                     which[x]
@@ -175,8 +178,8 @@ nonzeroCoef = function (beta, bystep = FALSE)
                 which=apply(beta, 2, nzel, which)
                 if(!is.list(which))which=data.frame(which)# apply can return a matrix!!
                 which
-            }
-            else{
+            } else
+            {
                 dn=dimnames(beta)[[2]]
                 which=vector("list",length(dn))
                 names(which)=dn
@@ -188,36 +191,53 @@ nonzeroCoef = function (beta, bystep = FALSE)
     }
 }
 
-# taken from glmnet
-auc=function(y,prob,w){
-    if(missing(w)){
-        rprob=rank(prob)
-        n1=sum(y);n0=length(y)-n1
-        u=sum(rprob[y==1])-n1*(n1+1)/2
+# modified from glmnet
+auc <- function(y,prob,w)
+{
+    if(missing(w))
+    {
+        rprob <- rank(prob)
+        n1    <- sum(y)
+        n0    <- length(y) - n1
+        u     <- sum(rprob[y==1]) - n1 * (n1 + 1) / 2
+        
         exp(log(u) - log(n1) - log(n0))
     }
-    else{
-        rprob=runif(length(prob))
-        op=order(prob,rprob)#randomize ties
-        y=y[op]
-        w=w[op]
-        cw=cumsum(w)
-        w1=w[y==1]
-        cw1=cumsum(w1)
-        wauc = log(sum(w1*(cw[y==1]-cw1)))
-        sumw1 = cw1[length(cw1)]
-        sumw2  = cw[length(cw)] - sumw1
+    else
+    {
+        rprob <- runif(length(prob))
+        op    <- order(prob,rprob)#randomize ties
+        y     <- y[op]
+        w     <- w[op]
+        cw    <- cumsum(w)
+        w1    <- w[y==1]
+        cw1   <- cumsum(w1)
+        wauc  <- log(sum(w1*(cw[y==1] - cw1)))
+        sumw1 <- cw1[length(cw1)]
+        sumw2 <- cw[length(cw)] - sumw1
+        
         exp(wauc - log(sumw1) - log(sumw2))
     }
 }
-
 # taken from glmnet
-auc.mat=function(y,prob,weights=rep(1,nrow(y))){
-    Weights=as.vector(weights*y)
-    ny=nrow(y)
-    Y=rep(c(0,1),c(ny,ny))
-    Prob=c(prob,prob)
-    auc(Y,Prob,Weights)
+auc.mat <- function(y,prob,weights=rep(1,nrow(y)))
+{
+    Weights <- as.vector(weights*y)
+    ny      <- nrow(y)
+    Y       <- rep(c(0,1),c(ny,ny))
+    Prob    <- c(prob,prob)
+    auc(Y, Prob, Weights)
 }
 
+
+# taken from glmnet
+error.bars <- function(x, upper, lower, width = 0.02, ...)
+{
+    xlim <- range(x)
+    barw <- diff(xlim) * width
+    segments(x, upper, x, lower, col = 8, lty = 5, lwd = 0.5, ...)
+    segments(x - barw, upper, x + barw, upper, col = "grey50", lwd = 1, ...)
+    segments(x - barw, lower, x + barw, lower, col = "grey50", lwd = 1, ...)
+    range(upper, lower)
+}
 

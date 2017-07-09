@@ -298,12 +298,14 @@ predict.vennLasso <- function(object, newx,
 #' @import Rcpp
 #' @method predict cv.vennLasso
 #' @export
-predict.cv.vennLasso=function(object, newx, group.mat, s=c("lambda.min"), use.refit = FALSE, ...){
-    if(is.numeric(s)) lambda = s
+predict.cv.vennLasso <- function(object, newx, group.mat, s = c("lambda.min"), use.refit = FALSE, ...)
+{
+    if(is.numeric(s)) lambda <- s
     else
-        if(is.character(s)){
-            s      = match.arg(s)
-            lambda = object[[s]]
+        if(is.character(s))
+        {
+            s      <- match.arg(s)
+            lambda <- object[[s]]
         }
     else stop("Invalid form for s")
     predict(object$vennLasso.fit, newx, group.mat, s = lambda, use.refit = use.refit, ...)
