@@ -74,9 +74,9 @@
 #'                                   rownames(true.beta.mat)),])
 #' round(fitted.coef, 2)
 #'
-#' ## effects need to be smaller for logistic regression
-#' true.beta.mat <- true.beta.mat / 10
-#' true.beta <- true.beta / 10
+#' ## effects smaller for logistic regression
+#' true.beta.mat <- true.beta.mat / 2
+#' true.beta <- true.beta / 2
 #' # logistic regression example#'
 #' y <- rbinom(n.obs * 3, 1, 
 #'        prob = 1 / (1 + exp(-drop(as.matrix(bdiag(x.sub1, x.sub2, x.sub3)) %*% true.beta))))
