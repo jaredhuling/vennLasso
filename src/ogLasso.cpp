@@ -37,6 +37,7 @@ typedef Eigen::SparseMatrix<float> SpMatf;
 typedef Eigen::SparseVector<double> SpVec;
 typedef Eigen::SparseMatrix<double> SpMat;
 
+
 //typedef Eigen::Ref<Eigen::VectorXd>             Refvec;
 //typedef const Eigen::Ref<const Eigen::VectorXd> Constvec;
 
@@ -50,8 +51,6 @@ inline void write_beta_matrix(SpMat &betas, int col, double beta0, SpVec &coef)
         betas.insert(iter.index() + 1, col) = iter.value();
     }
 }
-
-
 
 
 class LogisticRegUnivar: public MFuncGrad
@@ -177,7 +176,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     
     // only use wide version of solver if 
     // p >> n and p is very large
-    bool tall_condition = n > 2 * p || p < 2500;
+    bool tall_condition = n > 2 * p || p < 200;
 
 
     const SpMat group(as<MSpMat>(group_));

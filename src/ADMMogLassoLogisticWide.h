@@ -136,15 +136,12 @@ protected:
 
     void next_beta(Vector &res)
     {
-        Vector rhs2 = XY - CCol.adjoint() * adj_nu;
-        rhs2 += rho * (CCol.adjoint() * adj_gamma);
+        VectorXd rhs2 = XY - CCol.adjoint() * adj_nu + rho * (CCol.adjoint() * adj_gamma);
         
-        Vector rhs = W.array() * ( datX * (rhs2.array() * CC_inv.array().square()).matrix() ).array();
+        VectorXd rhs = (( datX * (rhs2.array() * CC_inv.array().square()).matrix() )).matrix();
         
-        res.noalias() = datX.adjoint() * solver.solve(rhs);
-        
-        res.array() /= (-1.0 * rho * rho);
-        res.array() += (rhs2.array() * CC_inv.array()) / rho;
+        res.noalias() = ((rhs2.array() * CC_inv.array()).array() / rho - 
+                            (datX.adjoint() * solver.solve(rhs)).array() / (std::pow(rho, 2))).matrix();
     }
 
     virtual void next_gamma(Vector &res)
@@ -161,11 +158,11 @@ protected:
 
     void rho_changed_action()
     {
-        const double one(1.0);
+        // const double one(1.0);
         
-        MatrixXd matToSolve(W.asDiagonal() * XCCinvXt); 
+        MatrixXd matToSolve(XCCinvXt); 
         matToSolve.array() /= rho;
-        matToSolve.diagonal().array() += one;
+        matToSolve.diagonal().array() += 1.0 / W.array();
 
         // precompute LLT decomposition of (I + (1 / rho) * W * X * (D'D)^(-1)X')
         solver.compute(matToSolve.selfadjointView<Eigen::Lower>());
@@ -205,47 +202,6 @@ protected:
              */
 
         }
-    }
-
-
-
-    // Calculate ||v1 - v2||^2 when v1 and v2 are sparse
-    static double diff_squared_norm(const SparseVector &v1, const SparseVector &v2)
-    {
-        const int n1 = v1.nonZeros(), n2 = v2.nonZeros();
-        const double *v1_val = v1.valuePtr(), *v2_val = v2.valuePtr();
-        const int *v1_ind = v1.innerIndexPtr(), *v2_ind = v2.innerIndexPtr();
-
-        Scalar r = 0.0;
-        int i1 = 0, i2 = 0;
-        while(i1 < n1 && i2 < n2)
-        {
-            if(v1_ind[i1] == v2_ind[i2])
-            {
-                Scalar val = v1_val[i1] - v2_val[i2];
-                r += val * val;
-                i1++;
-                i2++;
-            } else if(v1_ind[i1] < v2_ind[i2]) {
-                r += v1_val[i1] * v1_val[i1];
-                i1++;
-            } else {
-                r += v2_val[i2] * v2_val[i2];
-                i2++;
-            }
-        }
-        while(i1 < n1)
-        {
-            r += v1_val[i1] * v1_val[i1];
-            i1++;
-        }
-        while(i2 < n2)
-        {
-            r += v2_val[i2] * v2_val[i2];
-            i2++;
-        }
-
-        return r;
     }
 
     // Faster computation of epsilons and residuals
@@ -359,11 +315,12 @@ public:
         resid_primal = 1e30;
         resid_dual = 1e30;
 
-        // adj_a = 1.0;
-        // adj_c = 9999;
+        adj_a = 1.0;
+        adj_c = 1e30;
     }
 
-    virtual VectorXd get_gamma() {
+    virtual VectorXd get_gamma() 
+    {
         VectorXd beta_return(nvars);
         for (int k=0; k < CCol.outerSize(); ++k)
         {
@@ -392,7 +349,7 @@ public:
 
     virtual double get_loss()
     {
-        double loss = 0;
+        double loss = 0.0;
 
         // compute logistic loss
         for (int ii = 0; ii < nobs; ++ii)
@@ -401,22 +358,22 @@ public:
             {
                 if (prob(ii) > 1e-5)
                 {
-                    loss += std::log(1 / prob(ii));
+                    loss += std::log(1.0 / prob(ii));
                 } else
                 {
                     // don't divide by zero
-                    loss += std::log(1 / 1e-5);
+                    loss += std::log(1.0 / 1e-5);
                 }
 
             } else
             {
-                if (prob(ii) <= 1 - 1e-5)
+                if (prob(ii) <= 1.0 - 1e-5)
                 {
-                    loss += std::log(1 / (1 - prob(ii)));
+                    loss += std::log(1.0 / (1.0 - prob(ii)));
                 } else
                 {
                     // don't divide by zero
-                    loss += std::log(1 / 1e-5);
+                    loss += std::log(1.0 / 1e-5);
                 }
 
             }
@@ -441,11 +398,11 @@ public:
             beta_prev = main_beta;
 
             // calculate gradient
-            prob = 1 / (1 + (-1 * (datX * main_beta).array()).exp().array());
+            prob = 1.0 / (1.0 + (-1.0 * (datX * main_beta).array()).exp().array());
 
 
             // calculate Jacobian
-            W = prob.array() * (1 - prob.array());
+            W = prob.array() * (1.0 - prob.array());
 
             // make sure no weights are too small
             for (int kk = 0; kk < W.size(); ++kk)
@@ -462,13 +419,16 @@ public:
             // compute X'Wz
             // commented out code below is for tall case. keeping
             // here for instructive purposes.
-            // grad = datX.adjoint() * (datY.array() - prob.array()).matrix();
+            // VectorXd grad = datX.adjoint() * (datY.array() - prob.array()).matrix();
             // XY = XX * main_beta + grad;
+            
             XY = datX.adjoint() * (W.array() * (datX * main_beta).array() + 
                                    datY.array() - prob.array()).matrix();
+            
 
             // compute rho after X'WX is computed
             compute_rho();
+            
 
             // reset LDLT solver with new XX
             rho_changed_action();
@@ -503,10 +463,10 @@ public:
                 if(adj_c < 0.999 * old_c)
                 {
                     double old_a = adj_a;
-                    adj_a = 0.5 + 0.5 * std::sqrt(1 + 4.0 * old_a * old_a);
+                    adj_a = 0.5 + 0.5 * std::sqrt(1.0 + 4.0 * old_a * old_a);
                     double ratio = (old_a - 1.0) / adj_a;
-                    adj_gamma = (1 + ratio) * aux_gamma - ratio * old_gamma;
-                    adj_nu.noalias() = (1 + ratio) * dual_nu - ratio * old_nu;
+                    adj_gamma = (1.0 + ratio) * aux_gamma - ratio * old_gamma;
+                    adj_nu.noalias() = (1.0 + ratio) * dual_nu - ratio * old_nu;
                 } else 
                 {
                     adj_a = 1.0;
