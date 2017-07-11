@@ -176,7 +176,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     
     // only use wide version of solver if 
     // p >> n and p is very large
-    bool tall_condition = n > 2 * p || p < 200;
+    bool tall_condition = n > 2 * p || p < 2500;
 
 
     const SpMat group(as<MSpMat>(group_));
