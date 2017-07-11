@@ -102,23 +102,25 @@ cv.vennLasso <- function(x, y,
                          parallel     = FALSE,
                          ...)
 {
-  if(missing(type.measure))type.measure="default"
-  else type.measure=match.arg(type.measure)
-  if(!is.null(lambda)&&length(lambda)<2)stop("Need more than one value of lambda for cv.vennLasso")
-  N=nrow(x)
+  if(missing(type.measure)) type.measure <- "default"
+  else type.measure <- match.arg(type.measure)
+  if(!is.null(lambda)&&length(lambda)<2) stop("Need more than one value of lambda for cv.vennLasso")
+  N <- nrow(x)
   #if(missing(weights))weights=rep(1.0,N)else weights=as.double(weights)
   ###Fit the model once to get dimensions etc of output
-  y=drop(y) # we dont like matrix responses unless we need them
+  y <- drop(y) # we dont like matrix responses unless we need them
   ###Next we construct a call, that could recreate a vennLasso object - tricky
   ### This if for predict, exact=TRUE
-  vennLasso.call=match.call(expand.dots=TRUE)
-  which=match(c("type.measure","nfolds","foldid","grouped","keep"),names(vennLasso.call),F)
+  vennLasso.call <- match.call(expand.dots = TRUE)
+  which <- match(c("type.measure","nfolds","foldid","grouped","keep"), names(vennLasso.call), FALSE)
 
-  if(any(which))vennLasso.call = vennLasso.call[-which]
+  if(any(which)) vennLasso.call <- vennLasso.call[-which]
 
-  vennLasso.call[[1]] = as.name("vennLasso")
-  vennLasso.object = vennLasso(x, y, groups, lambda=lambda,
-                               compute.se = compute.se, conf.int = conf.int, ...)
+  vennLasso.call[[1]] <- as.name("vennLasso")
+  vennLasso.object <- vennLasso(x, y, groups, 
+                                lambda = lambda,
+                                compute.se = compute.se, 
+                                conf.int = conf.int, ...)
   vennLasso.object$call=vennLasso.call
   #is.offset=vennLasso.object$offset
   #lambda=vennLasso.object$lambda
@@ -129,7 +131,8 @@ cv.vennLasso <- function(x, y,
   #}
   #nz=sapply(predict(vennLasso.object,type="nonzero"),length)
   #if(missing(foldid)) foldid=sample(rep(seq(nfolds),length=N)) else nfolds=max(foldid)
-  if(missing(foldid)) {
+  if(missing(foldid)) 
+  {
     foldid=sample(rep(seq(nfolds),length=N))
     foldid <- vector(length=N)
     for (c in 1:length(vennLasso.object$data.indices)) {
@@ -144,7 +147,8 @@ cv.vennLasso <- function(x, y,
   outlist=as.list(seq(nfolds))
   ###Now fit the nfold models and store them
   ###First try and do it using foreach if parallel is TRUE
-  if (parallel) {
+  if (parallel) 
+  {
     outlist = foreach (i=seq(nfolds), .packages=c("vennLasso")) %dopar% {
       which=foldid==i
       if(is.matrix(y))y_sub=y[!which,]else y_sub=y[!which]
@@ -153,8 +157,10 @@ cv.vennLasso <- function(x, y,
       vennLasso(x[!which,,drop=FALSE], y_sub, groups[!which,,drop=FALSE], lambda=lambda,
                 compute.se = FALSE, conf.int = NULL, ...)
     }
-  }else{
-    for(i in seq(nfolds)){
+  }else
+  {
+    for(i in seq(nfolds))
+    {
       which=foldid==i
       if(is.matrix(y))y_sub=y[!which,]else y_sub=y[!which]
       #if(is.offset)offset_sub=as.matrix(offset)[!which,]
@@ -165,14 +171,28 @@ cv.vennLasso <- function(x, y,
     }
   }
   ###What to do depends on the type.measure and the model fit
-  fun=paste("cv",class(vennLasso.object)[[2]],sep=".")
-  cvstuff=do.call(fun,list(outlist,vennLasso.object$lambda,x,y,groups,foldid,type.measure,grouped,keep))
-  cvm=cvstuff$cvm
-  cvsd=cvstuff$cvsd
-  cvname=cvstuff$name
+  fun     <- paste("cv",class(vennLasso.object)[[2]],sep=".")
+  cvstuff <- do.call(fun,
+                     list(outlist,
+                          vennLasso.object$lambda,
+                          x,
+                          y,
+                          groups,
+                          foldid,
+                          type.measure,
+                          grouped,
+                          keep))
+  cvm     <- cvstuff$cvm
+  cvsd    <- cvstuff$cvsd
+  cvname  <- cvstuff$name
 
-  out=list(lambda=vennLasso.object$lambda,cvm=cvm,cvsd=cvsd,cvup=cvm+cvsd,
-           cvlo=cvm-cvsd,name=cvname,vennLasso.fit=vennLasso.object)
+  out=list(lambda        = vennLasso.object$lambda,
+           cvm           = cvm,
+           cvsd          = cvsd,
+           cvup          = cvm + cvsd,
+           cvlo          = cvm - cvsd,
+           name          = cvname,
+           vennLasso.fit = vennLasso.object)
   if(keep)out=c(out,list(fit.preval=cvstuff$fit.preval,foldid=foldid))
   lamin=if(type.measure=="auc")getmin(vennLasso.object$lambda,-cvm,cvsd)
   else getmin(vennLasso.object$lambda,cvm,cvsd)
@@ -208,57 +228,66 @@ cv.venncoxph=function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,keep
     devmat=matrix(NA,nfolds,length(lambda))
     nlams=double(nfolds)
 
-    logpl <- function(link,yyy){
+    logpl <- function(link, yyy)
+    {
         t <- yyy[,1]
         c <- yyy[,2]
 
         index.t <- order(t)
 
-        link[index.t,] <- apply(link[index.t,] ,2, function (tt){
-        if (max(tt) > 100)
+        link[index.t,] <- apply(link[index.t,], 2, function (tt)
         {
-                kkk <- floor(max(tt)/100)
-                tt <- tt - 100*kkk
-        } else {
-            tt <- tt
-        }
+            if (max(tt) > 100)
+            {
+                kkk <- floor(max(tt) / 100)
+                tt  <- tt - 100*kkk
+            } else 
+            {
+                tt <- tt
+            }
         })
 
         link.order.exp <- exp(link[index.t,])
-        c.order <- c[index.t]
+        c.order        <- c[index.t]
         #       r <- apply(exp(link),2,function(tt){rev(cumsum(rev(tt[index.t])))})
         logL <- apply(link.order.exp,2,function(tt){r <- rev(cumsum(rev(tt)))
         sum(log(tt[c.order==1])-log(r[c.order==1]))})
     }
 
-    brier <- function(survive,yytest,yytrain,cenFun,cenTime){
-        index.test <- order(yytest[,1])
-        ytest <- yytest[index.test]
-        survive <- survive[index.test,]
+    brier <- function(survive,yytest,yytrain,cenFun,cenTime)
+    {
+        index.test  <- order(yytest[,1])
+        ytest       <- yytest[index.test]
+        survive     <- survive[index.test,]
 
         index.train <- order(yytrain[,1])
-        ytrain <- yytrain[index.train]
+        ytrain      <- yytrain[index.train]
 
-        nobs <- dim(survive)[1]
-        brierScore <- array(0,c(nobs,1))
-        sub <- 100 * nobs
+        nobs        <- dim(survive)[1]
+        brierScore  <- array(0,c(nobs,1))
+        sub         <- 100 * nobs
 
-        for (i in 1:nobs){
-            if (length(survive[i,])<length(ytrain[,1])){
+        for (i in 1:nobs)
+        {
+            if (length(survive[i,])<length(ytrain[,1]))
+            {
                 survm <- c(rep(1,times = length(ytrain[,1])-length(survive[i,])), survive[i,])
-            } else {
+            } else 
+            {
                 survm <- survive[i,]
             }
-            surFun <- stepfun(ytrain[,1],c(1,survm), f=0)
+            surFun  <- stepfun(ytrain[,1],c(1,survm), f=0)
             proFun1 <- stepfun(ytest[i,1],c(1,0), f=0)
             proFun2 <- stepfun(ytest[i,1],c(0,1), f=0)
-            knots <- sort(unique(c(ytrain[,1],ytest[,1],cenTime)))
+            knots   <- sort(unique(c(ytrain[,1],ytest[,1],cenTime)))
 
-            Fun1 <- function(t){ (surFun(t))^2*proFun2(t)}
-            Fun2 <- function(t){ (1-surFun(t))^2*proFun1(t)/cenFun(t)}
-            if (ytest[i,2]==1){
+            Fun1 <- function(t) { (surFun(t))^2*proFun2(t)}
+            Fun2 <- function(t) { (1-surFun(t))^2*proFun1(t)/cenFun(t)}
+            if (ytest[i,2] == 1)
+            {
                 brierScore[i] <- brierScore[i] + integrate.step(Fun1,ytest[i,1],max(ytest[,1]),knots) / cenFun(ytest[i,1]) + integrate.step(Fun2,0,ytest[i,1], knots)
-            } else {
+            } else 
+            {
                 brierScore[i] <- brierScore[i] + integrate.step(Fun2,0,ytest[i,1], knots)
             }
     #         for (j in 1:(dim(ytrain)[1]-1)){
@@ -282,37 +311,43 @@ cv.venncoxph=function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,keep
         brierScore
     }
 
-    integrate.step <- function(Fun,lower,upper,knots){
+    integrate.step <- function(Fun,lower,upper,knots)
+    {
         index.lower <- which(knots==lower)
         index.upper <- which(knots==upper)-1
         res <- 0
-        for(i in index.lower:index.upper){
-            res <- res + Fun(knots[i+1]-0.01) * (knots[i+1]-knots[i])
+        for(i in index.lower:index.upper)
+        {
+            res <- res + Fun(knots[i+1] - 0.01) * (knots[i+1]-knots[i])
         }
         res
     }
 
 
-    for(i in seq(nfolds)){
+    for(i in seq(nfolds))
+    {
         which = foldid==i
         fitobj = outlist[[i]]
         #if(is.offset)off_sub=offset[which]
         nlami=length(outlist[[i]]$lam)
 
-        if(type.measure == "deviance"){
+        if(type.measure == "deviance")
+        {
             linkout = predict(fitobj, newx = x[!which,,drop=FALSE], group.mat = groups[!which,,drop=FALSE], type="link")
             print(anyNA(linkout))
             link = predict(fitobj, newx = x, group.mat = groups, type="link")
             print(anyNA(link))
             devmat[i,seq(nlami)] = -logpl(link,y)+logpl(linkout,y[!which,,drop=FALSE])
-        } else {
+        } else 
+        {
             surv = predict(fitobj, newx = x[which,], group.mat = groups[which,,drop=FALSE], type="survival")
             cenSurv = Surv(time = y[which,1], event = 1-y[which,2])
             cenSurvFun = c(1,1, survfit(cenSurv~1)$surv)
             cenTime = c(0, survfit(cenSurv~1)$time)
             cenFun = stepfun(cenTime, cenSurvFun, f=0)
 
-            for (j in 1:nlami){
+            for (j in 1:nlami)
+            {
                 devmat[i,j] = mean(brier(surv[[j]],y[which,],y[!which,],cenFun,cenTime))
                 #print(devmat[i,j])
                 #print(surv[[j]][6,100])
