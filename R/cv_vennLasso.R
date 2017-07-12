@@ -133,41 +133,51 @@ cv.vennLasso <- function(x, y,
   #if(missing(foldid)) foldid=sample(rep(seq(nfolds),length=N)) else nfolds=max(foldid)
   if(missing(foldid)) 
   {
-    foldid=sample(rep(seq(nfolds),length=N))
-    foldid <- vector(length=N)
-    for (c in 1:length(vennLasso.object$data.indices)) {
+    foldid <- sample(rep(seq(nfolds), length = N))
+    foldid <- vector(length = N)
+    for (c in 1:length(vennLasso.object$data.indices)) 
+    {
       foldid[vennLasso.object$data.indices[[c]]] <-
-        sample(rep(seq(nfolds), length=length(vennLasso.object$data.indices[[c]])))
+        sample(rep(seq(nfolds), length = length(vennLasso.object$data.indices[[c]])))
     }
-  } else {
-    nfolds=max(foldid)
+  } else 
+  {
+    nfolds <- max(foldid)
   }
 
-  if(nfolds<3)stop("nfolds must be bigger than 3; nfolds=10 recommended")
-  outlist=as.list(seq(nfolds))
+  if(nfolds < 3) stop("nfolds must be bigger than 3; nfolds=10 recommended")
+  outlist <- as.list(seq(nfolds))
   ###Now fit the nfold models and store them
   ###First try and do it using foreach if parallel is TRUE
   if (parallel) 
   {
     outlist = foreach (i=seq(nfolds), .packages=c("vennLasso")) %dopar% {
-      which=foldid==i
-      if(is.matrix(y))y_sub=y[!which,]else y_sub=y[!which]
+      which <- foldid==i
+      if(is.matrix(y)) y_sub <- y[!which,] else y_sub <- y[!which]
       #if(is.offset)offset_sub=as.matrix(offset)[!which,]
       #else offset_sub=NULL
-      vennLasso(x[!which,,drop=FALSE], y_sub, groups[!which,,drop=FALSE], lambda=lambda,
-                compute.se = FALSE, conf.int = NULL, ...)
+      vennLasso(x[!which,,drop=FALSE], 
+                y_sub, 
+                groups[!which,,drop=FALSE], 
+                lambda = lambda,
+                compute.se = FALSE, 
+                conf.int = NULL, ...)
     }
-  }else
+  } else
   {
     for(i in seq(nfolds))
     {
-      which=foldid==i
+      which <- foldid==i
       if(is.matrix(y))y_sub=y[!which,]else y_sub=y[!which]
       #if(is.offset)offset_sub=as.matrix(offset)[!which,]
       #else offset_sub=NULL
       #cat("fitting fold", i, "\n")
-      outlist[[i]]=vennLasso(x[!which,,drop=FALSE], y_sub, groups[!which,,drop=FALSE], lambda=lambda,
-                             compute.se = FALSE, conf.int = NULL, ...)
+      outlist[[i]] <- vennLasso(x[!which,,drop=FALSE], 
+                                y_sub, 
+                                groups[!which,,drop=FALSE], 
+                                lambda = lambda,
+                                compute.se = FALSE, 
+                                conf.int = NULL, ...)
     }
   }
   ###What to do depends on the type.measure and the model fit
@@ -193,29 +203,33 @@ cv.vennLasso <- function(x, y,
            cvlo          = cvm - cvsd,
            name          = cvname,
            vennLasso.fit = vennLasso.object)
-  if(keep)out=c(out,list(fit.preval=cvstuff$fit.preval,foldid=foldid))
-  lamin=if(type.measure=="auc")getmin(vennLasso.object$lambda,-cvm,cvsd)
+  if(keep) out <- c(out,list(fit.preval=cvstuff$fit.preval,foldid=foldid))
+  lamin = if(type.measure=="auc") getmin(vennLasso.object$lambda,-cvm,cvsd)
   else getmin(vennLasso.object$lambda,cvm,cvsd)
-  obj=c(out,as.list(lamin))
-  class(obj)="cv.vennLasso"
+  obj <- c(out,as.list(lamin))
+  class(obj) <- "cv.vennLasso"
   obj
 }
 
-cv.venncoxph=function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,keep=FALSE){
-    typenames=c(deviance="Coxph Deviance")
+cv.venncoxph <- function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,keep=FALSE)
+{
+    typenames <- c(deviance="Coxph Deviance")
     if(type.measure=="default")type.measure="deviance"
-    if(!match(type.measure,c("deviance","brier"),FALSE)){
+    if(!match(type.measure,c("deviance","brier"),FALSE))
+    {
         warning("Only 'deviance' or 'brier' available for coxph model; as default 'deviance' will be used")
         type.measure="deviance"
     }
 
-    N=nrow(y)
-    nfolds=max(foldid)
-    if( (N/nfolds <10)&&type.measure=="auc"){
+    N <- nrow(y)
+    nfolds <- max(foldid)
+    if( (N/nfolds <10)&&type.measure=="auc")
+    {
         warning("Too few (< 10) observations per fold for type.measure='auc' in cv.lognet; changed to type.measure='deviance'. Alternatively, use smaller value for nfolds",call.=FALSE)
         type.measure="deviance"
     }
-    if( (N/nfolds <3)&&grouped){
+    if( (N/nfolds <3)&&grouped)
+    {
         warning("Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per fold",call.=FALSE)
         grouped=FALSE
     }
