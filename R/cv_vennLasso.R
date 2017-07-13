@@ -533,7 +533,7 @@ cv.venngaussian <- function(outlist,lambda,x,y,groups,foldid,type.measure,groupe
     nlams[i] <- nlami
   }
 
-  N <- length(y) - apply(is.na(predmat),2,sum)
+  N <- length(y) - apply(is.na(predmat), 2, sum)
   cvraw <- switch(type.measure,
                   "mse"=(y-predmat)^2,
                   "deviance"=(y-predmat)^2,
@@ -546,14 +546,14 @@ cv.venngaussian <- function(outlist,lambda,x,y,groups,foldid,type.measure,groupe
   }
   if(grouped)
   {
-    cvob    <- cvcompute(cvraw,rep(1, length(y)),foldid,nlams)
+    cvob    <- cvcompute(cvraw, rep(1, length(y)), foldid, nlams)
     cvraw   <- cvob$cvraw
     weights <- cvob$weights
     N       <- cvob$N
   }
 
   #cvm=apply(cvraw,2,weighted.mean,w=weights,na.rm=TRUE)
-  cvm  <- apply(cvraw,2,mean,na.rm=TRUE)
+  cvm  <- apply(cvraw, 2, mean, na.rm = TRUE)
   #cvsd=sqrt(apply(scale(cvraw,cvm,FALSE)^2,2,weighted.mean,w=weights,na.rm=TRUE)/(N-1))
   cvsd <- sqrt(apply(scale(cvraw,cvm,FALSE)^2, 2, mean, na.rm = TRUE)/(N-1))
   out  <- list(cvm  = cvm,
