@@ -1,6 +1,6 @@
 Package: vennLasso
 Type: Package
-Title: Variable selection for heterogeneous populations
+Title: Variable Selection for Heterogeneous Populations
 Version: 0.1
 Date: 2017-07-05
 Authors@R: c(
