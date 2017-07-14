@@ -1,6 +1,6 @@
 Package: vennLasso
 Type: Package
-Title: Variable selection for heterogeneous populations 
+Title: Variable selection for heterogeneous populations
 Version: 0.1
 Date: 2017-07-05
 Authors@R: c(
@@ -8,7 +8,8 @@ Authors@R: c(
     person("Muxuan", "Liang", , , c("ctb")),
     person("Yixuan", "Qiu", , , c("ctb"))
     )
-Description: Provides variable selection and estimation routines for models stratified based on binary factors. 
+Description: Provides variable selection and estimation routines for models
+    stratified based on binary factors.
 URL: https://github.com/jaredhuling/vennLasso
 BugReports: https://github.com/jaredhuling/vennLasso/issues
 License: GPL (>= 2)
@@ -25,11 +26,11 @@ Imports:
     visNetwork,
     igraph,
     methods
-LinkingTo: 
-    Rcpp, 
-    RcppEigen, 
+LinkingTo: Rcpp,
+    RcppEigen,
     RcppNumerical
 RoxygenNote: 6.0.1
-Suggests: knitr,
+Suggests:
+    knitr,
     rmarkdown
 VignetteBuilder: knitr
