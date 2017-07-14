@@ -352,7 +352,7 @@ cv.venncoxph <- function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,k
             print(anyNA(linkout))
             link = predict(fitobj, newx = x, group.mat = groups, type="link")
             print(anyNA(link))
-            devmat[i,seq(nlami)] = -logpl(link,y)+logpl(linkout,y[!which,,drop=FALSE])
+            devmat[i,seq(nlami)] = -logpl(link,y) + logpl(linkout,y[!which,,drop=FALSE])
         } else 
         {
             surv = predict(fitobj, newx = x[which,], group.mat = groups[which,,drop=FALSE], type="survival")
