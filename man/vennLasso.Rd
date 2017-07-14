@@ -134,8 +134,10 @@ bic.idx <- which.min(afit$bic)
 
 # actual coverage
 # actual coverage
-mean(true.coef[afit$beta[,-1,aic.idx] != 0] >= afit$lower.ci[,-1,aic.idx][afit$beta[,-1,aic.idx] != 0] &
-         true.coef[afit$beta[,-1,aic.idx] != 0] <= afit$upper.ci[,-1,aic.idx][afit$beta[,-1,aic.idx] != 0])
+mean(true.coef[afit$beta[,-1,aic.idx] != 0] >= 
+             afit$lower.ci[,-1,aic.idx][afit$beta[,-1,aic.idx] != 0] &
+         true.coef[afit$beta[,-1,aic.idx] != 0] <= 
+             afit$upper.ci[,-1,aic.idx][afit$beta[,-1,aic.idx] != 0])
 
 (covered <- true.coef >= afit$lower.ci[,-1,aic.idx] & true.coef <= afit$upper.ci[,-1,aic.idx])
 mean(covered)

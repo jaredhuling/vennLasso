@@ -38,8 +38,8 @@
 #' hsp <- 0.6270698
 #'
 #' # check that this does indeed achieve the desired level of sparsity
-#' mean(replicate(100, mean(genHierSparseBeta(ncats = 3, 
-#'                            nvars = 50, hier.sparsity.param = hsp) != 0)  ))
+#' mean(replicate(50, mean(genHierSparseBeta(ncats = 3, 
+#'                        nvars = 50, hier.sparsity.param = hsp) != 0)  ))
 #'                            
 #' dat.sim2 <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200, hier.sparsity.param = hsp)
 #'
@@ -69,20 +69,20 @@
 #' grp      <- dat.sim$group.ind
 #' grp.test <- dat.sim$group.ind.test
 #'
-#' fit.adapt <- vennLasso::cv.vennLasso(x, y,
-#'                                      grp,
-#'                                      adaptive.lasso = TRUE,
-#'                                      nlambda        = 25,
-#'                                      family         = "gaussian",
-#'                                      abs.tol        = 1e-5,
-#'                                      rel.tol        = 1e-5,
-#'                                      maxit          = 1000,
-#'                                      irls.maxit     = 15L,
-#'                                      gamma          = 0.2,
-#'                                      standardize    = FALSE,
-#'                                      intercept      = TRUE,
-#'                                      nfolds         = 4,
-#'                                      model.matrix   = TRUE)
+#' fit.adapt <- cv.vennLasso(x, y,
+#'                           grp,
+#'                           adaptive.lasso = TRUE,
+#'                           nlambda        = 25,
+#'                           family         = "gaussian",
+#'                           abs.tol        = 1e-5,
+#'                           rel.tol        = 1e-5,
+#'                           maxit          = 1000,
+#'                           irls.maxit     = 15L,
+#'                           gamma          = 0.2,
+#'                           standardize    = FALSE,
+#'                           intercept      = TRUE,
+#'                           nfolds         = 3,
+#'                           model.matrix   = TRUE)
 #'
 #' preds.a <- predict(fit.adapt$vennLasso.fit, x.test, grp.test, s = fit.adapt$lambda.min,
 #'                    type = 'response')

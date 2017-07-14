@@ -102,6 +102,9 @@ An object with S3 class "oglasso"
 Overlapping Group Lasso (OGLasso)
 }
 \examples{
+library(vennLasso)
+
+set.seed(123)
 n.obs <- 1e3
 n.vars <- 50
 
