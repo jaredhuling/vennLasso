@@ -6,7 +6,7 @@ Date: 2017-07-05
 Authors@R: c(
     person("Jared", "Huling", , "jaredhuling@gmail.com", c("aut", "cre")),
     person("Muxuan", "Liang", , , c("ctb")),
-    person("Yixuan", "Qiu", , , c("ctb"))
+    person("Yixuan", "Qiu", , , c("cph"))
     )
 Description: Provides variable selection and estimation routines for models
     stratified based on binary factors.
