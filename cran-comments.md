@@ -1,7 +1,7 @@
 
 ## First submission for 'vennLasso'
 
-* First CRAN submission for 'vennLasso' package
+* Fix vgrind error
 
 ## Test environments
 
