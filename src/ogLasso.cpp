@@ -139,6 +139,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     std::copy(yy.begin(), yy.end(), datY.data());
     std::copy(ddelta.begin(), ddelta.end(), delta.data());
 
+    // old stuff 
     //MatrixXd datX(as<MatrixXd>(x_));
     //VectorXd datY(as<VectorXd>(y_));
 
@@ -156,8 +157,10 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     //   1/(2n) * ||y - X * beta||^2 + lambda * ||beta||_1
     // which is equivalent to minimizing
     //   1/2 * ||y - X * beta||^2 + n * lambda * ||beta||_1
+    
     ArrayXd lambda(as<ArrayXd>(lambda_));
     int nlambda = lambda.size();
+    
 
     List opts(opts_);
     const int maxit          = as<int>(opts["maxit"]);
@@ -166,18 +169,19 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     const double eps_abs     = as<double>(opts["eps_abs"]);
     const double eps_rel     = as<double>(opts["eps_rel"]);
     const double rho         = as<double>(opts["rho"]);
-    const double dynamic_rho = as<double>(opts["dynamic_rho"]);
-    const double gamma  = as<double>(gamma_);   //power factor for adaptive lasso
-    bool standardize    = as<bool>(standardize_);
-    bool intercept      = as<bool>(intercept_);
-    bool intercept_bin  = intercept;
-    bool adaptive_lasso = as<bool>(adaptive_lasso_);
+    const bool dynamic_rho   = as<bool>(opts["dynamic_rho"]);
+    const double gamma       = as<double>(gamma_);   //power factor for adaptive lasso
+    bool standardize         = as<bool>(standardize_);
+    bool intercept           = as<bool>(intercept_);
+    bool intercept_bin       = intercept;
+    bool adaptive_lasso      = as<bool>(adaptive_lasso_);
     //bool compute_se     = compute_se_; // not used
     
     // only use wide version of solver if 
     // p >> n and p is very large
     bool tall_condition = n > 2 * p || p < 2500;
-
+    
+    
 
     const SpMat group(as<MSpMat>(group_));
     CharacterVector family(as<CharacterVector>(family_));

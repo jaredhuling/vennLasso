@@ -212,19 +212,21 @@ protected:
 
 
 public:
-    ADMMogLassoWide(ConstGenericMatrix &datX_,
+    ADMMogLassoWide(const Eigen::Ref<const MatrixXd>  &datX_,
                     ConstGenericVector &datY_,
                     const SpMatR &C_,// const VectorXd &D_,
-                    int nobs_, int nvars_, int M_,
-                    int ngroups_,
-                    Rcpp::CharacterVector family_,
-                    VectorXd group_weights_,
-                    Rcpp::IntegerVector group_idx_,
-                    bool dynamic_rho_,
-                    double newton_tol_ = 1e-5,
-                    int newton_maxit_ = 100,
-                    double eps_abs_ = 1e-6,
-                    double eps_rel_ = 1e-6) :
+                    const int &nobs_, 
+                    const int &nvars_, 
+                    const int &M_,
+                    const int &ngroups_,
+                    Rcpp::CharacterVector &family_,
+                    VectorXd &group_weights_,
+                    Rcpp::IntegerVector &group_idx_,
+                    const bool &dynamic_rho_,
+                    const double &newton_tol_,
+                    const int &newton_maxit_,
+                    const double &eps_abs_,
+                    const double &eps_rel_) :
     FADMMBase<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
              (datX_.cols(), C_.rows(), C_.rows(),
               eps_abs_, eps_rel_),
