@@ -1,7 +1,7 @@
 
 ## First submission for 'vennLasso'
 
-* Fix vgrind error 'Uninitialised value was created by a heap allocation'
+* Fix valgrind error 'Uninitialised value was created by a heap allocation'
 
 ## Test environments
 
