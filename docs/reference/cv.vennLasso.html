@@ -23,7 +23,8 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-
+  
+  
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -51,10 +52,25 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="..//index.html">
+    <span class="fa fa-home fa-lg"></span>
+     
+  </a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/using_the_vennLasso_package.html">Using the vennLasso Package</a>
+    </li>
+  </ul>
 </li>
       </ul>
       
@@ -192,7 +208,7 @@ fold omitted. The folid vector is also returned. Default is <code>keep = FALSE</
 <span class='no'>conditions</span> <span class='kw'>&lt;-</span> <span class='fu'>as.matrix</span>(<span class='fu'>cbind</span>(<span class='fu'>c</span>(<span class='fu'>rep</span>(<span class='fl'>1</span>, <span class='fl'>2</span> * <span class='no'>n.obs</span>), <span class='fu'>rep</span>(<span class='fl'>0</span>, <span class='no'>n.obs</span>)),
                               <span class='fu'>c</span>(<span class='fu'>rep</span>(<span class='fl'>0</span>, <span class='no'>n.obs</span>), <span class='fu'>rep</span>(<span class='fl'>1</span>, <span class='fl'>2</span> * <span class='no'>n.obs</span>))))
 
-<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'>rnorm</span>(<span class='no'>n.obs</span> * <span class='fl'>3</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>) + <span class='fu'>drop</span>(<span class='fu'>as.matrix</span>(<span class='fu'>bdiag</span>(<span class='no'>x.sub1</span>, <span class='no'>x.sub2</span>, <span class='no'>x.sub3</span>)) <span class='kw'>%*%</span> <span class='no'>true.beta</span>)
+<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'>rnorm</span>(<span class='no'>n.obs</span> * <span class='fl'>3</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>) + <span class='fu'>drop</span>(<span class='fu'>as.matrix</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/Matrix/topics/bdiag'>bdiag</a></span>(<span class='no'>x.sub1</span>, <span class='no'>x.sub2</span>, <span class='no'>x.sub3</span>)) <span class='kw'>%*%</span> <span class='no'>true.beta</span>)
 
 <span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>cv.vennLasso</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>groups</span> <span class='kw'>=</span> <span class='no'>conditions</span>, <span class='kw'>nfolds</span> <span class='kw'>=</span> <span class='fl'>3</span>)
 
@@ -225,7 +241,7 @@ fold omitted. The folid vector is also returned. Default is <code>keep = FALSE</
 <span class='no'>true.beta</span> <span class='kw'>&lt;-</span> <span class='no'>true.beta</span> / <span class='fl'>2</span>
 <span class='co'># logistic regression example#'</span>
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'>rbinom</span>(<span class='no'>n.obs</span> * <span class='fl'>3</span>, <span class='fl'>1</span>,
-       <span class='kw'>prob</span> <span class='kw'>=</span> <span class='fl'>1</span> / (<span class='fl'>1</span> + <span class='fu'>exp</span>(-<span class='fu'>drop</span>(<span class='fu'>as.matrix</span>(<span class='fu'>bdiag</span>(<span class='no'>x.sub1</span>, <span class='no'>x.sub2</span>, <span class='no'>x.sub3</span>)) <span class='kw'>%*%</span> <span class='no'>true.beta</span>))))
+       <span class='kw'>prob</span> <span class='kw'>=</span> <span class='fl'>1</span> / (<span class='fl'>1</span> + <span class='fu'>exp</span>(-<span class='fu'>drop</span>(<span class='fu'>as.matrix</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/Matrix/topics/bdiag'>bdiag</a></span>(<span class='no'>x.sub1</span>, <span class='no'>x.sub2</span>, <span class='no'>x.sub3</span>)) <span class='kw'>%*%</span> <span class='no'>true.beta</span>))))
 
 <span class='no'>bfit</span> <span class='kw'>&lt;-</span> <span class='fu'>cv.vennLasso</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>groups</span> <span class='kw'>=</span> <span class='no'>conditions</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"binomial"</span>,
                      <span class='kw'>nfolds</span> <span class='kw'>=</span> <span class='fl'>3</span>)
