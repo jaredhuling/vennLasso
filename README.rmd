@@ -5,16 +5,18 @@ output:
         keep_md: true
         fig_width: 7
         fig_height: 5
+        self_contained: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.path = "vignettes/readme_figs/")
 ```
 
+[![version](http://www.r-pkg.org/badges/version/vennLasso)](https://cran.r-project.org/package=vennLasso)
 [![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
 
 # vennLasso
-Hierarchical variable selection for models stratified on binary factors 
+Hierarchical variable selection for models with covariate effects stratified by binary factors 
 
 
 

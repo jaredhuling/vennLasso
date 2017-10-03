@@ -1,10 +1,11 @@
 
 
 
+[![version](http://www.r-pkg.org/badges/version/vennLasso)](https://cran.r-project.org/package=vennLasso)
 [![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
 
 # vennLasso
-Hierarchical variable selection for models stratified on binary factors 
+Hierarchical variable selection for models with covariate effects stratified by binary factors 
 
 
 
