@@ -16,15 +16,20 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = "vignettes/readme_figs/")
 [![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
 
 # vennLasso
-Hierarchical variable selection for models with covariate effects stratified by binary factors 
+
+The `vennLasso` package provides methods for hierarchical variable selection for models with covariate effects stratified by multiple binary factors.
 
 
 
 
 ## Installation and Help Files
 
+The `vennLasso` package can be installed from CRAN using:
+```{r, eval = FALSE}
+install.packages("vennLasso")
+```
 
-Install using the **devtools** package:
+The development version can be installed using the **devtools** package:
 
 ```{r, eval = FALSE}
 devtools::install_github("jaredhuling/vennLasso")
