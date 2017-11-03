@@ -45,8 +45,9 @@ plotSelections <- function(object, s = NULL,
     N            <- object$nobs
     p            <- object$nvars
 
-    dimnames(nbeta)=list(NULL, NULL, NULL)
-    if(!is.null(s)){
+    dimnames(nbeta) <- list(NULL, NULL, NULL)
+    if(!is.null(s))
+    {
         if (length(s) > 1)
         {
             s <- s[1]
@@ -54,18 +55,20 @@ plotSelections <- function(object, s = NULL,
         }
         lambda=object$lambda
         lamlist=lambdaInterp(lambda,s)
-        nbeta = nbeta[,,lamlist$left,drop=TRUE] * lamlist$frac + nbeta[,,lamlist$right,drop=TRUE] * (1-lamlist$frac)
-        #a0 = a0[,lamlist$left, drop=FALSE] * lamlist$frac + a0[,lamlist$right, drop=FALSE] * (1-lamlist$frac)
+        nbeta = nbeta[,,lamlist$left,drop=TRUE]  * lamlist$frac + 
+                nbeta[,,lamlist$right,drop=TRUE] * (1 - lamlist$frac)
         rownames(nbeta) <- combin.names
         colnames(nbeta) <- object$var.names
         nlam <- length(s)
-    } else {
+    } else 
+    {
         stop("must specify s, the lambda value for which to plot estimates")
     }
 
     direct.above.idx.list <- above.idx.list <- vector(mode = "list", length = M)
 
-    for (c in 1:M) {
+    for (c in 1:M) 
+    {
         indi <- which(combin.mat[c,] == 1)
 
         # get all indices of g terms which are directly above the current var
@@ -74,10 +77,13 @@ plotSelections <- function(object, s = NULL,
         # the index for ABC. for none, it will return the indices for
         # A, B, and C, etc
         inner.loop <- (1:(M))[-c]
-        for (j in inner.loop) {
+        for (j in inner.loop) 
+        {
             diffs.tmp <- combin.mat[j,] - combin.mat[c,]
-            if (all( diffs.tmp >= 0 )) {
-                if (sum( diffs.tmp == 1 ) == 1) {
+            if (all( diffs.tmp >= 0 )) 
+            {
+                if (sum( diffs.tmp == 1 ) == 1) 
+                {
                     direct.above.idx.list[[c]] <- c(direct.above.idx.list[[c]], j)
                 }
                 above.idx.list[[c]] <- c(above.idx.list[[c]], j)
@@ -99,6 +105,7 @@ plotSelections <- function(object, s = NULL,
     edges <- data.frame(array(NA, dim = c(length(unlist(direct.above.idx.list)), 3)))
     colnames(edges) <- c("from", "to", "value")
     nodes <- NULL
+    coefs <- varnames <- list()
 
     e.ct <- 0
     for (c in 1:M)
@@ -174,10 +181,16 @@ plotSelections <- function(object, s = NULL,
     nodes <- nodes[!is.na(nodes)]
     nodes.df <- data.frame(id = nodes, label = combin.names[nodes], stringsAsFactors = FALSE)
 
-    num.nz.per.strata <- apply(nbeta, 1, function(x) sum(x != 0))
+    num.nz.per.strata  <- apply(nbeta, 1, function(x) sum(x != 0))
+    
+    # save nonzero coefficients for each subpopulations
+    beta.nz.per.strata <- lapply(apply(nbeta, 1, function(x) list(x[x != 0])  ), "[[", 1)
 
     nodes.df <- nodes.df[nodes.df$label %in% combin.names[num.nz.per.strata > 0], ]
     nodes.df$value <- num.nz.per.strata[match(nodes.df$label, names(num.nz.per.strata))]
+    
+    # reorder subpopulations to align with how nodes are ordered
+    beta.nz.per.strata <- beta.nz.per.strata[match(nodes.df$label, names(num.nz.per.strata))]
 
     sums.inds <- sapply(combin.names, function(x) sum(as.numeric(strsplit(x, ",")[[1]])) )
     zero.idx <- which(sums.inds == 0)
@@ -199,7 +212,7 @@ plotSelections <- function(object, s = NULL,
 
 
 
-    edges2 <- edges
+    edges2    <- edges
     nodes.df2 <- nodes.df
     nodes.df2$group <- 1
 
@@ -208,7 +221,7 @@ plotSelections <- function(object, s = NULL,
     new.ids <- 0:(length(unique.ids) - 1)
 
     edges2$from <- new.ids[match(edges2$from, unique.ids)]
-    edges2$to <- new.ids[match(edges2$to, unique.ids)]
+    edges2$to   <- new.ids[match(edges2$to, unique.ids)]
 
     edges2 <- edges2[order(edges2$from),]
     colnames(edges2)[1:2] <- c("source", "target")
@@ -261,7 +274,16 @@ plotSelections <- function(object, s = NULL,
         #      vertex.label.degree = 0)
     } else if (type == "d3.tree")
     {
-        nodes.df$title = paste0("<p>Num vars selected: ", nodes.df$value,"</p>")
+        
+        node.texts <- sapply(beta.nz.per.strata, 
+                             function(bt) 
+                                 paste(paste0("<b>", names(bt), "</b>: ", round(bt, 5), "<br>"), collapse = " ") )
+        
+        nodes.df$title = paste0("<p>Num vars selected: ", nodes.df$value,"</p>",
+                                "<div class='rPartvisNetworkTooltipShowhim' style='color:blue;'> 
+                                <U>Coefficients</U><div class='rPartvisNetworkTooltipShowme' 
+                                style='color:black;overflow-y: scroll;height: 150px;'>",
+                                node.texts, "</div></div>")
 
         visNetwork(nodes.df, edges) %>%
             visIgraphLayout(layout = "layout_as_tree", physics = FALSE, type = "full",

@@ -878,6 +878,7 @@ vennLasso <- function(x, y,
     fit$aicc                   <- fit$aic + (2 * free.params) * (free.params + 1) / (N - free.params - 1)
     fit$condition.combinations <- combin.mat
     fit$combin.names           <- combin.names
+    fit$var.names              <- vnames
     fit$one.intercept          <- one.intercept
     fit$call                   <- this.call
     if (model.matrix)
