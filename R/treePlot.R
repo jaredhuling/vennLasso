@@ -31,6 +31,15 @@ plotSelections <- function(object, s = NULL,
         if (is.null(s))
         {
             s = object$lambda.min
+        } else if (is.character(s))
+        {
+            if (s == "lambda.min")
+            {
+                s <- object$lambda.min
+            } else if (s == "lambda.1se")
+            {
+                s <- object$lambda.1se
+            } else stop("Invalid specification for s (lambda)")
         }
         object <- object$vennLasso.fit
     }
@@ -53,10 +62,13 @@ plotSelections <- function(object, s = NULL,
             s <- s[1]
             warning("multiple s values given, using first value only")
         }
-        lambda=object$lambda
-        lamlist=lambdaInterp(lambda,s)
-        nbeta = nbeta[,,lamlist$left,drop=TRUE]  * lamlist$frac + 
-                nbeta[,,lamlist$right,drop=TRUE] * (1 - lamlist$frac)
+        
+        if (s < 0) stop("lambda must be positive")
+        
+        lambda  <- object$lambda
+        lamlist <- lambdaInterp(lambda, s)
+        nbeta   <- nbeta[,,lamlist$left,drop=TRUE]  * lamlist$frac + 
+                   nbeta[,,lamlist$right,drop=TRUE] * (1 - lamlist$frac)
         rownames(nbeta) <- combin.names
         colnames(nbeta) <- object$var.names
         nlam <- length(s)
