@@ -18,7 +18,7 @@
 #'
 #' fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 #'
-#' plotSelections(fit, s = fit$lambda[35])
+#' plotSelections(fit, s = fit$lambda[32])
 #'
 #'
 plotSelections <- function(object, s = NULL,
@@ -298,12 +298,15 @@ plotSelections <- function(object, s = NULL,
                                 node.texts, "</div></div>")
 
         visNetwork(nodes.df, edges) %>%
-            visIgraphLayout(layout = "layout_as_tree", physics = FALSE, type = "full",
-                            smooth = TRUE, flip.y = FALSE) %>%
+            visIgraphLayout(layout  = "layout_as_tree", 
+                            physics = FALSE, 
+                            type    = "full",
+                            smooth  = TRUE, 
+                            flip.y  = FALSE) %>%
             visOptions(highlightNearest = list(enabled = TRUE, hover = TRUE, degree = 1),
                        nodesIdSelection = TRUE) %>%
             visInteraction(tooltipDelay = 0) %>%
-            visNodes(font = list(size = 35), mass = 1, physics = FALSE)
+            visNodes(font = list(size = 25), mass = 1, physics = FALSE)
     } else if (type == "ggnet.network")
     {
 
@@ -333,6 +336,288 @@ plotSelections <- function(object, s = NULL,
         #         shadow.size = 0, box.size = box.size, box.cex = 0.9, cex = 0.9)
     }
 
+}
+
+
+
+
+#' plotting function to investigate estimated coefficients
+#'
+#' @param object fitted vennLasso object
+#' @param s lambda value for the predictions. Only one can be specified at a time
+#' @param ... other graphical parameters for the plot
+#' @export
+#' @examples
+#' set.seed(123)
+#'
+#' dat.sim <- genHierSparseData(ncats = 3, nvars = 25, nobs = 200)
+#'
+#' fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
+#'
+#' plotCoefs(fit, s = fit$lambda[32])
+#'
+#'
+plotCoefs <- function(object, s = NULL, ...)
+{
+    
+    if (class(object)[1] == "cv.vennLasso")
+    {
+        if (is.null(s))
+        {
+            s = object$lambda.min
+        } else if (is.character(s))
+        {
+            if (s == "lambda.min")
+            {
+                s <- object$lambda.min
+            } else if (s == "lambda.1se")
+            {
+                s <- object$lambda.1se
+            } else stop("Invalid specification for s (lambda)")
+        }
+        object <- object$vennLasso.fit
+    }
+    
+    nbeta        <- object$beta
+    combin.mat   <- object$condition.combinations
+    combin.names <- object$combin.names
+    n.conditions <- object$n.conditions
+    M            <- object$n.combinations
+    N            <- object$nobs
+    p            <- object$nvars
+    
+    dimnames(nbeta) <- list(NULL, NULL, NULL)
+    if(!is.null(s))
+    {
+        if (length(s) > 1)
+        {
+            s <- s[1]
+            warning("multiple s values given, using first value only")
+        }
+        
+        if (s < 0) stop("lambda must be positive")
+        
+        lambda  <- object$lambda
+        lamlist <- lambdaInterp(lambda, s)
+        nbeta   <- nbeta[,,lamlist$left,drop=TRUE]  * lamlist$frac + 
+            nbeta[,,lamlist$right,drop=TRUE] * (1 - lamlist$frac)
+        rownames(nbeta) <- combin.names
+        colnames(nbeta) <- object$var.names
+        nlam <- length(s)
+    } else 
+    {
+        stop("must specify s, the lambda value for which to plot estimates")
+    }
+    
+    direct.above.idx.list <- above.idx.list <- vector(mode = "list", length = M)
+    
+    for (c in 1:M) 
+    {
+        indi <- which(combin.mat[c,] == 1)
+        
+        # get all indices of g terms which are directly above the current var
+        # in the hierarchy, ie. for three categories A, B, C, for the A group,
+        # this will return the indices for AB and AC. For AB, it will return
+        # the index for ABC. for none, it will return the indices for
+        # A, B, and C, etc
+        inner.loop <- (1:(M))[-c]
+        for (j in inner.loop) 
+        {
+            diffs.tmp <- combin.mat[j,] - combin.mat[c,]
+            if (all( diffs.tmp >= 0 )) 
+            {
+                if (sum( diffs.tmp == 1 ) == 1) 
+                {
+                    direct.above.idx.list[[c]] <- c(direct.above.idx.list[[c]], j)
+                }
+                above.idx.list[[c]] <- c(above.idx.list[[c]], j)
+            }
+        }
+        above.idx.list[[c]] <- c(above.idx.list[[c]], c)
+    }
+    rsc <- rowSums(combin.mat)
+    if (any(rsc == 0)) {
+        above.idx.list[[which(rsc == 0)]] <- which(rsc == 0)
+    }
+    
+    
+    
+    plotMat <- plotMatZero <- array(0, dim = rep(M, 2))
+    colnames(plotMat) <- rownames(plotMat) <- combin.names
+    
+    
+    edges <- data.frame(array(NA, dim = c(length(unlist(direct.above.idx.list)), 3)))
+    colnames(edges) <- c("from", "to", "value")
+    nodes <- NULL
+    coefs <- varnames <- list()
+    
+    e.ct <- 0
+    for (c in 1:M)
+    {
+        num.2.plot <- sum(nbeta[c, ] != 0)
+        above.idx.cur <- direct.above.idx.list[[c]]
+        for (k in 1:length(direct.above.idx.list))
+        {
+            if (!is.null(above.idx.cur[k]) & num.2.plot)
+            {
+                e.ct <- e.ct + 1
+                
+                edges[e.ct, ] <- c(above.idx.cur[k], c, num.2.plot)
+                if (num.2.plot)
+                {
+                    nodes <- c(nodes, c, above.idx.cur[k])
+                }
+            }
+        }
+    }
+    
+    
+    plotMat <- plotMatZero <- array(0, dim = rep(M, 2))
+    colnames(plotMat) <- rownames(plotMat) <- combin.names
+    for (c in 1:M)
+    {
+        num.2.plot <- sum(nbeta[c, ] != 0)
+        above.idx.cur <- direct.above.idx.list[[c]]
+        for (k in 1:length(direct.above.idx.list))
+        {
+            plotMat[above.idx.cur[k], c] <- num.2.plot
+        }
+    }
+    
+    
+    sums.inds <- sapply(combin.names, function(x) sum(as.numeric(strsplit(x, ",")[[1]])) )
+    ord.names.decr <- order(sums.inds, decreasing = TRUE)
+    
+    ## all the observed numbers of conditions
+    unique.cond.nums <- unique(sums.inds)
+    unique.cond.nums <- unique.cond.nums[order(unique.cond.nums, decreasing = TRUE)]
+    
+    zero.sm.idx <- which(unique.cond.nums == 0)
+    ## the number of times each number of conditions will appear in the graph
+    num.nodes.per.row <- sapply(unique.cond.nums, function(x) sum(sums.inds == x))
+    
+    
+    zero.idx <- which(sums.inds[ord.names.decr] == 0)
+    if (length(zero.idx))
+    {
+        plotMat.ordered <- plotMat[ord.names.decr[-zero.idx], ord.names.decr[-zero.idx]]
+        plotMatZero     <- plotMatZero[ord.names.decr[-zero.idx], ord.names.decr[-zero.idx]]
+        names           <- combin.names[ord.names.decr][-zero.idx]
+        positions       <- num.nodes.per.row[-zero.sm.idx]
+    } else
+    {
+        plotMat.ordered <- plotMat[ord.names.decr, ord.names.decr]
+        names           <- combin.names[ord.names.decr]
+        positions       <- num.nodes.per.row
+    }
+    
+    cs <- colSums(plotMat.ordered)
+    rs <- rowSums(plotMat.ordered)
+    csplusrs <- cs + rs
+    
+    nonzero.keep <- csplusrs != 0
+    
+    plotMat.keep <- plotMat.ordered[nonzero.keep, nonzero.keep]
+    
+    
+    edges <- na.omit(edges)
+    nodes <- unique(nodes)
+    nodes <- nodes[!is.na(nodes)]
+    nodes.df <- data.frame(id = nodes, label = combin.names[nodes], stringsAsFactors = FALSE)
+    
+    num.nz.per.strata  <- apply(nbeta, 1, function(x) sum(x != 0))
+    
+    # save nonzero coefficients for each subpopulations
+    beta.nz.per.strata <- lapply(apply(nbeta, 1, function(x) list(x[x != 0])  ), "[[", 1)
+    
+    nodes.df <- nodes.df[nodes.df$label %in% combin.names[num.nz.per.strata > 0], ]
+    nodes.df$value <- num.nz.per.strata[match(nodes.df$label, names(num.nz.per.strata))]
+    
+    # reorder subpopulations to align with how nodes are ordered
+    beta.nz.per.strata <- beta.nz.per.strata[match(nodes.df$label, names(num.nz.per.strata))]
+    
+    all.selected.vars  <- unique(unlist(sapply(beta.nz.per.strata, names)))
+    
+    sums.inds <- sapply(combin.names, function(x) sum(as.numeric(strsplit(x, ",")[[1]])) )
+    zero.idx  <- which(sums.inds == 0)
+    
+    if (length(zero.idx))
+    {
+        edges <- edges[edges$to != zero.idx,]
+        edges <- edges[edges$from != zero.idx,]
+    }
+    
+    for (i in 1:length(all.selected.vars))
+    {
+        nodes.df.cur <- nodes.df
+        edges.cur    <- edges
+        
+        coefs.cur <- sapply(1:length(beta.nz.per.strata), 
+                            function(idx) beta.nz.per.strata[[idx]][match(all.selected.vars[i], names(beta.nz.per.strata[[idx]]))])
+        coefs.cur[is.na(coefs.cur)] <- 0
+        
+        
+        nodes.df.cur$value <- unname(coefs.cur)
+        nodes.df.cur$group <- all.selected.vars[i]
+        
+        is.zero <- nodes.df.cur$value == 0
+        
+        edges.cur <- edges.cur[!(edges.cur$from %in% nodes.df.cur$id[is.zero]),]
+        edges.cur <- edges.cur[!(edges.cur$to %in% nodes.df.cur$id[is.zero]),]
+        
+        
+        if (i == 1)
+        {
+            nodes.df.all  <- nodes.df.cur[!is.zero,,drop=FALSE]
+            edges.all     <- edges.cur
+        } else 
+        {
+            
+            nodes.df.cur$id <- nodes.df.cur$id + (i - 1) * nrow(nodes.df)
+            nodes.df.all <- rbind(nodes.df.all, nodes.df.cur[!is.zero,,drop=FALSE])
+            
+            edges.cur[,c("from", "to")] <- edges.cur[,c("from", "to")] + (i - 1) * nrow(nodes.df)
+            
+            edges.all <- rbind(edges.all, edges.cur)
+        }
+        
+    }
+    
+
+    
+    #visNetwork(nodes.df, edges)
+    
+    
+    
+    #################################################################################
+    
+    
+    #################################################################################
+        
+    node.texts <- sapply(beta.nz.per.strata, 
+                         function(bt) 
+                             paste(paste0("<b>", names(bt), "</b>: ", round(bt, 5), "<br>"), collapse = " ") )
+    
+    
+    
+    edges.all$value <- 1
+    
+    nodes.df.all$coef <- nodes.df.all$value
+    nodes.df.all$value <- abs(nodes.df.all$value)
+    nodes.df.all$col <- ifelse(nodes.df.all$value >= 0, "blue", "red")
+    
+    nodes.df.all$title = paste0("<p>Coef: ", round(nodes.df.all$coef, 6), "</p>")
+    
+    visNetwork(nodes.df.all, edges.all) %>%
+        visIgraphLayout(layout = "layout_as_tree", physics = FALSE, type = "full",
+                        smooth = TRUE, flip.y = FALSE) %>%
+        visLegend(main = "Variable") %>%
+        visOptions(highlightNearest = list(enabled = TRUE, hover = TRUE, degree = 1),
+                   selectedBy = list(variable  = "group")
+                   ) %>%
+        visInteraction(tooltipDelay = 0, navigationButtons = TRUE) %>%
+        visNodes(font = list(size = 25), mass = 1, physics = FALSE)
+    
 }
 
 
