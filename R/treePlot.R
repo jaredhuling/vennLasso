@@ -354,7 +354,7 @@ plotSelections <- function(object, s = NULL,
 #'
 #' fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 #'
-#' plotCoefs(fit, s = fit$lambda[32])
+#' plotCoefs(fit, s = fit$lambda[22])
 #'
 #'
 plotCoefs <- function(object, s = NULL, ...)

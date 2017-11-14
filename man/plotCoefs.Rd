@@ -23,7 +23,7 @@ dat.sim <- genHierSparseData(ncats = 3, nvars = 25, nobs = 200)
 
 fit <- vennLasso(x = dat.sim$x, y = dat.sim$y, groups = dat.sim$group.ind)
 
-plotCoefs(fit, s = fit$lambda[32])
+plotCoefs(fit, s = fit$lambda[22])
 
 
 }
