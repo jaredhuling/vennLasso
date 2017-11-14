@@ -1,12 +1,13 @@
 
-## First submission for 'vennLasso'
+## Minor bug fixes and additions for 'vennLasso'
 
-* Fix valgrind error 'Uninitialised value was created by a heap allocation'
+* Added new plotting function
+* Minor bug fixes
 
 ## Test environments
 
-* local Windows 7 x64 install, (R 3.4.1, R 3.4, 2017-07-03 r72876 R-devel)
-* Ubuntu 12.04.5 LTS (on travis-ci), (R 3.4, R-patch)
+* local Windows 7 x64 install, (R 3.4.2, R 3.4.2 R-devel)
+* Ubuntu 12.04.5 LTS (on travis-ci), (R 3.4.2, R-patch)
 
 ## R CMD check results
 
