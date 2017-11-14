@@ -10,6 +10,7 @@
 #' @param ... other graphical parameters for the plot
 #' @importFrom graphics plot
 #' @import visNetwork
+#' @import igraph
 #' @export
 #' @examples
 #' set.seed(123)
