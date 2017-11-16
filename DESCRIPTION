@@ -7,6 +7,7 @@ Authors@R: c(
     person("Muxuan", "Liang", , , c("ctb")),
     person("Yixuan", "Qiu", , , c("cph")),
     person("Gael", "Guennebaud", , , c("cph")),
+    person("Ray", "Gardner", , , c("cph")),
     person("Jitse", "Niesen", , , c("cph"))
     )
 Description: Provides variable selection and estimation routines for models
