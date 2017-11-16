@@ -9,7 +9,7 @@
 #' @param type type of plot to make. Currently only "d3.tree" and "igraph.tree" available
 #' @param ... other graphical parameters for the plot
 #' @importFrom graphics plot
-#' @import visNetwork
+#' @importFrom visNetwork visNetwork visIgraphLayout visLegend visOptions visInteraction visNodes
 #' @import igraph
 #' @export
 #' @examples

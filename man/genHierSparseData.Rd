@@ -54,8 +54,9 @@ dat.sim <- genHierSparseData(ncats = 3, nvars = 100, nobs = 200)
 
 # estimate hier.sparsity.param for 0.15 total proportion of nonzero variables
 # among vars with hierarchical zero patterns
-# NOT RUN: Takes a long time
-# hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)
+\dontrun{
+hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)
+}
 # the above results in the following value
 hsp <- 0.6270698
 

@@ -6,7 +6,9 @@
 
 ## Test environments
 
-* local Windows 7 x64 install, (R 3.4.2, R 3.4.2 R-devel)
+* local Windows 7 x64 install, (R 3.4.2)
+* Ubuntu Linux 16.04 LTS, R-devel
+* local Mac OSX Sierra (R 3.4.2)
 * Ubuntu 12.04.5 LTS (on travis-ci), (R 3.4.2, R-patch)
 
 ## R CMD check results

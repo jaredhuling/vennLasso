@@ -80,8 +80,10 @@
 #' y <- rnorm(n.obs, sd = 3) + drop(x %*% true.beta)
 #'
 #' groups <- c(list(c(1,2), c(2,3), c(3,4,5), 5:10, 6:12, 7:15), lapply(16:50, function(x) x))
-#'
-#' # fit <- oglasso(x = x, y = y, group = groups)
+#' 
+#' \dontrun{
+#' fit <- oglasso(x = x, y = y, group = groups)
+#' }
 oglasso <- function(x, y,
                     delta                = NULL,
                     group,

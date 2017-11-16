@@ -5,7 +5,9 @@ Version: 0.1.1
 Authors@R: c(
     person("Jared", "Huling", , "jaredhuling@gmail.com", c("aut", "cre")),
     person("Muxuan", "Liang", , , c("ctb")),
-    person("Yixuan", "Qiu", , , c("cph"))
+    person("Yixuan", "Qiu", , , c("cph")),
+    person("Gael", "Guennebaud", , , c("cph")),
+    person("Jitse", "Niesen", , , c("cph"))
     )
 Description: Provides variable selection and estimation routines for models
     with main effects stratified on multiple binary factors. The 'vennLasso' package
