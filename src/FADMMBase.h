@@ -173,8 +173,11 @@ public:
         main_beta(n_), aux_gamma(m_), dual_nu(p_),  // allocate space but do not set values
         adj_gamma(m_), adj_nu(p_),
         old_gamma(m_), old_nu(p_),
-        adj_a(1.0), adj_c(1e30),
-        eps_abs(eps_abs_), eps_rel(eps_rel_)
+        adj_a(1.0), adj_c(1e99),
+        eps_abs(eps_abs_), eps_rel(eps_rel_),
+        eps_primal(0.0), eps_dual(0.0),
+        resid_primal(1e99), resid_dual(1e99)
+        
     {}
 
     virtual ~FADMMBase() {}

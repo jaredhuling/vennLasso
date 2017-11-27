@@ -322,11 +322,11 @@ public:
 
         eps_primal = 0.0;
         eps_dual = 0.0;
-        resid_primal = 1e30;
-        resid_dual = 1e30;
+        resid_primal = 1e99;
+        resid_dual = 1e99;
 
         adj_a = 1.0;
-        adj_c = 1e30;
+        adj_c = 1e99;
 
 
 
