@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>function to generate data with hierarchical sparsity � genHierSparseData • vennLasso</title>
+<title>function to generate data with hierarchical sparsity — genHierSparseData • vennLasso</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -18,13 +18,17 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+<meta property="og:title" content="function to generate data with hierarchical sparsity — genHierSparseData" />
+
+<meta property="og:description" content="function to generate data with hierarchical sparsity" />
+<meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -52,7 +56,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
@@ -68,7 +72,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/using_the_vennLasso_package.pdf">Using the vennLasso Package</a>
+      <a href="../articles/using_the_vennLasso_package.pdf">Using the vennLasso Package (PDF)</a>
     </li>
   </ul>
 </li>
@@ -93,6 +97,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>function to generate data with hierarchical sparsity</h1>
+    <small>Source: <a href='https://github.com/jaredhuling/vennLasso/blob/master/R/simulate_hierarchically_sparse_data.R'><code>R/simulate_hierarchically_sparse_data.R</code></a></small>
     </div>
 
     
@@ -180,10 +185,9 @@ override the given hier.sparsity.param value and estimate it. This takes a while
 <span class='no'>dat.sim</span> <span class='kw'>&lt;-</span> <span class='fu'>genHierSparseData</span>(<span class='kw'>ncats</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>nvars</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>nobs</span> <span class='kw'>=</span> <span class='fl'>200</span>)
 
 <span class='co'># estimate hier.sparsity.param for 0.15 total proportion of nonzero variables</span>
-<span class='co'># among vars with hierarchical zero patterns</span>
-<span class='co'># NOT RUN: Takes a long time</span>
-<span class='co'># hsp &lt;- estimate.hier.sparsity.param(ncats = 3, nvars = 50, avg.hier.zeros = 0.15, nsims = 100)</span>
-<span class='co'># the above results in the following value</span>
+<span class='co'># among vars with hierarchical zero patterns</span></div><span class='co'># NOT RUN {</span>
+<span class='no'>hsp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='estimate.hier.sparsity.param.html'>estimate.hier.sparsity.param</a></span>(<span class='kw'>ncats</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>nvars</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>avg.hier.zeros</span> <span class='kw'>=</span> <span class='fl'>0.15</span>, <span class='kw'>nsims</span> <span class='kw'>=</span> <span class='fl'>100</span>)
+<span class='co'># }</span><div class='input'><span class='co'># the above results in the following value</span>
 <span class='no'>hsp</span> <span class='kw'>&lt;-</span> <span class='fl'>0.6270698</span>
 
 <span class='co'># check that this does indeed achieve the desired level of sparsity</span>
@@ -252,7 +256,7 @@ override the given hier.sparsity.param value and estimate it. This takes a while
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
@@ -260,3 +264,4 @@ override the given hier.sparsity.param value and estimate it. This takes a while
 
   </body>
 </html>
+

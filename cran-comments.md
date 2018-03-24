@@ -3,13 +3,14 @@
 
 * Added new plotting function
 * Minor bug fixes
+* Fix Matrix cBind rBind calls
 
 ## Test environments
 
 * local Windows 7 x64 install, (R 3.4.2)
 * Ubuntu Linux 16.04 LTS, R-devel
 * local Mac OSX Sierra (R 3.4.2)
-* Ubuntu 12.04.5 LTS (on travis-ci), (R 3.4.2, R-patch)
+* Ubuntu 14.04 (on travis-ci), (R 3.4.2, R-patch)
 
 ## R CMD check results
 

@@ -10,6 +10,9 @@ output:
         fig_height: 4
         includes:
             in_header: vignette_preamble.tex
+pkgdown:
+  as_is: true
+  extension: pdf
 vignette: >
   %\VignetteIndexEntry{Using the vennLasso Package}
   %\VignetteEngine{knitr::rmarkdown}

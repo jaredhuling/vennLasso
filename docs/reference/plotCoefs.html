@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>function to generate coefficient matrix with hierarchical sparsity — genHierSparseBeta • vennLasso</title>
+<title>plotting function to investigate estimated coefficients — plotCoefs • vennLasso</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="function to generate coefficient matrix with hierarchical sparsity — genHierSparseBeta" />
+<meta property="og:title" content="plotting function to investigate estimated coefficients — plotCoefs" />
 
-<meta property="og:description" content="function to generate coefficient matrix with hierarchical sparsity" />
+<meta property="og:description" content="plotting function to investigate estimated coefficients" />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -96,46 +96,30 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>function to generate coefficient matrix with hierarchical sparsity</h1>
-    <small>Source: <a href='https://github.com/jaredhuling/vennLasso/blob/master/R/simulate_hierarchically_sparse_data.R'><code>R/simulate_hierarchically_sparse_data.R</code></a></small>
+    <h1>plotting function to investigate estimated coefficients</h1>
+    <small>Source: <a href='https://github.com/jaredhuling/vennLasso/blob/master/R/treePlot.R'><code>R/treePlot.R</code></a></small>
     </div>
 
     
-    <p>function to generate coefficient matrix with hierarchical sparsity</p>
+    <p>plotting function to investigate estimated coefficients</p>
     
 
-    <pre class="usage"><span class='fu'>genHierSparseBeta</span>(<span class='no'>ncats</span>, <span class='no'>nvars</span>, <span class='kw'>hier.sparsity.param</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-  <span class='kw'>avg.hier.zeros</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>effect.size.max</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>misspecification.prop</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
+    <pre class="usage"><span class='fu'>plotCoefs</span>(<span class='no'>object</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ncats</th>
-      <td><p>number of categories to stratify on</p></td>
+      <th>object</th>
+      <td><p>fitted vennLasso object</p></td>
     </tr>
     <tr>
-      <th>nvars</th>
-      <td><p>number of variables</p></td>
+      <th>s</th>
+      <td><p>lambda value for the predictions. Only one can be specified at a time</p></td>
     </tr>
     <tr>
-      <th>hier.sparsity.param</th>
-      <td><p>parameter between 0 and 1 which determines how much hierarchical sparsity there is. To achieve
-a desired total level of sparsity among the variables with hierarchical sparsity, this parameter can be estimated using the
-function 'estimate.hier.sparsity.param'</p></td>
-    </tr>
-    <tr>
-      <th>avg.hier.zeros</th>
-      <td><p>desired percent of zero variables among the variables with hierarchical zero patterns. If this is specified, it will
-override the given hier.sparsity.param value and estimate it. This takes a while</p></td>
-    </tr>
-    <tr>
-      <th>effect.size.max</th>
-      <td><p>maximum magnitude of the true effect sizes</p></td>
-    </tr>
-    <tr>
-      <th>misspecification.prop</th>
-      <td><p>proportion of variables with hierarchical missingness misspecified</p></td>
+      <th>...</th>
+      <td><p>other graphical parameters for the plot</p></td>
     </tr>
     </table>
     
@@ -143,17 +127,11 @@ override the given hier.sparsity.param value and estimate it. This takes a while
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>set.seed</span>(<span class='fl'>123</span>)
 
-<span class='co'># estimate hier.sparsity.param for 0.15 total proportion of nonzero variables</span>
-<span class='co'># among vars with hierarchical zero patterns</span>
-<span class='co'># NOT RUN: Takes a long time</span>
-<span class='co'># hsp &lt;- estimate.hier.sparsity.param(ncats = 3, nvars = 25, avg.hier.zeros = 0.15, nsims = 100)</span>
-<span class='co'># the above results in the following value</span>
-<span class='no'>hsp</span> <span class='kw'>&lt;-</span> <span class='fl'>0.6341772</span>
+<span class='no'>dat.sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='genHierSparseData.html'>genHierSparseData</a></span>(<span class='kw'>ncats</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>nvars</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>nobs</span> <span class='kw'>=</span> <span class='fl'>200</span>)
 
-<span class='co'># check that this does indeed achieve the desired level of sparsity</span>
-<span class='fu'>mean</span>(<span class='fu'>replicate</span>(<span class='fl'>100</span>, <span class='fu'>mean</span>(<span class='fu'>genHierSparseBeta</span>(<span class='kw'>ncats</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                           <span class='kw'>nvars</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>hier.sparsity.param</span> <span class='kw'>=</span> <span class='no'>hsp</span>) <span class='kw'>!=</span> <span class='fl'>0</span>)  ))</div><div class='output co'>#&gt; [1] 0.14565</div><div class='input'>
-<span class='no'>sparseBeta</span> <span class='kw'>&lt;-</span> <span class='fu'>genHierSparseBeta</span>(<span class='kw'>ncats</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>nvars</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>hier.sparsity.param</span> <span class='kw'>=</span> <span class='no'>hsp</span>)</div></pre>
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='vennLasso.html'>vennLasso</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>dat.sim</span>$<span class='no'>x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>dat.sim</span>$<span class='no'>y</span>, <span class='kw'>groups</span> <span class='kw'>=</span> <span class='no'>dat.sim</span>$<span class='no'>group.ind</span>)
+
+<span class='fu'>plotCoefs</span>(<span class='no'>fit</span>, <span class='kw'>s</span> <span class='kw'>=</span> <span class='no'>fit</span>$<span class='no'>lambda</span>[<span class='fl'>22</span>])</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

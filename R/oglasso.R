@@ -158,10 +158,10 @@ oglasso <- function(x, y,
     # add unpenalized group if intercept wanted
     if (intercept & (family != "coxph"))
     {
-        group  <- rBind(0, group)
+        group  <- rbind(0, group)
         if (!is.null(fused))
         {
-            fused <- cBind(0, fused)
+            fused <- cbind(0, fused)
 
         }
     }
@@ -173,7 +173,7 @@ oglasso <- function(x, y,
     rSg <- Matrix::rowSums(group) == 0
     addZeroGroup <- any(rSg)
     if (addZeroGroup) {
-        group <- cBind(group, (1 * rSg))
+        group <- cbind(group, (1 * rSg))
     }
     group.idx <- as.integer(c(0, cumsum(Matrix::colSums(group))))
     ngroups <- ncol(group)
