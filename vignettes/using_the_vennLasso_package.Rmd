@@ -10,6 +10,7 @@ output:
         fig_height: 4
         includes:
             in_header: vignette_preamble.tex
+bibliography: refs.bib
 pkgdown:
   as_is: true
   extension: pdf
@@ -17,12 +18,11 @@ vignette: >
   %\VignetteIndexEntry{Using the vennLasso Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-
 ---
 
 # `vennLasso` Intro 
 
-The `vennLasso` package is motivated by the need to address population heterogeneity in hospital system-wide risk modeling applications, however it can be used in a wide variety of settings. The `vennLasso` package is to be used for high-dimensional modeling scenarios where heterogeneity is defined by several binary factors which stratify the population into multiple subpopulations. For example, `vennLasso` can be used in a hospital-wide risk modeling application if covariate effects in risk models differ for subpopulations of patients with different chronic conditions. Here the chronic conditions are the binary stratifying factors. The `vennLasso` provides computation for a variable selection method which yields variable selection patterns which adhere to the hierarchical nature of the relationships between the various subpopulations. 
+The `vennLasso` package is an implementation of the methods proposed in @huling18 <https://doi.org/10.1111/biom.12769>. The underlying methodology is motivated by the need to address population heterogeneity in hospital system-wide risk modeling applications, however it can be used in a wide variety of settings. It is useful for high-dimensional modeling scenarios where heterogeneity is defined by several binary factors which stratify the population into multiple subpopulations. For example, `vennLasso` can be used in a hospital-wide risk modeling application if covariate effects in risk models differ for subpopulations of patients with different chronic conditions. Here the chronic conditions are the binary stratifying factors. The `vennLasso` provides computation for a variable selection method which yields variable selection patterns which adhere to the hierarchical nature of the relationships between the various subpopulations. 
 
 If the chronic conditions congestive heart failure (CHF), chronic obstructive pulmonary disorder (COPD), and diabetes are used as the stratifying factors, the subpopulations may look like in Figure \ref{fig:strata_data}.
 
@@ -356,4 +356,7 @@ fit2 <- vennLasso(x = x, y = y, groups = grp,
 round(fit2$lower.ci[,7:11,35], 3)
 round(fit2$upper.ci[,7:11,35], 3)
 ```
+
+
+# References
 
