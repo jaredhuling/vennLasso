@@ -9,9 +9,6 @@ r_build_args: --compact-vignettes=both
 
 before_install:
   - tlmgr install tikz-cd sansmath hobby contour
-  - sudo add-apt-repository -y ppa:moti-p/cc
-  - sudo apt-get update
-  - sudo apt-get -y --reinstall install ghostscript
   
 warnings_are_errors: true
 
@@ -22,6 +19,10 @@ notifications:
     on_success: change
     on_failure: always
 
+addons:
+  apt:
+    packages:
+      - ghostscript
 
 os:
   - linux
