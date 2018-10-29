@@ -6,7 +6,8 @@
 ## old
 
 
-PKG_LIBS = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" --vanilla -e "Rcpp:::LdFlags()") 
+##PKG_LIBS = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" --vanilla -e "Rcpp:::LdFlags()") 
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
 PKG_CPPFLAGS = -I. -DNDEBUG
 
