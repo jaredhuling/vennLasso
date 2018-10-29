@@ -4,8 +4,8 @@
 \alias{predict.cv.vennLasso}
 \title{Prediction for Cross Validation Hierarchical Lasso Object}
 \usage{
-\method{predict}{cv.vennLasso}(object, newx, group.mat, s = c("lambda.min"),
-  use.refit = FALSE, ...)
+\method{predict}{cv.vennLasso}(object, newx, group.mat,
+  s = c("lambda.min"), use.refit = FALSE, ...)
 }
 \arguments{
 \item{object}{fitted cv.vennLasso object}

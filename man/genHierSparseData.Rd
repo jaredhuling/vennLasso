@@ -5,10 +5,10 @@
 \title{function to generate data with hierarchical sparsity}
 \usage{
 genHierSparseData(ncats, nvars, nobs, nobs.test = 100,
-  hier.sparsity.param = 0.5, avg.hier.zeros = NULL, prop.zero.vars = 0.5,
-  effect.size.max = 0.5, misspecification.prop = 0, family = c("gaussian",
-  "binomial", "coxph"), sd = 1, snr = NULL, beta = NULL, tau = 10,
-  covar = 0)
+  hier.sparsity.param = 0.5, avg.hier.zeros = NULL,
+  prop.zero.vars = 0.5, effect.size.max = 0.5,
+  misspecification.prop = 0, family = c("gaussian", "binomial",
+  "coxph"), sd = 1, snr = NULL, beta = NULL, tau = 10, covar = 0)
 }
 \arguments{
 \item{ncats}{number of categories to stratify on}

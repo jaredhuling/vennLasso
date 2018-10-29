@@ -5,7 +5,8 @@
 \title{function to generate coefficient matrix with hierarchical sparsity}
 \usage{
 genHierSparseBeta(ncats, nvars, hier.sparsity.param = 0.5,
-  avg.hier.zeros = NULL, effect.size.max = 0.5, misspecification.prop = 0)
+  avg.hier.zeros = NULL, effect.size.max = 0.5,
+  misspecification.prop = 0)
 }
 \arguments{
 \item{ncats}{number of categories to stratify on}

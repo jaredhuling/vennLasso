@@ -4,14 +4,15 @@
 \alias{oglasso}
 \title{Overlapping Group Lasso (OGLasso)}
 \usage{
-oglasso(x, y, delta = NULL, group, fused = NULL, family = c("gaussian",
-  "binomial", "coxph"), nlambda = 100L, lambda = NULL,
-  lambda.min.ratio = NULL, lambda.fused = 0, alpha = NULL,
-  group.weights = NULL, adaptive.lasso = FALSE, adaptive.fused = FALSE,
-  penalty.factor = NULL, penalty.factor.fused = NULL, gamma = 1,
-  standardize = TRUE, intercept = TRUE, compute.se = FALSE, rho = NULL,
-  dynamic.rho = TRUE, maxit = 500L, abs.tol = 1e-05, rel.tol = 1e-05,
-  irls.tol = 1e-05, irls.maxit = 100L)
+oglasso(x, y, delta = NULL, group, fused = NULL,
+  family = c("gaussian", "binomial", "coxph"), nlambda = 100L,
+  lambda = NULL, lambda.min.ratio = NULL, lambda.fused = 0,
+  alpha = NULL, group.weights = NULL, adaptive.lasso = FALSE,
+  adaptive.fused = FALSE, penalty.factor = NULL,
+  penalty.factor.fused = NULL, gamma = 1, standardize = TRUE,
+  intercept = TRUE, compute.se = FALSE, rho = NULL,
+  dynamic.rho = TRUE, maxit = 500L, abs.tol = 1e-05,
+  rel.tol = 1e-05, irls.tol = 1e-05, irls.maxit = 100L)
 }
 \arguments{
 \item{x}{input matrix of dimension nobs by nvars. Each row is an observation,

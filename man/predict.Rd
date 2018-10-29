@@ -5,8 +5,8 @@
 \title{Prediction for Hierarchical Shared Lasso}
 \usage{
 \method{predict}{vennLasso}(object, newx, group.mat, s = NULL,
-  use.refit = FALSE, type = c("link", "response", "coefficients", "nonzero",
-  "class", "nvars", "median", "survival"), ...)
+  use.refit = FALSE, type = c("link", "response", "coefficients",
+  "nonzero", "class", "nvars", "median", "survival"), ...)
 }
 \arguments{
 \item{object}{fitted vennLasso object}

@@ -1,9 +1,7 @@
 
 ## Minor bug fixes and additions for 'vennLasso'
 
-* Added new plotting function
-* Minor bug fixes
-* Fix Matrix cBind rBind calls
+* fixes PKG_LIBS call in makevars (Problem Prof Ripley pointed out)
 
 ## Test environments
 

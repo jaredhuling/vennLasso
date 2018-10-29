@@ -5,8 +5,8 @@
 \title{plotting function for venn diagrams of overlapping conditions}
 \usage{
 plotVenn(conditions, condition.names = NULL, lty = "blank",
-  fill.colors = c("royalblue1", "goldenrod1", "mediumvioletred", "turquoise3",
-  "firebrick1"), ...)
+  fill.colors = c("royalblue1", "goldenrod1", "mediumvioletred",
+  "turquoise3", "firebrick1"), ...)
 }
 \arguments{
 \item{conditions}{condition matrix such as the one given to vennLasso() function. It can have up to 5 conditions}
