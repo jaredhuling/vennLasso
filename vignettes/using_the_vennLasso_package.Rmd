@@ -26,6 +26,7 @@ The `vennLasso` package is an implementation of the methods proposed in @huling1
 
 If the chronic conditions congestive heart failure (CHF), chronic obstructive pulmonary disorder (COPD), and diabetes are used as the stratifying factors, the subpopulations may look like in Figure \ref{fig:strata_data}.
 
+
 \begin{figure}[!h]
 \centering
 \resizebox{.75\textwidth}{!}{% <------ Don't forget this %
