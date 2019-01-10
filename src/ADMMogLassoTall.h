@@ -320,8 +320,8 @@ public:
         // precompute LLT decomposition of (X'X + rho * D'D)
         solver.compute(matToSolve.selfadjointView<Eigen::Lower>());
 
-        eps_primal = 0.0;
-        eps_dual = 0.0;
+        eps_primal = 1e-15;
+        eps_dual = 1e-15;
         resid_primal = 1e99;
         resid_dual = 1e99;
 
@@ -365,10 +365,10 @@ public:
         // precompute LLT decomposition of (X'X + rho * C'C)
         solver.compute(matToSolve.selfadjointView<Eigen::Lower>());
 
-        eps_primal = 0.0;
-        eps_dual = 0.0;
-        resid_primal = 1e30;
-        resid_dual = 1e30;
+        eps_primal = 1e-15;
+        eps_dual = 1e-15;
+        resid_primal = 1e99;
+        resid_dual = 1e99;
 
         // adj_a = 1.0;
         // adj_c = 9999;

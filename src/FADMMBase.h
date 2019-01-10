@@ -16,6 +16,12 @@ class FADMMBase
 {
 protected:
     typedef typename VecTypeNu::RealScalar Yscalar;
+    
+    double eps_primal;    // tolerance for primal residual
+    double eps_dual;      // tolerance for dual residual
+    
+    double resid_primal;  // primal residual
+    double resid_dual;    // dual residual
 
     const int dim_main;   // dimension of x
     const int dim_aux;    // dimension of z
@@ -35,12 +41,6 @@ protected:
     double rho;           // augmented Lagrangian parameter
     const double eps_abs; // absolute tolerance
     const double eps_rel; // relative tolerance
-
-    double eps_primal;    // tolerance for primal residual
-    double eps_dual;      // tolerance for dual residual
-
-    double resid_primal;  // primal residual
-    double resid_dual;    // dual residual
 
     virtual void A_mult (VecTypeNu &res, VecTypeBeta &x) = 0;   // operation res -> Ax, x can be overwritten
     virtual void At_mult(VecTypeNu &res, VecTypeNu &y) = 0;   // operation res -> A'y, y can be overwritten
@@ -105,14 +105,14 @@ protected:
     // increase or decrease rho in iterations
     virtual void update_rho()
     {
-        if(resid_primal / eps_primal > 10 * resid_dual / eps_dual)
+        if(resid_primal / eps_primal > 10.0 * resid_dual / eps_dual)
         {
-            rho *= 2;
+            rho *= 2.0;
             rho_changed_action();
         }
-        else if(resid_dual / eps_dual > 10 * resid_primal / eps_primal)
+        else if(resid_dual / eps_dual > 10.0 * resid_primal / eps_primal)
         {
-            rho /= 2;
+            rho /= 2.0;
             rho_changed_action();
         }
 
@@ -169,14 +169,14 @@ protected:
 public:
     FADMMBase(int n_, int m_, int p_,
               double eps_abs_ = 1e-6, double eps_rel_ = 1e-6) :
+        eps_primal(1e-15), eps_dual(1e-15),
+        resid_primal(1e99), resid_dual(1e99),
         dim_main(n_), dim_aux(m_), dim_dual(p_),
         main_beta(n_), aux_gamma(m_), dual_nu(p_),  // allocate space but do not set values
         adj_gamma(m_), adj_nu(p_),
         old_gamma(m_), old_nu(p_),
         adj_a(1.0), adj_c(1e99),
-        eps_abs(eps_abs_), eps_rel(eps_rel_),
-        eps_primal(0.0), eps_dual(0.0),
-        resid_primal(1e99), resid_dual(1e99)
+        eps_abs(eps_abs_), eps_rel(eps_rel_)
         
     {}
 
