@@ -79,6 +79,7 @@ protected:
     //Eigen::DiagonalMatrix<double, Eigen::Dynamic> one_over_D_diag; // diag(1/D)
 
 
+    
 
     virtual void block_soft_threshold(VectorXd &gammavec, VectorXd &d,
                                       const double &lam, const double &step_size)
@@ -456,8 +457,11 @@ public:
 
                 // print_row(i);
 
-                if(converged())
-                    break;
+                if (j > 0)
+                {
+                    if(converged())
+                        break;
+                }
 
                 double old_c = adj_c;
                 adj_c = compute_resid_combined();

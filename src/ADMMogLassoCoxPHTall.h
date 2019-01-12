@@ -81,6 +81,7 @@ protected:
 
   VectorXd savedEigs;           // saved eigenvalues
 
+  
 
   virtual void block_soft_threshold(VectorXd &gammavec, VectorXd &d,
                                     const double &lam, const double &step_size)
@@ -577,8 +578,11 @@ public:
                 update_gamma();
                 update_nu();
 
-                if(converged())
-                    break;
+                if (j > 0)
+                {
+                    if(converged())
+                        break;
+                }
 
                 double old_c = adj_c;
                 adj_c = compute_resid_combined();

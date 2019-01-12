@@ -79,6 +79,7 @@ protected:
     //Eigen::DiagonalMatrix<double, Eigen::Dynamic> one_over_D_diag; // diag(1/D)
 
 
+    
 
     virtual void block_soft_threshold(VectorXd &gammavec, VectorXd &d,
                                       const double &lam, const double &step_size)

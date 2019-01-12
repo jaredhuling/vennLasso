@@ -78,6 +78,7 @@ protected:
     //Eigen::DiagonalMatrix<double, Eigen::Dynamic> one_over_D_diag; // diag(1/D)
 
 
+    
 
     virtual void block_soft_threshold(VectorXd &gammavec, VectorXd &d,
                                       const double &lam, const double &step_size)
@@ -104,6 +105,8 @@ protected:
             }
         }
     }
+    
+    
 
 
     // x -> Ax
@@ -322,11 +325,11 @@ public:
 
         eps_primal = 1e-15;
         eps_dual = 1e-15;
-        resid_primal = 1e99;
-        resid_dual = 1e99;
+        resid_primal = 1e30;
+        resid_dual = 1e30;
 
         adj_a = 1.0;
-        adj_c = 1e99;
+        adj_c = 1e30;
 
 
 
@@ -367,12 +370,63 @@ public:
 
         eps_primal = 1e-15;
         eps_dual = 1e-15;
-        resid_primal = 1e99;
-        resid_dual = 1e99;
+        resid_primal = 1e30;
+        resid_dual = 1e30;
 
         // adj_a = 1.0;
         // adj_c = 9999;
         rho_changed_action();
+    }
+    
+    
+    virtual int solve(int maxit)
+    {
+        int i = 0;
+        
+        for(i = 0; i < maxit; i++)
+        {
+            old_gamma = aux_gamma;
+            // old_nu = dual_nu;
+            std::copy(dual_nu.data(), dual_nu.data() + dim_dual, old_nu.data());
+            
+            update_beta();
+            update_gamma();
+            update_nu();
+            
+            // print_row(i);
+            
+            if (i > 0)
+            {
+                if(converged())
+                    break;
+            }
+            
+            double old_c = adj_c;
+            adj_c = compute_resid_combined();
+            
+            if(adj_c < 0.999 * old_c)
+            {
+                double old_a = adj_a;
+                adj_a = 0.5 + 0.5 * std::sqrt(1 + 4.0 * old_a * old_a);
+                double ratio = (old_a - 1.0) / adj_a;
+                adj_gamma = (1 + ratio) * aux_gamma - ratio * old_gamma;
+                adj_nu.noalias() = (1 + ratio) * dual_nu - ratio * old_nu;
+            } else {
+                adj_a = 1.0;
+                adj_gamma = old_gamma;
+                // adj_nu = old_nu;
+                std::copy(old_nu.data(), old_nu.data() + dim_dual, adj_nu.data());
+                adj_c = old_c / 0.999;
+            }
+            // only update rho after a few iterations and after every 40 iterations.
+            // too many updates makes it slow.
+            if(i > 5 && i % 500 == 0)
+                update_rho();
+        }
+        
+        // print_footer();
+        
+        return i + 1;
     }
 
     virtual double get_loss()
