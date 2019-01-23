@@ -2,6 +2,7 @@
 ## Minor bug fixes and additions for 'vennLasso'
 
 * fixes valgrind error
+* dramatically shortens examples via \dontrun{}
 
 ## Test environments
 
