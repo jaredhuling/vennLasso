@@ -104,6 +104,7 @@
 #'
 #'
 #' # logistic regression example
+#' \dontrun{
 #' set.seed(123)
 #' dat.sim <- genHierSparseData(ncats = 2, nvars = 25,
 #'                              nobs = 200, 
@@ -122,6 +123,7 @@
 #'
 #' (true.coef.b <- -true.beta.b[match(dimnames(fit$beta)[[1]], rownames(true.beta.b)),])
 #' round(bfit$beta[,,20], 2)
+#' }
 #'
 vennLasso <- function(x, y,
                       groups,
