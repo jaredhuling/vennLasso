@@ -1,11 +1,11 @@
 
 ## Minor bug fixes and additions for 'vennLasso'
 
-* fixes PKG_LIBS call in makevars (Problem Prof Ripley pointed out)
+* fixes valgrind error
 
 ## Test environments
 
-* Ubuntu Linux 16.04 LTS, (R-devel 2018-10-27 r75507)
+* Ubuntu Linux 16.04 LTS, (R-devel)
 * local Mac OSX Sierra (R 3.5.1)
 * Ubuntu 14.04.5 LTS (on travis-ci), (R 3.5.1, R-patch)
 
