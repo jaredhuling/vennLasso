@@ -31,7 +31,7 @@ against the percent deviance explained.}
 \description{
 Plot method for cv.vennLasso fitted objects
 
-Prediction method for vennLasso fitted objects
+Plotting method for vennLasso fitted objects
 }
 \examples{
 set.seed(123)

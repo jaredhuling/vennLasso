@@ -1,5 +1,5 @@
 
-#' Prediction method for vennLasso fitted objects
+#' Plotting method for vennLasso fitted objects
 #' 
 #' @param x fitted \code{vennLasso} or \code{cv.vennLasso} model object
 #' @param which.subpop which row in the coefficient matrix should be plotting? Each row corresponds to
