@@ -7,9 +7,14 @@
 \usage{
 \method{plot}{cv.vennLasso}(x, sign.lambda = 1, ...)
 
-\method{plot}{vennLasso}(x, which.subpop = 1, xvar = c("norm",
-  "lambda", "loglambda", "dev"), xlab = iname, ylab = "Coefficients",
-  ...)
+\method{plot}{vennLasso}(
+  x,
+  which.subpop = 1,
+  xvar = c("norm", "lambda", "loglambda", "dev"),
+  xlab = iname,
+  ylab = "Coefficients",
+  ...
+)
 }
 \arguments{
 \item{x}{fitted \code{vennLasso} or \code{cv.vennLasso} model object}

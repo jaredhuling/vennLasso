@@ -4,10 +4,21 @@
 \alias{cv.vennLasso}
 \title{Cross Validation for the vennLasso}
 \usage{
-cv.vennLasso(x, y, groups, lambda = NULL, compute.se = FALSE,
-  conf.int = NULL, type.measure = c("mse", "deviance", "class", "auc",
-  "mae", "brier"), nfolds = 10, foldid, grouped = TRUE, keep = FALSE,
-  parallel = FALSE, ...)
+cv.vennLasso(
+  x,
+  y,
+  groups,
+  lambda = NULL,
+  compute.se = FALSE,
+  conf.int = NULL,
+  type.measure = c("mse", "deviance", "class", "auc", "mae", "brier"),
+  nfolds = 10,
+  foldid,
+  grouped = TRUE,
+  keep = FALSE,
+  parallel = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{input matrix or SparseMatrix of dimension nobs x nvars. Each row is an observation,

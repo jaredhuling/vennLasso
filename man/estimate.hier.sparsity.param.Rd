@@ -4,8 +4,14 @@
 \alias{estimate.hier.sparsity.param}
 \title{function to estimate the hierarchical sparsity parameter for a desired level of sparsity for simulated hierarchical coefficients}
 \usage{
-estimate.hier.sparsity.param(ncats, nvars, avg.hier.zeros = 0.3,
-  nsims = 150, effect.size.max = 0.5, misspecification.prop = 0)
+estimate.hier.sparsity.param(
+  ncats,
+  nvars,
+  avg.hier.zeros = 0.3,
+  nsims = 150,
+  effect.size.max = 0.5,
+  misspecification.prop = 0
+)
 }
 \arguments{
 \item{ncats}{number of categories to stratify on}

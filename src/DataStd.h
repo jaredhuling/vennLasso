@@ -143,12 +143,16 @@ public:
                     scaleX[i] = std::sqrt(ss - s * s / n) * n_invsqrt;
                     standardize_vec_avx<double>(begin, n, meanX[i], 1.0 / scaleX[i]);
     #else
-                    double *begin = &X(0, i);
-                    double *end = begin + n;
+                    // double *begin = &X(0, i);
+                    // double *end = begin + n;
+                    // meanX[i] = X.col(i).mean();
+                    // std::transform(begin, end, begin, std::bind2nd(std::minus<double>(), meanX[i]));
+                    // scaleX[i] = X.col(i).norm() * n_invsqrt;
+                    // std::transform(begin, end, begin, std::bind2nd(std::multiplies<double>(), 1.0 / scaleX[i]));
                     meanX[i] = X.col(i).mean();
-                    std::transform(begin, end, begin, std::bind2nd(std::minus<double>(), meanX[i]));
+                    X.col(i).array() -= meanX[i];
                     scaleX[i] = X.col(i).norm() * n_invsqrt;
-                    std::transform(begin, end, begin, std::bind2nd(std::multiplies<double>(), 1.0 / scaleX[i]));
+                    X.col(i).array() /= scaleX[i];
     #endif
                 }
                 break;

@@ -4,6 +4,7 @@
 #include <RcppEigen.h>
 #include "Linalg/BlasWrapper.h"
 
+// [[Rcpp::plugins(cpp17)]]
 
 // General problem setting
 //   minimize f(x) + g(z)

@@ -4,15 +4,35 @@
 \alias{vennLasso}
 \title{Fitting vennLasso models}
 \usage{
-vennLasso(x, y, groups, family = c("gaussian", "binomial"),
-  nlambda = 100L, lambda = NULL, lambda.min.ratio = NULL,
-  lambda.fused = NULL, penalty.factor = NULL, group.weights = NULL,
-  adaptive.lasso = FALSE, adaptive.fused = FALSE, gamma = 1,
-  standardize = FALSE, intercept = TRUE, one.intercept = FALSE,
-  compute.se = FALSE, conf.int = NULL, rho = NULL,
-  dynamic.rho = TRUE, maxit = 500L, abs.tol = 1e-05,
-  rel.tol = 1e-05, irls.tol = 1e-05, irls.maxit = 100L,
-  model.matrix = FALSE, ...)
+vennLasso(
+  x,
+  y,
+  groups,
+  family = c("gaussian", "binomial"),
+  nlambda = 100L,
+  lambda = NULL,
+  lambda.min.ratio = NULL,
+  lambda.fused = NULL,
+  penalty.factor = NULL,
+  group.weights = NULL,
+  adaptive.lasso = FALSE,
+  adaptive.fused = FALSE,
+  gamma = 1,
+  standardize = FALSE,
+  intercept = TRUE,
+  one.intercept = FALSE,
+  compute.se = FALSE,
+  conf.int = NULL,
+  rho = NULL,
+  dynamic.rho = TRUE,
+  maxit = 500L,
+  abs.tol = 1e-05,
+  rel.tol = 1e-05,
+  irls.tol = 1e-05,
+  irls.maxit = 100L,
+  model.matrix = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{input matrix of dimension nobs by nvars. Each row is an observation,
