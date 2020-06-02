@@ -1,14 +1,13 @@
 
-## Minor bug fixes and additions for 'vennLasso'
+## Minor bug fixes for 'vennLasso'
 
-* fixes valgrind error
-* dramatically shortens examples via \dontrun{}
+* removes dependency on c++11 deprecated functions
 
 ## Test environments
 
-* Ubuntu Linux 16.04 LTS, (R-devel)
-* local Mac OSX Sierra (R 3.5.1)
-* Ubuntu 14.04.5 LTS (on travis-ci), (R 3.5.1, R-patch)
+* Ubuntu Linux 16.04.6 LTS, (R version 4.0.0 (2020-04-24))
+* local Mac OSX Mojave (R 4.0.0)
+* Ddebian, (R devel, 2020-05-30 r78619)
 
 ## R CMD check results
 
