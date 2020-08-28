@@ -1,11 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  4 JUN 2020 13:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  8 JUL 2020 10:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**/Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package.te
-x
-
-(/Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package.tex
+**/Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package.tex
+(/Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package.tex
 LaTeX2e <2017-04-15>
 Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/article.cls
@@ -1692,31 +1690,30 @@ File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 LaTeX Warning: Reference `eqn:pen_lik' on page 4 undefined on input line 489.
 
 [4]
-</Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package_fil
-es/figure-latex/plotpaths-1.pdf, id=88, 490.83376pt x 554.07pt>
-File: /Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_packag
-e_files/figure-latex/plotpaths-1.pdf Graphic file (type pdf)
+</Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_files/f
+igure-latex/plotpaths-1.pdf, id=88, 490.83376pt x 554.07pt>
+File: /Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_fi
+les/figure-latex/plotpaths-1.pdf Graphic file (type pdf)
 
-<use /Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package
-_files/figure-latex/plotpaths-1.pdf>
-Package pdftex.def Info: /Users/huling.7/github/vennLasso/docs/articles/using_t
-he_vennLasso_package_files/figure-latex/plotpaths-1.pdf used on input line 626.
-
+<use /Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_fil
+es/figure-latex/plotpaths-1.pdf>
+Package pdftex.def Info: /Users/huling.7/github/vennLasso/vignettes/using_the_v
+ennLasso_package_files/figure-latex/plotpaths-1.pdf used on input line 626.
 (pdftex.def)             Requested size: 469.77203pt x 530.29482pt.
-[5] [6 </Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_pack
-age_files/figure-latex/plotpaths-1.pdf>]
-</Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package_fil
-es/figure-latex/plotcv-1.pdf, id=107, 476.78125pt x 258.9675pt>
-File: /Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_packag
-e_files/figure-latex/plotcv-1.pdf Graphic file (type pdf)
+[5] [6 </Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_
+files/figure-latex/plotpaths-1.pdf>]
+</Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_files/f
+igure-latex/plotcv-1.pdf, id=107, 476.78125pt x 258.9675pt>
+File: /Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_fi
+les/figure-latex/plotcv-1.pdf Graphic file (type pdf)
 
-<use /Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package
-_files/figure-latex/plotcv-1.pdf>
-Package pdftex.def Info: /Users/huling.7/github/vennLasso/docs/articles/using_t
-he_vennLasso_package_files/figure-latex/plotcv-1.pdf used on input line 672.
+<use /Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_fil
+es/figure-latex/plotcv-1.pdf>
+Package pdftex.def Info: /Users/huling.7/github/vennLasso/vignettes/using_the_v
+ennLasso_package_files/figure-latex/plotcv-1.pdf used on input line 672.
 (pdftex.def)             Requested size: 469.78143pt x 255.16547pt.
-[7 </Users/huling.7/github/vennLasso/docs/articles/using_the_vennLasso_package_
-files/figure-latex/plotcv-1.pdf>] [8]
+[7 </Users/huling.7/github/vennLasso/vignettes/using_the_vennLasso_package_file
+s/figure-latex/plotcv-1.pdf>] [8]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 763.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 763.
 (./using_the_vennLasso_package.aux)
@@ -1729,12 +1726,12 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 763.
  ) 
 Here is how much of TeX's memory you used:
  35252 strings out of 492995
- 684724 string characters out of 6132704
+ 684680 string characters out of 6132704
  758557 words of memory out of 5000000
  38061 multiletter control sequences out of 15000+600000
  164483 words of font info for 186 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,14n,103p,10611b,1102s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,14n,103p,10607b,1102s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
 texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local/texlive/2017/
 texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2017/texmf-dist
@@ -1762,7 +1759,7 @@ usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmsso12.pfb></usr/local
 /type1/public/lm/lmtk10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/pub
 lic/lm/lmtt10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmt
 ti10.pfb>
-Output written on using_the_vennLasso_package.pdf (8 pages, 537074 bytes).
+Output written on using_the_vennLasso_package.pdf (8 pages, 536572 bytes).
 PDF statistics:
  258 PDF objects out of 1000 (max. 8388607)
  215 compressed objects within 3 object streams
