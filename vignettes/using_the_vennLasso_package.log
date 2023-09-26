@@ -1,12 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.2)  13 SEP 2023 18:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.2)  26 SEP 2023 08:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**/private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/preview-d
-8a075d75118.dir/using_the_vennLasso_package.tex
-
-(/private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/preview-d8
-a075d75118.dir/using_the_vennLasso_package.tex
+**/Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package.tex
+(/Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package.tex
 LaTeX2e <2020-10-01> patch level 2
 L3 programming layer <2020-10-27> xparse <2020-03-03> (/usr/local/texlive/2020/
 texmf-dist/tex/latex/base/article.cls
@@ -1054,50 +1051,40 @@ File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 LaTeX Warning: Reference `eqn:pen_lik' on page 4 undefined on input line 518.
 
 [4]
-</private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/preview-d8
-a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotpaths-1.pdf, 
-id=88, 490.83376pt x 554.07pt>
-File: /private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/previ
-ew-d8a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotpaths-1.
-pdf Graphic file (type pdf)
-<use /private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/previe
-w-d8a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotpaths-1.p
-df>
-Package pdftex.def Info: /private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp
-/T/RtmpUNn21G/preview-d8a075d75118.dir/using_the_vennLasso_package_files/figure
--latex/plotpaths-1.pdf  used on input line 655.
+</Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_files/fig
+ure-latex/plotpaths-1.pdf, id=88, 490.83376pt x 554.07pt>
+File: /Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_file
+s/figure-latex/plotpaths-1.pdf Graphic file (type pdf)
+<use /Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_files
+/figure-latex/plotpaths-1.pdf>
+Package pdftex.def Info: /Users/huling/github/vennLasso/vignettes/using_the_ven
+nLasso_package_files/figure-latex/plotpaths-1.pdf  used on input line 655.
 (pdftex.def)             Requested size: 469.77203pt x 530.29482pt.
-[5] [6 </private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/pre
-view-d8a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotpaths-
-1.pdf>]
-</private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/preview-d8
-a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotcv-1.pdf, id=
-107, 476.78125pt x 258.9675pt>
-File: /private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/previ
-ew-d8a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotcv-1.pdf
- Graphic file (type pdf)
-<use /private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/previe
-w-d8a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotcv-1.pdf>
-
-Package pdftex.def Info: /private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp
-/T/RtmpUNn21G/preview-d8a075d75118.dir/using_the_vennLasso_package_files/figure
--latex/plotcv-1.pdf  used on input line 701.
+[5] [6 </Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_fi
+les/figure-latex/plotpaths-1.pdf>]
+</Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_files/fig
+ure-latex/plotcv-1.pdf, id=107, 476.78125pt x 258.9675pt>
+File: /Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_file
+s/figure-latex/plotcv-1.pdf Graphic file (type pdf)
+<use /Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_files
+/figure-latex/plotcv-1.pdf>
+Package pdftex.def Info: /Users/huling/github/vennLasso/vignettes/using_the_ven
+nLasso_package_files/figure-latex/plotcv-1.pdf  used on input line 701.
 (pdftex.def)             Requested size: 469.78143pt x 255.16547pt.
-[7 </private/var/folders/7j/qn48gsqs7879wns7cbdbj_qr0000gp/T/RtmpUNn21G/preview
--d8a075d75118.dir/using_the_vennLasso_package_files/figure-latex/plotcv-1.pdf>]
-[8] (./using_the_vennLasso_package.aux)
+[7 </Users/huling/github/vennLasso/vignettes/using_the_vennLasso_package_files/
+figure-latex/plotcv-1.pdf>] [8] (./using_the_vennLasso_package.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
  28497 strings out of 479485
- 551488 string characters out of 5871978
+ 550760 string characters out of 5871978
  882497 words of memory out of 5000000
  44740 multiletter control sequences out of 15000+600000
  696014 words of font info for 202 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 80i,14n,107p,952b,1099s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 80i,14n,107p,900b,1099s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
 texlive/2020/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local/texlive/2020/
 texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2020/texmf-dist
@@ -1125,7 +1112,7 @@ usr/local/texlive/2020/texmf-dist/fonts/type1/public/lm/lmsso12.pfb></usr/local
 /type1/public/lm/lmtk10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/pub
 lic/lm/lmtt10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/lm/lmt
 ti10.pfb>
-Output written on using_the_vennLasso_package.pdf (8 pages, 537182 bytes).
+Output written on using_the_vennLasso_package.pdf (8 pages, 537491 bytes).
 PDF statistics:
  258 PDF objects out of 1000 (max. 8388607)
  215 compressed objects within 3 object streams
