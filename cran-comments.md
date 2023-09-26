@@ -1,13 +1,12 @@
 
 ## Minor bug fixes for 'vennLasso'
 
-* removes dependency on c++11 deprecated functions
+* Fixes minor bibliographic error that occurred *only* on Fedora R-devel with clang that resulted in the package being removed from CRAN 
 
 ## Test environments
 
-* Ubuntu Linux 16.04.6 LTS, (R version 4.0.0 (2020-04-24))
-* local Mac OSX Mojave (R 4.0.0)
-* Ddebian, (R devel, 2020-05-30 r78619)
+* local Mac OSX Mojave (R 4.2.0)
+* Ddebian, (R Under development (unstable) (2023-06-09 r84528))
 
 ## R CMD check results
 
