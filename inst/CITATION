@@ -1,18 +1,17 @@
-citHeader("To cite vennLasso in publications use:")
-
-citEntry(, 
-  entry        = "Article",
-  author       = "Jared Huling and Menggang Yu and Muxian Liang and Maureen Smith",
-  title        = "Risk prediction for heterogeneous populations with application to hospital admission prediction",
+bibentry(
+  bibtype      = "Article",
+  header       = "To cite vennLasso in publications use:",
+  author       = c(person("Jared D.", "Huling"), person("Menggang", "Yu"),
+                   person("Muxuan", "Liang"), person("Maureen", "Smith")),
+  title        = "Risk Prediction for Heterogeneous Populations with Application to Hospital Admission Prediction",
   journal      = "Biometrics",
   year         = "2018",
-  volume       = {75},
-  issue        = {2},
-  pages        = "557-565",
+  volume       = "74",
+  number       = "2",
+  pages        = "557--565",
   doi          = "10.1111/biom.12769",
-  url          = "https://doi.org/10.1111/biom.12769",
-  textVersion  = paste("Huling, J. D., Yu, M., Liang, M., & Smith, M. (2018) ",
-      "Risk prediction for heterogeneous populations with application to hospital admission prediction, ",
-      "Biometrics, 75(2), pages 557-665.",
-      "https://doi.org/10.1111/biom.12769.")
+  textVersion  = paste("Huling, J. D., Yu, M., Liang, M., & Smith, M. (2018).",
+      "Risk prediction for heterogeneous populations with application to hospital admission prediction.",
+      "Biometrics, 74(2), 557-565.",
+      "https://doi.org/10.1111/biom.12769")
 )

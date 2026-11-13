@@ -31,30 +31,34 @@ oglasso(
   abs.tol = 1e-05,
   rel.tol = 1e-05,
   irls.tol = 1e-05,
-  irls.maxit = 100L
+  irls.maxit = 100L,
+  dfmax = NULL
 )
 }
 \arguments{
 \item{x}{input matrix of dimension nobs by nvars. Each row is an observation,
-each column corresponds to a covariate}
+each column corresponds to a covariate. A sparse matrix is converted to a dense matrix.}
 
-\item{y}{numeric response vector of length nobs}
+\item{y}{numeric response vector of length nobs. For \code{family = "binomial"} it must take the values 0 and 1;
+for \code{family = "coxph"} it holds the observed times.}
 
 \item{delta}{vector of length equal to the number of observations with values in 1 and 0, where a 1 indicates the
-observed time is a death and a 0 indicates the observed time is a censoring event}
+observed time is a death and a 0 indicates the observed time is a censoring event. Required for \code{family = "coxph"}.}
 
 \item{group}{A list of length equal to the number of groups containing vectors of integers
 indicating the variable IDs for each group. For example, \code{group = list(c(1,2), c(2,3), c(3,4,5))} specifies
 that Group 1 contains variables 1 and 2, Group 2 contains variables 2 and 3, and Group 3 contains
 variables 3, 4, and 5. Can also be a matrix of 0s and 1s with the number of columns equal to the
 number of groups and the number of rows equal to the number of variables. A value of 1 in row i and
-column j indicates that variable i is in group j and 0 indicates that variable i is not in group j.}
+column j indicates that variable i is in group j and 0 indicates that variable i is not in group j.
+Variables that belong to no group are left unpenalized.}
 
-\item{fused}{matrix specifying generalized lasso penalty formulation. Each column corresponds to each variable
-and each row corresponds to a new penalty term, ie if row 1 has the first entry of 1 and the second
-entry of -1, then the penalty term lambda.fused * |beta_1 - beta_2| will be added. Not available now}
+\item{fused}{not yet implemented; must be \code{NULL}.}
 
-\item{family}{"gaussian" for least squares problems, "binomial" for binary response}
+\item{family}{\code{"gaussian"} for least squares problems, \code{"binomial"} for binary response,
+and \code{"coxph"} for time-to-event outcomes (Cox proportional hazards model with the Breslow
+treatment of tied times). The Cox solver forms the nvars x nvars matrix \eqn{X'WX}, which needs
+8 * nvars^2 bytes (3.2 GB for 20000 variables)}
 
 \item{nlambda}{The number of lambda values. Default is 100.}
 
@@ -62,43 +66,47 @@ entry of -1, then the penalty term lambda.fused * |beta_1 - beta_2| will be adde
 automatically computed, ranging uniformly on the log scale over the relevant range of lambda values.}
 
 \item{lambda.min.ratio}{Smallest value for lambda, as a fraction of lambda.max, the (data derived) entry
-value (i.e. the smallest value for which all parameter estimates are zero). The default
+value. lambda.max is computed for the problem in which the intercept and any unpenalized variables are
+fit, and every coefficient in a penalized group is zero at lambda.max. With overlapping groups,
+lambda.max is a value at which the zero solution is guaranteed, which can be somewhat larger than the
+smallest such value. The default
 depends on the sample size nobs relative to the number of variables nvars. If
 \code{nobs > nvars}, the default is 0.0001, close to zero. If \code{nobs < nvars}, the default
-is 0.01. A very small value of \code{lambda.min.ratio} will lead to a saturated fit in
+is 0.05. A very small value of \code{lambda.min.ratio} will lead to a saturated fit in
 the \code{nobs < nvars} case.}
 
-\item{lambda.fused}{tuning parameter for fused (generalized) lasso penalty}
+\item{lambda.fused}{not used (the fused penalty is not yet implemented)}
 
-\item{alpha}{currently not used. Will be used later for fused lasso}
+\item{alpha}{currently not used.}
 
 \item{group.weights}{A vector of values representing multiplicative factors by which each group's penalty is to
-be multiplied. Often, this is a function (such as the square root) of the number of predictors in each group.
+be multiplied, one value per group. Often, this is a function (such as the square root) of the number of predictors in each group.
 The default is to use the square root of group size for the group selection methods.}
 
 \item{adaptive.lasso}{Flag indicating whether or not to use adaptive lasso weights. If set to \code{TRUE} and
 \code{group.weights} is unspecified, then this will override \code{group.weights}. If a vector is supplied to group.weights,
 then the \code{adaptive.lasso} weights will be multiplied by the \code{group.weights} vector}
 
-\item{adaptive.fused}{Flag indicating whether or not to use adaptive fused lasso weights.}
+\item{adaptive.fused}{not used (the fused penalty is not yet implemented)}
 
 \item{penalty.factor}{vector of weights to be multiplied to the tuning parameter for the
 group lasso penalty. A vector of length equal to the number of groups}
 
-\item{penalty.factor.fused}{vector of weights to be multiplied to the tuning parameter for the
-fused lasso penalty. A vector of length equal to the number of variables. mostly for internal usage}
+\item{penalty.factor.fused}{not used (the fused penalty is not yet implemented)}
 
 \item{gamma}{power to raise the MLE estimated weights by for the adaptive lasso. defaults to 1}
 
-\item{standardize}{Logical flag for \code{x} variable standardization, prior to fitting the models. 
-The coefficients are always returned on the original scale. Default is \code{standardize = TRUE}. If 
-variables are in the same units already, you might not wish to standardize.}
+\item{standardize}{Logical flag for \code{x} variable standardization, prior to fitting the models.
+Each column of \code{x} is divided by its standard deviation (computed with divisor nobs) and,
+when an intercept is fit, centered at its mean; constant columns are not scaled.
+The coefficients are always returned on the original scale. Default is \code{standardize = TRUE}. If
+variables are in the same units already, you might not wish to standardize. The response is never
+centered or scaled.}
 
-\item{intercept}{Should intercept(s) be fitted (\code{default = TRUE}) or set to zero (\code{FALSE})}
+\item{intercept}{Should intercept(s) be fitted (\code{default = TRUE}) or set to zero (\code{FALSE}).
+Ignored (no intercept) for \code{family = "coxph"}.}
 
-\item{compute.se}{Should standard errors be computed? If \code{TRUE}, then models are re-fit with no penalization and the standard
-errors are computed from the refit models. These standard errors are only theoretically valid for the
-adaptive lasso (when \code{adaptive.lasso} is set to \code{TRUE})}
+\item{compute.se}{not used by \code{oglasso()}; see \code{\link{vennLasso}}}
 
 \item{rho}{ADMM parameter. must be a strictly positive value. By default, an appropriate value is automatically chosen}
 
@@ -115,18 +123,35 @@ Default is \code{10^{-5}}, which is typically adequate.}
 \item{irls.tol}{convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is \code{10^{-5}}.}
 
 \item{irls.maxit}{integer. Maximum number of IRLS iterations. Only used if \code{family != "gaussian"}. Default is 100.}
+
+\item{dfmax}{limit on the number of nonzero coefficients (not counting the intercept). The path is
+stopped, with a warning, at the first lambda at which more than \code{dfmax} coefficients are nonzero,
+and only the solutions for the larger values of lambda are returned. The default \code{NULL} places
+no limit, so the whole path is computed.}
 }
 \value{
-An object with S3 class "oglasso"
+An object with S3 class "oglasso", a list including
+\item{beta}{matrix of coefficients on the original scale of \code{x}, with one row for the intercept
+(zero when no intercept is fit) followed by one row per variable, and one column per value of lambda}
+\item{lambda}{the values of lambda used}
+\item{loss}{the loss (residual sum of squares for gaussian, negative log-likelihood for binomial) at each lambda}
+\item{niter}{number of iterations used for each value of lambda}
+\item{group.weights}{the group weights used, including penalty factors and adaptive weights}
 }
 \description{
-Overlapping Group Lasso (OGLasso)
+Fits the overlapping group lasso, which minimizes
+\deqn{\ell(\beta_0, \beta)/n + \lambda \sum_{g} w_g \|\beta_{G_g}\|_2}{loss/n + lambda * sum_g w_g ||beta_{G_g}||_2}
+over a path of values of \eqn{\lambda}, where the groups \eqn{G_g} may overlap, \eqn{\ell} is the
+residual sum of squares divided by 2 (\code{family = "gaussian"}), the negative log-likelihood
+(\code{family = "binomial"}), or the negative Breslow partial log-likelihood (\code{family = "coxph"}),
+and \eqn{w_g} is the product of \code{group.weights} and \code{penalty.factor} (and of the
+adaptive weights when \code{adaptive.lasso = TRUE}).
 }
 \examples{
 library(vennLasso)
 
 set.seed(123)
-n.obs <- 1e3
+n.obs <- 200
 n.vars <- 50
 
 true.beta <- c(rep(0,2), 1, -1, rep(0, 8), 0.5, -0.5, 1, rep(0, 35))
@@ -136,7 +161,6 @@ y <- rnorm(n.obs, sd = 3) + drop(x \%*\% true.beta)
 
 groups <- c(list(c(1,2), c(2,3), c(3,4,5), 5:10, 6:12, 7:15), lapply(16:50, function(x) x))
 
-\dontrun{
-fit <- oglasso(x = x, y = y, group = groups)
-}
+fit <- oglasso(x = x, y = y, group = groups, nlambda = 25)
+round(fit$beta[1:16, c(1, 10, 25)], 3)
 }

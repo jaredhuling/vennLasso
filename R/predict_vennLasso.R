@@ -81,13 +81,15 @@ predict.vennLasso <- function(object, newx,
           ind.2.remove <- c(c, ind.2.remove)
         }
       }
-      Mnew <- M
-      # remove combinations that have no observations
-      if (!is.null(ind.2.remove)) {
-        data.indices[ind.2.remove] <- NULL
-        Mnew <- length(data.indices)
-        #combin.mat <- combin.mat[-ind.2.remove,]
+      if (length(unlist(data.indices)) < n.obs)
+      {
+          warning("some rows of group.mat are combinations of conditions not present in the fitted model; ",
+                  "their predictions are NA")
       }
+      ## keep data.indices aligned with the rows of the coefficient array:
+      ## combinations without new observations are skipped below rather than
+      ## removed (removing them shifted later combinations onto the wrong
+      ## coefficients)
 
       ###Check on newx
       if(inherits(newx, "sparseMatrix"))newx=as(newx,"dgCMatrix")
@@ -133,13 +135,15 @@ predict.vennLasso <- function(object, newx,
 
     lambda  = object$lambda
     lamlist = lambdaInterp(lambda,s)
-    nbeta   = nbeta[,,lamlist$left,drop=FALSE] * lamlist$frac + nbeta[,,lamlist$right,drop=FALSE] * (1-lamlist$frac)
+    ## interpolate along the third (lambda) dimension
+    nbeta   = sweep(nbeta[,,lamlist$left,drop=FALSE], 3, lamlist$frac, "*") +
+              sweep(nbeta[,,lamlist$right,drop=FALSE], 3, 1 - lamlist$frac, "*")
     a0      = a0[,lamlist$left, drop=FALSE] * lamlist$frac + a0[,lamlist$right, drop=FALSE] * (1-lamlist$frac)
     dimnames(nbeta) = list(object$combin.names, object$var.names, paste(seq(along = s)))
     nlam <- length(s)
   } else {
-    dimnames(nbeta) = list(object$combin.names, object$var.names, paste(seq(along = object$lam)))
-    nlam <- length(object$lam)
+    dimnames(nbeta) = list(object$combin.names, object$var.names, paste(seq(along = object$lambda)))
+    nlam <- length(object$lambda)
   }
 
   if (type == "coefficients")
@@ -168,8 +172,9 @@ predict.vennLasso <- function(object, newx,
 
 
   nfit <- matrix(NA, ncol = nlam, nrow = n.obs)
-  for (c in 1:Mnew)
+  for (c in 1:M)
   {
+      if (length(data.indices[[c]]) == 0) next
       # make sure observations with each combination of
       # conditions are predicted with the correct coefficients.
       # data.indices cbind(rep(a0, nrow(object$beta)), object$beta)
@@ -183,7 +188,7 @@ predict.vennLasso <- function(object, newx,
                   matrix(nbeta[c,,],ncol=dim(nbeta)[3])
           } else
           {
-              nfit[data.indices[[c]],] <- cbind2(1, newx[data.indices[[c]],]) %*%
+              nfit[data.indices[[c]],] <- cbind2(1, newx[data.indices[[c]],,drop=FALSE]) %*%
                   matrix(nbeta[c,,],ncol=dim(nbeta)[3])
           }
       } else
@@ -194,7 +199,7 @@ predict.vennLasso <- function(object, newx,
               rbind(as.vector(a0), matrix(nbeta[c,,],ncol=dim(nbeta)[3]))
           } else
           {
-              nfit[data.indices[[c]],] <- cbind2(1, newx[data.indices[[c]],]) %*%
+              nfit[data.indices[[c]],] <- cbind2(1, newx[data.indices[[c]],,drop=FALSE]) %*%
                     rbind(as.vector(a0), matrix(nbeta[c,,],ncol=dim(nbeta)[3]))
           }
       }

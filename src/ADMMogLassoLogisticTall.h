@@ -167,11 +167,21 @@ protected:
         {
             MatOpSymLower<Double> op(XX);
             //Spectra::SymEigsSolver< Double, Spectra::LARGEST_ALGE, MatOpSymLower<Double> > eigs(&op, 1, 3);
-            Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
-            // srand(0);
-            eigs.init();
-            eigs.compute(1000, 0.01);
-            Vector evals = eigs.eigenvalues();
+            // largest and smallest eigenvalues; Spectra needs nev < ncv <= size,
+            // so small matrices use a dense eigensolver
+            Vector evals(2);
+            if (XX.rows() > 5)
+            {
+                Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
+                eigs.init();
+                eigs.compute(1000, 0.01);
+                evals = eigs.eigenvalues();
+            } else
+            {
+                Eigen::SelfAdjointEigenSolver<Matrix> es(Matrix(XX.selfadjointView<Eigen::Lower>()), Eigen::EigenvaluesOnly);
+                evals(0) = es.eigenvalues().maxCoeff();
+                evals(1) = es.eigenvalues().minCoeff();
+            }
             savedEigs = evals;
 
             // float lam_fact = lambda;
@@ -342,8 +352,10 @@ public:
         resid_primal = 1e30;
         resid_dual = 1e30;
 
-        // adj_a = 1.0;
-        // adj_c = 9999;
+        // restart the acceleration: the state of the previous problem can satisfy
+        // the residual test after a few iterations at a non-optimal point
+        adj_a = 1.0;
+        adj_c = 1e30;
     }
 
     virtual VectorXd get_gamma() {

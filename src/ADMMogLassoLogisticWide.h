@@ -139,10 +139,14 @@ protected:
     {
         VectorXd rhs2 = XY - CCol.adjoint() * adj_nu + rho * (CCol.adjoint() * adj_gamma);
         
-        VectorXd rhs = (( datX * (rhs2.array() * CC_inv.array().square()).matrix() )).matrix();
+        // Woodbury identity with D = diag(C'C):
+        //   (X'WX + rho * D)^{-1} r = D^{-1} r / rho
+        //       - D^{-1} X' (W^{-1} + X D^{-1} X' / rho)^{-1} X D^{-1} r / rho^2
+        // (solver holds the factorization of W^{-1} + X D^{-1} X' / rho)
+        VectorXd rhs = datX * (rhs2.array() * CC_inv.array()).matrix();
         
         res.noalias() = ((rhs2.array() * CC_inv.array()).array() / rho - 
-                            (datX.adjoint() * solver.solve(rhs)).array() / (std::pow(rho, 2))).matrix();
+                            CC_inv.array() * (datX.adjoint() * solver.solve(rhs)).array() / (std::pow(rho, 2))).matrix();
     }
 
     virtual void next_gamma(Vector &res)
@@ -177,11 +181,21 @@ protected:
         {
             MatOpSymLower<Double> op(XX);
             //Spectra::SymEigsSolver< Double, Spectra::LARGEST_ALGE, MatOpSymLower<Double> > eigs(&op, 1, 3);
-            Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
-            // srand(0);
-            eigs.init();
-            eigs.compute(1000, 0.01);
-            Vector evals = eigs.eigenvalues();
+            // largest and smallest eigenvalues; Spectra needs nev < ncv <= size,
+            // so small matrices use a dense eigensolver
+            Vector evals(2);
+            if (XX.rows() > 5)
+            {
+                Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
+                eigs.init();
+                eigs.compute(1000, 0.01);
+                evals = eigs.eigenvalues();
+            } else
+            {
+                Eigen::SelfAdjointEigenSolver<Matrix> es(Matrix(XX.selfadjointView<Eigen::Lower>()), Eigen::EigenvaluesOnly);
+                evals(0) = es.eigenvalues().maxCoeff();
+                evals(1) = es.eigenvalues().minCoeff();
+            }
             savedEigs = evals;
 
             // float lam_fact = lambda;

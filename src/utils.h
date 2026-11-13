@@ -21,7 +21,7 @@ using Eigen::Lower;
 using Eigen::Upper;
 using Eigen::Ref;
 typedef Eigen::Triplet<double> T;
-typedef Eigen::MappedSparseMatrix<double> MSpMat;
+typedef Eigen::Map<Eigen::SparseMatrix<double> > MSpMat;  // MappedSparseMatrix was removed in Eigen 5
 typedef Eigen::SparseVector<double> SpVec;
 typedef Eigen::SparseMatrix<double> SpMat;
 typedef Eigen::Map<MatrixXd> MapMat;

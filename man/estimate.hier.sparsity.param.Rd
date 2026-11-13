@@ -35,10 +35,10 @@ set.seed(123)
 
 # estimate hier.sparsity.param for 0.15 total proportion of nonzero variables
 # among vars with hierarchical zero patterns
-\dontrun{
-hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 25, avg.hier.zeros = 0.15, nsims = 100)
+\donttest{
+hsp <- estimate.hier.sparsity.param(ncats = 3, nvars = 25, avg.hier.zeros = 0.15, nsims = 10)
 }
-# the above results in the following value
+# with nsims = 100, the above results in the following value
 hsp <- 0.6341772
 
 # check that this does indeed achieve the desired level of sparsity
@@ -48,16 +48,12 @@ mean(replicate(100, mean(genHierSparseBeta(ncats = 3,
 sparseBeta <- genHierSparseBeta(ncats = 3, nvars = 25, hier.sparsity.param = hsp)
 
 
-\dontrun{
+\donttest{
 hsp2 <- estimate.hier.sparsity.param(ncats = 2, nvars = 100, 
-                        avg.hier.zeros = 0.30, nsims = 50) # 0.5778425
-hsp3 <- estimate.hier.sparsity.param(ncats = 3, nvars = 100, 
-                        avg.hier.zeros = 0.30, nsims = 50) # 0.4336312
-hsp4 <- estimate.hier.sparsity.param(ncats = 4, nvars = 100, 
-                        avg.hier.zeros = 0.30, nsims = 50) # 0.2670061
-hsp5 <- estimate.hier.sparsity.param(ncats = 5, nvars = 100, 
-                        avg.hier.zeros = 0.30, nsims = 50) # 0.146682
+                        avg.hier.zeros = 0.30, nsims = 10)
 }
-# 0.07551241 for hsp6
+# with nsims = 50 and nvars = 100, avg.hier.zeros = 0.30 gives
+# 0.5778425 (ncats = 2), 0.4336312 (ncats = 3), 0.2670061 (ncats = 4),
+# 0.146682 (ncats = 5) and 0.07551241 (ncats = 6)
 
 }

@@ -75,7 +75,7 @@
 #' round(fitted.coef, 2)
 #'
 #' ## effects smaller for logistic regression
-#' \dontrun{
+#' \donttest{
 #' true.beta.mat <- true.beta.mat / 2
 #' true.beta <- true.beta / 2
 #' # logistic regression example#'
@@ -124,6 +124,9 @@ cv.vennLasso <- function(x, y,
                                 compute.se = compute.se, 
                                 conf.int = conf.int, ...)
   vennLasso.object$call=vennLasso.call
+  ## every fold is fit on the lambda sequence of the full-data fit, so that
+  ## the cross-validation error is averaged over common values of lambda
+  lambda <- vennLasso.object$lambda
   #is.offset=vennLasso.object$offset
   #lambda=vennLasso.object$lambda
   #if(inherits(vennLasso.object,"multnet")){
@@ -346,7 +349,7 @@ cv.venncoxph <- function(outlist,lambda,x,y,groups,foldid,type.measure,grouped,k
         which  <- foldid==i
         fitobj <- outlist[[i]]
         #if(is.offset)off_sub=offset[which]
-        nlami  <- length(outlist[[i]]$lam)
+        nlami  <- length(outlist[[i]]$lambda)
 
         if(type.measure == "deviance")
         {
@@ -456,7 +459,7 @@ cv.vennbinomial <- function(outlist,
     fitobj   <- outlist[[i]]
     #if(is.offset)off_sub=offset[which]
     preds    <- predict(fitobj, newx = x[which,,drop=FALSE], group.mat = groups[which,,drop=FALSE], type="response")
-    nlami    <- length(outlist[[i]]$lam)
+    nlami    <- length(outlist[[i]]$lambda)
     predmat[which,seq(nlami)] <- preds
     nlams[i] <- nlami
   }

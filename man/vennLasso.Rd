@@ -59,13 +59,16 @@ automatically computed, ranging uniformly on the log scale over the relevant ran
 value (i.e. the smallest value for which all parameter estimates are zero). The default
 depends on the sample size \code{nobs} relative to the number of variables \code{nvars}. If
 \code{nobs > nvars}, the default is 0.0001, close to zero. If \code{nobs < nvars}, the default
-is 0.01. A very small value of \code{lambda.min.ratio} can lead to a saturated fit
+is 0.05. A very small value of \code{lambda.min.ratio} can lead to a saturated fit
 when \code{nobs < nvars}.}
 
 \item{lambda.fused}{tuning parameter for fused lasso penalty}
 
 \item{penalty.factor}{vector of weights to be multiplied to the tuning parameter for the
-group lasso penalty. A vector of length equal to the number of groups}
+group lasso penalty, one per variable and subpopulation before empty groups are removed: a vector of
+length \code{(ncol(x) + 1) * M} (without the 1 when \code{one.intercept = TRUE}), where \code{M} is the
+number of combinations of conditions present in the data, ordered by variable and then by combination.
+The penalty factors of the subpopulation intercepts are always set to zero.}
 
 \item{group.weights}{A vector of values representing multiplicative factors by which each group's penalty is to
 be multiplied. Often, this is a function (such as the square root) of the number of predictors in each group.
@@ -79,7 +82,12 @@ then the \code{adaptive.lasso} weights will be multiplied by the \code{group.wei
 
 \item{gamma}{power to raise the MLE estimated weights by for the adaptive lasso. defaults to 1}
 
-\item{standardize}{Should the data be standardized? Defaults to \code{FALSE}.}
+\item{standardize}{Should the data be standardized? Defaults to \code{FALSE}. If \code{TRUE}, each column of
+the expanded (stratum-specific) design matrix is scaled by its standard deviation before fitting, and the
+coefficients are returned on the original scale; see \code{\link{oglasso}}. Each stratum-specific column
+is zero outside its stratum, and its standard deviation is computed over all observations, so the
+scaling (and hence the effective penalty) depends on the size of the stratum; to standardize within
+strata instead, scale \code{x} within each stratum before calling \code{vennLasso()}.}
 
 \item{intercept}{Should an intercept be fit? Defaults to \code{TRUE}}
 
@@ -105,16 +113,24 @@ Default is \code{10^{-5}}, which is typically adequate.}
 \item{rel.tol}{relative convergence tolerance for ADMM iterations for the relative dual and primal residuals.
 Default is \code{10^{-5}}, which is typically adequate.}
 
-\item{irls.tol}{convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is 10^{-5}.}
+\item{irls.tol}{convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is \code{10^{-5}}.}
 
 \item{irls.maxit}{integer. Maximum number of IRLS iterations. Only used if \code{family != "gaussian"}. Default is 100.}
 
 \item{model.matrix}{logical flag. Should the design matrix used be returned?}
 
-\item{...}{not used}
+\item{...}{further arguments passed to \code{\link{oglasso}}, for example \code{dfmax}}
 }
 \value{
-An object with S3 class "vennLasso"
+An object with S3 class "vennLasso", a list including
+\item{beta}{array of coefficients with dimensions (combinations of conditions) x (variables) x (lambda values)}
+\item{lambda}{the values of lambda used}
+\item{df}{\code{nobs} minus the effective number of parameters at each lambda. The effective number of
+parameters is \eqn{tr\{(H_S + N\lambda A_S)^{-1} H_S\}} over the active set \eqn{S} (nonzero and
+unpenalized coefficients), where \eqn{H} is the Hessian of the loss and
+\eqn{A_j = \sum_{g \ni j} w_g / \|\beta_g\|_2} is the local quadratic approximation of the penalty
+(Section 3.3 of Huling et al., 2018); unpenalized coefficients such as the intercepts count fully}
+\item{aic, bic, aicc, mbic}{information criteria based on that effective number of parameters}
 }
 \description{
 Fitting vennLasso models
@@ -139,21 +155,22 @@ true.beta.mat <- dat.sim$beta.mat
 
 fit <- vennLasso(x = x, y = y, groups = conditions)
 
+## coefficients at the value of lambda selected by BIC
 (true.coef <- true.beta.mat[match(dimnames(fit$beta)[[1]], rownames(true.beta.mat)),])
-round(fit$beta[,,21], 2)
+round(fit$beta[,,which.min(fit$bic)], 2)
 
 ## fit adaptive version and compute confidence intervals
 afit <- vennLasso(x = x, y = y, groups = conditions, conf.int = 0.95, adaptive.lasso = TRUE)
 
-(true.coef <- true.beta.mat[match(dimnames(fit$beta)[[1]], rownames(true.beta.mat)),])[,1:10]
-round(afit$beta[,1:10,28], 2)
-round(afit$lower.ci[,1:10,28], 2)
-round(afit$upper.ci[,1:10,28], 2)
-
 aic.idx <- which.min(afit$aic)
 bic.idx <- which.min(afit$bic)
 
-# actual coverage
+## first ten variables (column 1 of the coefficient arrays is the intercept)
+round(true.coef[,1:10], 2)
+round(afit$beta[,2:11,aic.idx], 2)
+round(afit$lower.ci[,2:11,aic.idx], 2)
+round(afit$upper.ci[,2:11,aic.idx], 2)
+
 # actual coverage
 mean(true.coef[afit$beta[,-1,aic.idx] != 0] >= 
              afit$lower.ci[,-1,aic.idx][afit$beta[,-1,aic.idx] != 0] &
@@ -165,7 +182,7 @@ mean(covered)
 
 
 # logistic regression example
-\dontrun{
+\donttest{
 set.seed(123)
 dat.sim <- genHierSparseData(ncats = 2, nvars = 25,
                              nobs = 200, 
@@ -183,7 +200,7 @@ true.beta.b <- dat.sim$beta.mat
 bfit <- vennLasso(x = x, y = y, groups = conditions, family = "binomial")
 
 (true.coef.b <- -true.beta.b[match(dimnames(fit$beta)[[1]], rownames(true.beta.b)),])
-round(bfit$beta[,,20], 2)
+round(bfit$beta[,,which.min(bfit$bic)], 2)
 }
 
 }

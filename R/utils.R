@@ -4,26 +4,32 @@ checkWhichVarsMissingForWhichConditions <- function(x, group.indicators) {
     # checks if any variables are missing for an entire disease condition
     # returns logical matrix of dimension (num.vars)x(num.groups) with TRUE
     # in position i,j indicating that variable i is missing in all of group j
-    t(apply(is.na(x), 2,
-            function(x.bool) apply(group.indicators, 2, function(gr) all(x.bool[which(gr == 1)]) ) ) )
+    # (vapply keeps the matrix shape when there is a single condition)
+    x.na <- is.na(x)
+    t(matrix(vapply(seq_len(ncol(x)), function(i)
+        vapply(seq_len(ncol(group.indicators)), function(j) all(x.na[group.indicators[, j] == 1, i]), logical(1)),
+        logical(ncol(group.indicators))), nrow = ncol(group.indicators)))
 }
 
 checkWhichVarsMissingForAllButOneCondition <- function(x, group.indicators) {
-    # checks if any variables are missing for all entire disease condition
+    # checks if any variables are missing for all observations outside a condition
     # returns logical matrix of dimension (num.vars)x(num.groups) with TRUE
-    # in position i,j indicating that variable i is missing in all of group j
-    t(apply(is.na(x), 2,
-            function(x.bool) apply(group.indicators, 2, function(gr) all(x.bool[which(gr != 1)]) ) ) )
+    # in position i,j indicating that variable i is missing for every observation not in group j
+    x.na <- is.na(x)
+    t(matrix(vapply(seq_len(ncol(x)), function(i)
+        vapply(seq_len(ncol(group.indicators)), function(j) all(x.na[group.indicators[, j] != 1, i]), logical(1)),
+        logical(ncol(group.indicators))), nrow = ncol(group.indicators)))
 }
 
 checkWhichVarsZeroSDForWhichConditions <- function(x, group.indicators, combin.mat) {
-    # checks if any variables are missing for an entire disease condition
-    # returns logical matrix of dimension (num.vars)x(num.groups) with TRUE
-    # in position i,j indicating that variable i is missing in all of group j
+    # checks if any variables have no variation (or are entirely missing) within a
+    # combination of conditions; returns logical matrix of dimension
+    # (num.vars)x(num.combinations)
     gr.symbols <- apply(group.indicators, 1, function(xx) paste(xx, collapse = ","))
     combins.unique <- apply(combin.mat, 1, function(xx) paste(xx, collapse = ","))
-    ret <- t(apply(x, 2,
-                   function(xj) sapply(combins.unique, function(gr) sd(xj[which(gr == gr.symbols)], na.rm = TRUE) == 0 ) ) )
+    ret <- t(matrix(vapply(seq_len(ncol(x)), function(i)
+        vapply(combins.unique, function(gr) sd(x[gr == gr.symbols, i], na.rm = TRUE) == 0, logical(1)),
+        logical(length(combins.unique))), nrow = length(combins.unique)))
     ret[is.na(ret)] <- TRUE
     ret
 }

@@ -47,6 +47,8 @@ protected:
   MapMat datX;                  // data matrix
   MapVec datY;                  // response vector
   MapVeci delta;                // indicator of event
+  MapVeci tiestart;             // for each row, the first row with the same time
+                                // (rows sorted by time); defines Breslow risk sets
   const SpMatR C;               // pointer to C matrix
   //const MapVec D;             // pointer D vector
   // VectorXd D;
@@ -196,12 +198,21 @@ protected:
       MatOpSymLower<Double> op(XX);
       //std::cout << "start" << std::endl;
       //Spectra::SymEigsSolver< Double, Spectra::LARGEST_ALGE, MatOpSymLower<Double> > eigs(&op, 1, 3);
-      Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
-      // srand(0);
-      eigs.init();
-      eigs.compute(100, 0.1);
-      //std::cout << "stop" << std::endl;
-      Vector evals = eigs.eigenvalues();
+      // largest and smallest eigenvalues; Spectra needs nev < ncv <= size,
+      // so small matrices use a dense eigensolver
+      Vector evals(2);
+      if (XX.rows() > 5)
+      {
+          Spectra::SymEigsSolver< Double, Spectra::BOTH_ENDS, MatOpSymLower<Double> > eigs(&op, 2, 5);
+          eigs.init();
+          eigs.compute(100, 0.1);
+          evals = eigs.eigenvalues();
+      } else
+      {
+          Eigen::SelfAdjointEigenSolver<Matrix> es(Matrix(XX.selfadjointView<Eigen::Lower>()), Eigen::EigenvaluesOnly);
+          evals(0) = es.eigenvalues().maxCoeff();
+          evals(1) = es.eigenvalues().minCoeff();
+      }
       savedEigs = evals;
 
       //float lam_fact = lambda;
@@ -275,6 +286,7 @@ public:
     ADMMogLassoCoxPHTall(ConstGenericMatrix &datX_,
                          ConstGenericVector &datY_,
                          ConstGenericVectori &delta_,
+                         ConstGenericVectori &tiestart_,
                          const SpMatR &C_,// const VectorXd &D_,
                          int nobs_, int nvars_, int M_,
                          int ngroups_,
@@ -292,6 +304,7 @@ public:
      datX(datX_.data(), datX_.rows(), datX_.cols()),
      datY(datY_.data(), datY_.size()),
      delta(delta_.data(), delta_.size()),
+     tiestart(tiestart_.data(), tiestart_.size()),
      C(C_),
      nobs(nobs_),
      nvars(nvars_),
@@ -312,18 +325,8 @@ public:
      { }
 
 
-    double set_lambda_zero() {
-        int nevent = delta.sum();
-        double lambda00 = 0;
-        VectorXd XY_lambda0(nvars);
-        getCindex();
-        XY_lambda0.fill(0);
-        for (int i=0; i<= nevent-1;i++){
-            XY_lambda0 = XY_lambda0 + datX.row(CIndex(i)).transpose() - (datX.bottomRows(nobs-CIndex(i)).colwise().sum()/(nobs-CIndex(i))).transpose();
-        }
-        lambda00 = XY_lambda0.cwiseAbs().maxCoeff();
-        return lambda00;
-    }
+    // lambda_max is computed by the caller from the gradient at the null fit
+    double set_lambda_zero() { return 0.0; }
 
     double get_lambda_zero() const{
         return lambda0;
@@ -406,8 +409,10 @@ public:
         resid_primal = 1e30;
         resid_dual = 1e30;
 
-        // adj_a = 1.0;
-        // adj_c = 9999;
+        // restart the acceleration: the state of the previous problem can satisfy
+        // the residual test after a few iterations at a non-optimal point
+        adj_a = 1.0;
+        adj_c = 1e30;
     }
 
      VectorXd get_gamma() {
@@ -484,37 +489,30 @@ public:
 
 
 
-            //calculate risk set
-
-            for (int index = 0; index < eventnn - 1; ++index)
+            // Breslow risk sets. Rows are sorted by time; the risk set of an
+            // event in row i is every row k >= tiestart(i), which includes
+            // all rows tied with row i.
+            //   risk_k     = sum_{l >= tiestart(CIndex(k))} exp(eta_l)
+            //   factor1(l) = sum_{events k: tiestart(CIndex(k)) <= l} 1 / risk_k
+            //   factor2(l) = sum_{events k: tiestart(CIndex(k)) <= l} 1 / risk_k^2
+            VectorXd suffix(nobs);
+            suffix(nobs - 1) = expeta(nobs - 1);
+            for (int l = nobs - 2; l >= 0; --l)
             {
-                risketa(index) = expeta.segment(CIndex(index),CIndex(index+1)-CIndex(index)).sum();
+                suffix(l) = suffix(l + 1) + expeta(l);
             }
-
-            risketa(eventnn-1) = expeta.tail(nobs-CIndex(eventnn-1)).sum();
-
-
-            for (int iter = eventnn - 1; iter >= 1; --iter)
+            for (int index = 0; index < eventnn; ++index)
             {
-                risketa(iter-1) +=risketa(iter);
+                int start = tiestart(CIndex(index));
+                risketa(index) = suffix(start);
+                factor1(start) += 1.0 / risketa(index);
+                factor2(start) += 1.0 / (risketa(index) * risketa(index));
             }
-
-
-            // calculate factor1
-
-            (factor1.segment(CIndex(0),CIndex(1)-CIndex(0))).fill(1/(risketa(0)));
-            (factor2.segment(CIndex(0),CIndex(1)-CIndex(0))).fill(1/(risketa(0)*risketa(0)));
-            for (int index = 1; index < eventnn-1; ++index)
+            for (int l = 1; l < nobs; ++l)
             {
-                (factor1.segment((CIndex(index)),CIndex(index+1)-CIndex(index))).fill(factor1(CIndex(index)-1)+ (1/(risketa(index))));
-                (factor2.segment((CIndex(index)),CIndex(index+1)-CIndex(index))).fill(factor2(CIndex(index)-1)+ (1/(risketa(index)*risketa(index))));
+                factor1(l) += factor1(l - 1);
+                factor2(l) += factor2(l - 1);
             }
-            (factor1.tail(nobs-CIndex(eventnn-1))).fill(factor1(CIndex(eventnn-1)-1)+ 1/(risketa(eventnn-1)));
-            (factor2.tail(nobs-CIndex(eventnn-1))).fill(factor2(CIndex(eventnn-1)-1)+ 1/(risketa(eventnn-1)*risketa(eventnn-1)));
-
-
-
-
 
             // calculate Jacobian
             VectorXd W1(factor1.array()*expeta.array());
@@ -630,6 +628,16 @@ public:
      void update_adaptive_group_weights(VectorXd &weights_)
     {
         group_weights = weights_;
+    }
+
+    virtual int get_nselected(VectorXd &beta_vector)
+    {
+        int nselected = 0;
+        for (int j = 0; j < beta_vector.size(); ++j)
+        {
+            if (beta_vector(j) != 0) nselected++;
+        }
+        return nselected;
     }
 
     // this function returns XTX or XTWX

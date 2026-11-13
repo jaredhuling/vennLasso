@@ -18,11 +18,14 @@
 #' value (i.e. the smallest value for which all parameter estimates are zero). The default
 #' depends on the sample size \code{nobs} relative to the number of variables \code{nvars}. If
 #' \code{nobs > nvars}, the default is 0.0001, close to zero. If \code{nobs < nvars}, the default
-#' is 0.01. A very small value of \code{lambda.min.ratio} can lead to a saturated fit
+#' is 0.05. A very small value of \code{lambda.min.ratio} can lead to a saturated fit
 #' when \code{nobs < nvars}.
 #' @param lambda.fused tuning parameter for fused lasso penalty
 #' @param penalty.factor vector of weights to be multiplied to the tuning parameter for the
-#' group lasso penalty. A vector of length equal to the number of groups
+#' group lasso penalty, one per variable and subpopulation before empty groups are removed: a vector of
+#' length \code{(ncol(x) + 1) * M} (without the 1 when \code{one.intercept = TRUE}), where \code{M} is the
+#' number of combinations of conditions present in the data, ordered by variable and then by combination.
+#' The penalty factors of the subpopulation intercepts are always set to zero.
 #' @param group.weights A vector of values representing multiplicative factors by which each group's penalty is to
 #' be multiplied. Often, this is a function (such as the square root) of the number of predictors in each group.
 #' The default is to use the square root of group size for the group selection methods.
@@ -30,7 +33,12 @@
 #' \code{group.weights} is unspecified, then this will override \code{group.weights}. If a vector is supplied to group.weights,
 #' then the \code{adaptive.lasso} weights will be multiplied by the \code{group.weights} vector
 #' @param adaptive.fused Flag indicating whether or not to use adaptive fused lasso weights. 
-#' @param standardize Should the data be standardized? Defaults to \code{FALSE}.
+#' @param standardize Should the data be standardized? Defaults to \code{FALSE}. If \code{TRUE}, each column of
+#' the expanded (stratum-specific) design matrix is scaled by its standard deviation before fitting, and the
+#' coefficients are returned on the original scale; see \code{\link{oglasso}}. Each stratum-specific column
+#' is zero outside its stratum, and its standard deviation is computed over all observations, so the
+#' scaling (and hence the effective penalty) depends on the size of the stratum; to standardize within
+#' strata instead, scale \code{x} within each stratum before calling \code{vennLasso()}.
 #' @param intercept Should an intercept be fit? Defaults to \code{TRUE}
 #' @param one.intercept Should a single intercept be fit for all subpopulations instead of one
 #' for each subpopulation? Defaults to \code{FALSE}.
@@ -48,10 +56,18 @@
 #' @param rel.tol relative convergence tolerance for ADMM iterations for the relative dual and primal residuals.
 #' Default is \code{10^{-5}}, which is typically adequate.
 #' @param irls.maxit integer. Maximum number of IRLS iterations. Only used if \code{family != "gaussian"}. Default is 100.
-#' @param irls.tol convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is 10^{-5}.
+#' @param irls.tol convergence tolerance for IRLS iterations. Only used if \code{family != "gaussian"}. Default is \code{10^{-5}}.
 #' @param model.matrix logical flag. Should the design matrix used be returned?
-#' @param ... not used
-#' @return An object with S3 class "vennLasso"
+#' @param ... further arguments passed to \code{\link{oglasso}}, for example \code{dfmax}
+#' @return An object with S3 class "vennLasso", a list including
+#' \item{beta}{array of coefficients with dimensions (combinations of conditions) x (variables) x (lambda values)}
+#' \item{lambda}{the values of lambda used}
+#' \item{df}{\code{nobs} minus the effective number of parameters at each lambda. The effective number of
+#' parameters is \eqn{tr\{(H_S + N\lambda A_S)^{-1} H_S\}} over the active set \eqn{S} (nonzero and
+#' unpenalized coefficients), where \eqn{H} is the Hessian of the loss and
+#' \eqn{A_j = \sum_{g \ni j} w_g / \|\beta_g\|_2} is the local quadratic approximation of the penalty
+#' (Section 3.3 of Huling et al., 2018); unpenalized coefficients such as the intercepts count fully}
+#' \item{aic, bic, aicc, mbic}{information criteria based on that effective number of parameters}
 #'
 #' @useDynLib vennLasso, .registration=TRUE
 #'
@@ -78,21 +94,22 @@
 #' 
 #' fit <- vennLasso(x = x, y = y, groups = conditions)
 #'
+#' ## coefficients at the value of lambda selected by BIC
 #' (true.coef <- true.beta.mat[match(dimnames(fit$beta)[[1]], rownames(true.beta.mat)),])
-#' round(fit$beta[,,21], 2)
+#' round(fit$beta[,,which.min(fit$bic)], 2)
 #'
 #' ## fit adaptive version and compute confidence intervals
 #' afit <- vennLasso(x = x, y = y, groups = conditions, conf.int = 0.95, adaptive.lasso = TRUE)
 #'
-#' (true.coef <- true.beta.mat[match(dimnames(fit$beta)[[1]], rownames(true.beta.mat)),])[,1:10]
-#' round(afit$beta[,1:10,28], 2)
-#' round(afit$lower.ci[,1:10,28], 2)
-#' round(afit$upper.ci[,1:10,28], 2)
-#'
 #' aic.idx <- which.min(afit$aic)
 #' bic.idx <- which.min(afit$bic)
 #'
-#' # actual coverage
+#' ## first ten variables (column 1 of the coefficient arrays is the intercept)
+#' round(true.coef[,1:10], 2)
+#' round(afit$beta[,2:11,aic.idx], 2)
+#' round(afit$lower.ci[,2:11,aic.idx], 2)
+#' round(afit$upper.ci[,2:11,aic.idx], 2)
+#'
 #' # actual coverage
 #' mean(true.coef[afit$beta[,-1,aic.idx] != 0] >= 
 #'              afit$lower.ci[,-1,aic.idx][afit$beta[,-1,aic.idx] != 0] &
@@ -104,7 +121,7 @@
 #'
 #'
 #' # logistic regression example
-#' \dontrun{
+#' \donttest{
 #' set.seed(123)
 #' dat.sim <- genHierSparseData(ncats = 2, nvars = 25,
 #'                              nobs = 200, 
@@ -122,7 +139,7 @@
 #' bfit <- vennLasso(x = x, y = y, groups = conditions, family = "binomial")
 #'
 #' (true.coef.b <- -true.beta.b[match(dimnames(fit$beta)[[1]], rownames(true.beta.b)),])
-#' round(bfit$beta[,,20], 2)
+#' round(bfit$beta[,,which.min(bfit$bic)], 2)
 #' }
 #'
 vennLasso <- function(x, y,
@@ -284,13 +301,13 @@ vennLasso <- function(x, y,
     if (!is.null(ind.2.remove)) {
         data.indices[ind.2.remove] <- NULL
         M <- length(data.indices)
-        combin.mat <- combin.mat[-ind.2.remove,]
+        combin.mat <- combin.mat[-ind.2.remove, , drop = FALSE]
     }
     # sort in order that allows fitting to work
     #ord.idx <- order(rowSums(combin.mat), decreasing = FALSE)
     #order combin.mat by each column
     ord.idx <- do.call(order, split(combin.mat, rep(1:ncol(combin.mat), each = nrow(combin.mat))))
-    combin.mat <- combin.mat[ord.idx,]
+    combin.mat <- combin.mat[ord.idx, , drop = FALSE]
     data.indices <- data.indices[ord.idx]
 
     direct.above.idx.list <- above.idx.list <- vector(mode = "list", length = M)
@@ -345,8 +362,13 @@ vennLasso <- function(x, y,
 
     # matrix with dimension (num. vars)x(num. group combinations) with a value
     # 1 in position (i,j) if variable i is not missing in condition combination (strata) j
-    which.not.missing.idx.combin <- 1 - ( (t(tcrossprod(combin.mat[rev(1:nrow(combin.mat)),], which.missing.idx)) == 1) |
-                                              (t(tcrossprod(combin.mat[rev(1:nrow(combin.mat)),], which.missing.idx.2)) == 1) |
+    ## a variable missing for every observation with condition j is unavailable in the
+    ## combinations that include j; a variable observed only with condition j is
+    ## unavailable in the combinations that exclude j. (The previous code used the
+    ## combinations in reversed order, which is the complement only when all 2^C
+    ## combinations are present, and then got the first rule backwards.)
+    which.not.missing.idx.combin <- 1 - ( (t(tcrossprod(combin.mat, which.missing.idx)) >= 1) |
+                                              (t(tcrossprod(1 - combin.mat, which.missing.idx.2)) >= 1) |
                                               which.zero.sd.idx )
 
     which.not.missing.idx.combin.vec <- as.vector(which.not.missing.idx.combin)
@@ -385,7 +407,8 @@ vennLasso <- function(x, y,
     group.mat <- group.mat[which.not.missing.idx.combin.vec == 1, cs.nz.idx]
 
 
-    penalty.factor <- penalty.factor[which.not.missing.idx.combin.vec == 1]
+    ## penalty.factor is indexed by the columns (groups) of group.mat
+    penalty.factor <- penalty.factor[cs.nz.idx]
 
     above.not.incl.idx.list <- lapply(1:length(above.idx.list), function(i) above.idx.list[[i]][above.idx.list[[i]] != i])
 
@@ -500,18 +523,22 @@ vennLasso <- function(x, y,
 
     n.free.param <- rep(NA, length(fit$lambda))
 
-    xtx <- fit$XtX
-    xty <- fit$XtY
+    ## X'X and X'y on the original scale of big.x (used for the gaussian
+    ## standard errors); the solver's own X'X is of a different size for
+    ## wide problems
+    if (compute.se && family == "gaussian")
+    {
+        xdesign <- if (intercept) cbind(1, big.x) else big.x
+        xtx <- crossprod(xdesign)
+        xty <- drop(crossprod(xdesign, y))
+        rm(xdesign)
+    }
 
     ## for logistic an extra grp is added at the end with
     ## zero weight for intercept
-    if (length(fit$group.weights) > ncol(big.x))
-    {
-        if (fit$group.weights[length(fit$group.weights)] == 0)
-        {
-            fit$group.weights <- fit$group.weights[-length(fit$group.weights)]
-        }
-    }
+    ## oglasso appends an unpenalized group (weight 0) for the intercept or
+    ## ungrouped variables; keep the weights of the columns of group.mat
+    fit$group.weights <- fit$group.weights[seq_len(ncol(group.mat))]
 
     if (compute.se)
     {
@@ -568,7 +595,7 @@ vennLasso <- function(x, y,
                         idx.nz <- (nz.idx[,l])
                     }
 
-                    compute.mod.cov <- sum(idx.nz) < 0.95 * ncol(xtx)
+                    compute.mod.cov <- sum(idx.nz) < 0.95 * (ncol(big.x) + 1 * intercept)
 
                     if(compute.mod.cov)
                     {
@@ -610,37 +637,9 @@ vennLasso <- function(x, y,
 
                     ## place the coefficient results
                     ## in an array instead of a long vector
-                    beta.cur.tmp <- NULL
-                    if (intercept)
-                    {
-                        beta.cur.tmp <- beta.tmp[1, l]
-                        #ada.wts.denom <- as.vector(Matrix::rowSums( Matrix::t(Matrix::t(group.mat) * fit$group.weights) ))
-                        grp.norms <- as.vector(sqrt( group.mat %*% beta.tmp[-1, l] ^ 2 ))
-
-                        grp.mult <- 1 / (grp.norms * fit$group.weights)
-                        grp.mult[is.infinite(grp.mult)] <- 1e15
-                        grp.mult[is.nan(grp.mult)] <- 1e15
-
-                        ada.wts.denom <- as.vector(Matrix::rowSums( Matrix::t(Matrix::t(group.mat) * (grp.mult)  ) ))
-                        #denom <- ada.wts.denom * other.wts.denom
-                        #denom[denom == 0] <- 1e-10
-                        ada.wts.denom[ada.wts.denom == 0] <- 1e15
-                        A.diag <- c(0, ada.wts.denom)
-                    } else
-                    {
-                        #ada.wts.denom <- as.vector(Matrix::rowSums( Matrix::t(Matrix::t(group.mat) * fit$group.weights) ))
-                        grp.norms <- as.vector(sqrt( group.mat %*% beta.tmp[-1, l] ^ 2 ))
-
-                        grp.mult <- 1 / (grp.norms * fit$group.weights)
-                        grp.mult[is.infinite(grp.mult)] <- 1e15
-                        grp.mult[is.nan(grp.mult)] <- 1e15
-
-                        ada.wts.denom <- as.vector(Matrix::rowSums( Matrix::t(Matrix::t(group.mat) * (grp.mult)  ) ))
-                        #denom <- ada.wts.denom * other.wts.denom
-                        #denom[denom == 0] <- 1e-10
-                        ada.wts.denom[ada.wts.denom == 0] <- 1e15
-                        A.diag <- ada.wts.denom
-                    }
+                    ## ridge approximation of the penalty (Section 3.3 of the paper)
+                    A.diag <- c(if (intercept) 0, penaltyRidgeDiag(group.mat, beta.tmp[-1, l], fit$group.weights))
+                    if (intercept) beta.cur.tmp <- beta.tmp[1, l] else beta.cur.tmp <- NULL
 
                     if (intercept)
                     {
@@ -668,11 +667,19 @@ vennLasso <- function(x, y,
                         cov.mat <- G11.inv
                     }
 
-                    se[nz.idx[,l], l] <- sqrt(sigma.sq * diag(cov.mat))
+                    se.all <- sqrt(sigma.sq * Matrix::diag(cov.mat))
+                    ## refitted (unpenalized) coefficients on the selected set
+                    if (intercept)
+                    {
+                        se[nz.idx[,l], l]         <- se.all[-1]
+                        beta.refit[nz.idx[,l], l] <- beta.refit.tmp[-1]
+                        intercept.refit[l]        <- beta.refit.tmp[1]
+                    } else
+                    {
+                        se[nz.idx[,l], l]         <- se.all
+                        beta.refit[nz.idx[,l], l] <- beta.refit.tmp
+                    }
 
-                    #n.free.param[l] <- sum(diag( solve(xtx + nobs * fit$lambda[l] * diag(A.diag), xtx) ))
-
-                    n.free.param[l] <- ncol(xtx) - sum(nobs * fit$lambda[l] * diag(A.diag) / (N + nobs * fit$lambda[l] * diag(A.diag)))
 
                     #} else
                     #{
@@ -688,14 +695,23 @@ vennLasso <- function(x, y,
 
                 } else if (family == "binomial")
                 {
-                    df.sub <- data.frame(y = y, big.x[,nz.idx[,l] ])
-                    re.fit <- glm(y ~ ., data = df.sub, family = binomial())
-
-                    # take out intercept
-                    se[nz.idx[,l], l] <- sqrt(diag(vcov(re.fit)))[-1]
-                    coef.tmp <- coef(re.fit)
-                    beta.refit[nz.idx[,l], l] <- coef.tmp[-1]
-                    intercept.refit[l] <- coef.tmp[1]
+                    df.sub <- data.frame(y = y, big.x[, nz.idx[,l], drop = FALSE])
+                    if (intercept)
+                    {
+                        re.fit <- glm(y ~ ., data = df.sub, family = binomial())
+                        # take out intercept
+                        se[nz.idx[,l], l] <- sqrt(diag(vcov(re.fit)))[-1]
+                        coef.tmp <- coef(re.fit)
+                        beta.refit[nz.idx[,l], l] <- coef.tmp[-1]
+                        intercept.refit[l] <- coef.tmp[1]
+                    } else
+                    {
+                        ## the stratum intercepts are columns of big.x: no global intercept
+                        re.fit <- glm(y ~ . - 1, data = df.sub, family = binomial())
+                        se[nz.idx[,l], l] <- sqrt(diag(vcov(re.fit)))
+                        beta.refit[nz.idx[,l], l] <- coef(re.fit)
+                        intercept.refit[l] <- 0
+                    }
                 } else if (family == "coxph")
                 {
                     df.sub <- data.frame(y = y.surv, big.x[,nz.idx[,l] ])
@@ -721,11 +737,9 @@ vennLasso <- function(x, y,
                 ## the last computed standard errors
                 if (l > 1)
                 {
-                    se[nz.idx[,l-1], l] <- se[nz.idx[,l-1], l-1]
-                    n.free.param[l]   <- n.free.param[l-1]
-                } else
-                {
-                    n.free.param[1] <- 1 * intercept
+                    se[nz.idx[,l-1], l]         <- se[nz.idx[,l-1], l-1]
+                    beta.refit[nz.idx[,l-1], l] <- beta.refit[nz.idx[,l-1], l-1]
+                    intercept.refit[l]          <- intercept.refit[l-1]
                 }
             }
             if (do.not.compute.se)
@@ -740,42 +754,15 @@ vennLasso <- function(x, y,
                 upper.ci.refit[nz.idx[,l], l] <- beta.refit[nz.idx[,l], l] + z.val * se[nz.idx[,l], l]
             }
         }
-    } else ## if not compute.se
+    }
+
+    ## effective number of parameters at every lambda (Section 3.3 of the
+    ## paper): tr{(H + N lambda A)^{-1} H} over the active set, with H the
+    ## Hessian of the loss and A the ridge approximation of the penalty
+    for (l in 1:nlambda)
     {
-
-        for (l in 1:nlambda)
-        {
-            if (intercept)
-            {
-                beta.cur.tmp <- beta.tmp[1, l]
-
-                grp.norms <- as.vector(sqrt( group.mat %*% beta.tmp[-1, l] ^ 2 ))
-
-                grp.mult <- 1 / (grp.norms * fit$group.weights)
-                grp.mult[is.infinite(grp.mult)] <- 1e15
-                grp.mult[is.nan(grp.mult)] <- 1e15
-
-                ada.wts.denom <- as.vector(Matrix::rowSums( Matrix::t(Matrix::t(group.mat) * (grp.mult)  ) ))
-                ada.wts.denom[ada.wts.denom == 0] <- 1e15
-                A.diag <- c(0, ada.wts.denom)
-            } else
-            {
-                grp.norms <- as.vector(sqrt( group.mat %*% beta.tmp[-1, l] ^ 2 ))
-
-                grp.mult <- 1 / (grp.norms * fit$group.weights)
-                grp.mult[is.infinite(grp.mult)] <- 1e15
-                grp.mult[is.nan(grp.mult)] <- 1e15
-
-                ada.wts.denom <- as.vector(Matrix::rowSums( Matrix::t(Matrix::t(group.mat) * (grp.mult)  ) ))
-                ada.wts.denom[ada.wts.denom == 0] <- 1e15
-                A.diag <- ada.wts.denom
-            }
-
-            ## estimate number of free params
-            n.free.param[l] <- ncol(xtx) - sum(nobs * fit$lambda[l] * diag(A.diag) / (N + nobs * fit$lambda[l] * diag(A.diag)))
-
-        }
-
+        n.free.param[l] <- vennLassoDf(big.x, beta.tmp[, l], intercept, group.mat,
+                                       fit$group.weights, fit$lambda[l], family)
     }
 
     ######################################################################
@@ -905,3 +892,49 @@ vennLasso <- function(x, y,
 
 
 
+
+
+## Diagonal A of the local quadratic (ridge) approximation of the penalty
+##   sum_g w_g ||beta_g||  ~  const + (1/2) sum_j A_j beta_j^2,
+##   A_j = sum_{g: j in g} w_g / ||beta_g||        (Fan and Li, 2001; Section 3.3
+## of Huling et al., 2018). A_j = 0 for unpenalized coefficients (all groups
+## of j have weight 0) and Inf when a penalized group of j is zero.
+penaltyRidgeDiag <- function(group.mat, beta, group.weights)
+{
+    grp.norms <- sqrt(as.vector(Matrix::crossprod(group.mat, beta ^ 2)))
+    pen <- group.weights > 0
+    ratio <- numeric(length(group.weights))
+    ratio[pen] <- group.weights[pen] / grp.norms[pen]      # Inf for a zero group
+    as.vector(group.mat %*% ratio)
+}
+
+## Effective number of parameters tr{(H_SS + N lambda diag(A_S))^{-1} H_SS},
+## S = nonzero or unpenalized coefficients (plus the intercept column).
+## H = X'X (gaussian) or X'WX at the fit (binomial).
+vennLassoDf <- function(x, beta.with.int, intercept, group.mat, group.weights, lambda, family)
+{
+    nobs  <- nrow(x)
+    b0    <- beta.with.int[1]
+    beta  <- beta.with.int[-1]
+    A     <- penaltyRidgeDiag(group.mat, beta, group.weights)
+    act   <- (abs(beta) >= sqrt(.Machine$double.eps) & is.finite(A)) | A == 0
+    xs    <- x[, act, drop = FALSE]
+    As    <- A[act]
+    if (intercept)
+    {
+        xs <- cbind(1, xs)
+        As <- c(0, As)
+    }
+    if (ncol(xs) == 0) return(0)
+    if (family == "binomial")
+    {
+        eta <- b0 + drop(x %*% beta)
+        mu  <- 1 / (1 + exp(-eta))
+        xs  <- xs * sqrt(mu * (1 - mu))
+    }
+    H <- crossprod(xs)
+    R <- H
+    diag(R) <- diag(R) + nobs * lambda * As
+    tr <- tryCatch(sum(diag(solve(R, H))), error = function(e) NA_real_)
+    tr
+}

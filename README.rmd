@@ -9,11 +9,10 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.path = "vignettes/readme_figs/")
+knitr::opts_chunk$set(echo = TRUE, fig.path = "man/figures/README-")
 ```
 
 [![version](http://www.r-pkg.org/badges/version/vennLasso)](https://cran.r-project.org/package=vennLasso)
-[![Build Status](https://travis-ci.org/jaredhuling/vennLasso.svg?branch=master)](https://travis-ci.org/jaredhuling/vennLasso)
 
 # vennLasso
 

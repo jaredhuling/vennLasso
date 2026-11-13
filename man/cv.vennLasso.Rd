@@ -105,7 +105,7 @@ fitted.coef <- predict(fit$vennLasso.fit, type = "coefficients", s = fit$lambda.
 round(fitted.coef, 2)
 
 ## effects smaller for logistic regression
-\dontrun{
+\donttest{
 true.beta.mat <- true.beta.mat / 2
 true.beta <- true.beta / 2
 # logistic regression example#'

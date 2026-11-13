@@ -31,7 +31,7 @@ using namespace Numer;
 
 typedef Map<VectorXd> MapVecd;
 typedef Map<MatrixXd> MapMatd;
-typedef Eigen::MappedSparseMatrix<double> MSpMat;
+typedef Eigen::Map<Eigen::SparseMatrix<double> > MSpMat;  // MappedSparseMatrix was removed in Eigen 5
 typedef Eigen::SparseVector<float> SpVecf;
 typedef Eigen::SparseMatrix<float> SpMatf;
 typedef Eigen::SparseVector<double> SpVec;
@@ -99,6 +99,62 @@ public:
 };
 
 
+// Smallest lambda (on the scale of the per-observation loss) at which a zero
+// solution is guaranteed for the penalty  sum_g w_g ||beta_{G_g}||  with
+// possibly overlapping groups. 'grad' is the gradient of the per-observation
+// loss at the fit with only the unpenalized variables (w_g = 0 groups only).
+//
+// Zero is optimal iff grad = lambda * sum_g w_g u_g with supp(u_g) in G_g and
+// ||u_g|| <= 1. Two feasible splits of grad_j over the groups containing j
+// give two sufficient values; their minimum is returned:
+//   (a) u_g,j = grad_j / (lambda * W_j),        W_j = sum_{g: j in G_g, w_g > 0} w_g
+//       => lambda >= max_g || (grad_j / W_j)_{j in G_g} ||
+//   (b) u_g,j = grad_j / (lambda * c_j * w_g),  c_j = #{g: j in G_g, w_g > 0}
+//       => lambda >= max_g || (grad_j / c_j)_{j in G_g} || / w_g
+// Both equal the exact value  max_g ||grad_{G_g}|| / w_g  for non-overlapping groups.
+static double lambda_max_overlap(const VectorXd &grad,
+                                 const Eigen::SparseMatrix<double,Eigen::RowMajor> &C,
+                                 const IntegerVector &group_idx,
+                                 const VectorXd &weights,
+                                 const int ngroups)
+{
+    const int nv = grad.size();
+    VectorXi rowvar(C.rows());
+    for (int r = 0; r < C.rows(); ++r)
+    {
+        rowvar(r) = 0;
+        for (Eigen::SparseMatrix<double,Eigen::RowMajor>::InnerIterator it(C, r); it; ++it)
+            rowvar(r) = it.col();
+    }
+    VectorXd wsum = VectorXd::Zero(nv);
+    VectorXd cnt  = VectorXd::Zero(nv);
+    for (int g = 0; g < ngroups; ++g)
+    {
+        if (weights(g) <= 0) continue;
+        for (int r = group_idx(g); r < group_idx(g + 1); ++r)
+        {
+            wsum(rowvar(r)) += weights(g);
+            cnt(rowvar(r))  += 1.0;
+        }
+    }
+    double ua = 0.0, ub = 0.0;
+    for (int g = 0; g < ngroups; ++g)
+    {
+        if (weights(g) <= 0) continue;
+        double sa = 0.0, sb = 0.0;
+        for (int r = group_idx(g); r < group_idx(g + 1); ++r)
+        {
+            const int j = rowvar(r);
+            sa += std::pow(grad(j) / wsum(j), 2);
+            sb += std::pow(grad(j) / cnt(j), 2);
+        }
+        ua = std::max(ua, std::sqrt(sa));
+        ub = std::max(ub, std::sqrt(sb) / weights(g));
+    }
+    return std::min(ua, ub);
+}
+
+
 RcppExport SEXP admm_oglasso_dense(SEXP x_,
                                    SEXP y_,
                                    SEXP delta_,
@@ -116,7 +172,10 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                                    SEXP standardize_,
                                    SEXP intercept_,
                                    SEXP compute_se_,
-                                   SEXP opts_)
+                                   SEXP opts_,
+                                   SEXP null_grad_,
+                                   SEXP dfmax_,
+                                   SEXP tiestart_)
 {
     BEGIN_RCPP
 
@@ -126,6 +185,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     Rcpp::NumericMatrix xx(x_);
     Rcpp::NumericVector yy(y_);
     Rcpp::NumericVector ddelta(delta_);
+    Rcpp::IntegerVector ttiestart(tiestart_);
 
     const int n = xx.rows();
     const int p = xx.cols();
@@ -133,11 +193,13 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     MatrixXd datX(n, p);
     VectorXd datY(n);
     VectorXi delta(n);
+    VectorXi tiestart(n);
 
     // Copy data and convert type from double to float
     std::copy(xx.begin(), xx.end(), datX.data());
     std::copy(yy.begin(), yy.end(), datY.data());
     std::copy(ddelta.begin(), ddelta.end(), delta.data());
+    std::copy(ttiestart.begin(), ttiestart.end(), tiestart.data());
 
     // old stuff 
     //MatrixXd datX(as<MatrixXd>(x_));
@@ -175,11 +237,15 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     bool intercept           = as<bool>(intercept_);
     bool intercept_bin       = intercept;
     bool adaptive_lasso      = as<bool>(adaptive_lasso_);
+    const int dfmax          = as<int>(dfmax_);  // negative means no limit
+    VectorXd null_grad(as<VectorXd>(null_grad_));
+    const bool lambda_auto   = (nlambda < 1);
     //bool compute_se     = compute_se_; // not used
     
     // only use wide version of solver if 
     // p >> n and p is very large
-    bool tall_condition = n > 2 * p || p < 2500;
+    // the Cox solver has no wide version
+    bool tall_condition = n > 2 * p || p < 2500 || Rcpp::as<std::string>(family_) == "coxph";
     
     
 
@@ -195,14 +261,17 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     VectorXd adaptive_weights(ngroups);
     adaptive_weights.setZero();
 
-    // don't standardize if not linear model.
-    // fit intercept the dumb way if it is wanted
+    // Standardization and centering are done in R (oglasso()), which maps
+    // the coefficients back to the original scale, so DataStd is a no-op
+    // here for every family. In particular the survival times of a Cox model
+    // are never centered or scaled.
+    // An intercept is fit as an explicit column of ones in an unpenalized group.
+    standardize = false;
+    intercept = false;
     bool fullbetamat = false;
     int add = 0;
-    if (family(0) != "coxph") // family(0) != "gaussian" &
+    if (family(0) != "coxph")
     {
-        standardize = false;
-        intercept = false;
 
         // this will do the dumb thing
         // and attach a column of 1s
@@ -257,7 +326,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
         if (family(0) == "gaussian")
         {
-            solver_tall = new ADMMogLassoTall(datX, datY, C, n, p, M, ngroups,
+            solver_tall = new ADMMogLassoTall(datX, datY, C, n, p + add, M, ngroups,
                                               family, group_weights, group_idx,
                                               dynamic_rho, irls_tol, irls_maxit,
                                               eps_abs, eps_rel);
@@ -269,7 +338,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
                                                       eps_abs, eps_rel);
         } else if (family(0) == "coxph")
         {
-            solver_tall = new ADMMogLassoCoxPHTall(datX, datY, delta, C, n, p, M, ngroups,
+            solver_tall = new ADMMogLassoCoxPHTall(datX, datY, delta, tiestart, C, n, p, M, ngroups,
                                                    family, group_weights, group_idx,
                                                    dynamic_rho, irls_tol, irls_maxit,
                                                    eps_abs, eps_rel);
@@ -280,7 +349,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
         
         if (family(0) == "gaussian")
         {
-            solver_wide = new ADMMogLassoWide(datX, datY, C, n, p, M, ngroups,
+            solver_wide = new ADMMogLassoWide(datX, datY, C, n, p + add, M, ngroups,
                                               family, group_weights, group_idx,
                                               dynamic_rho, irls_tol, irls_maxit,
                                               eps_abs, eps_rel);
@@ -295,17 +364,12 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
     }
 
 
-    if(nlambda < 1)
+    if(lambda_auto)
     {
-        double lmax = 0.0;
-        if(tall_condition)
-        {
-            lmax = solver_tall->get_lambda_zero() / n * datstd.get_scaleY();
-        }
-        else
-        {
-            lmax = solver_wide->get_lambda_zero() / n * datstd.get_scaleY();
-        }
+        // lambda_max for the problem whose unpenalized part (intercept and
+        // zero-weight groups) is fit; null_grad is computed in R at that fit
+        double lmax = lambda_max_overlap(null_grad, C, group_idx, group_weights, ngroups);
+        if (!(lmax > 0)) lmax = 1e-6;
 
         double lmin = as<double>(lambda_min_ratio_) * lmax;
         lambda.setLinSpaced(as<int>(nlambda_), std::log(lmax), std::log(lmin));
@@ -333,7 +397,7 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
         ilambda = 1e-2 * lambda[nlambda - 1] * n / datstd.get_scaleY();
         if(tall_condition)
         {
-            if (p <= n)
+            if (p <= n || family(0) == "coxph")
             {
                 solver_tall->init(ilambda, rho);
                 solver_tall->solve(maxit);
@@ -364,9 +428,9 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
                 // if the MLEs are divergent then use
                 // a linear probability model
-                if (maxbetaval > 15)
+                if (maxbetaval > 15 && family(0) != "coxph")
                 {
-                    solver_tall_2 = new ADMMogLassoTall(datX, datY, C, n, p, M, ngroups,
+                    solver_tall_2 = new ADMMogLassoTall(datX, datY, C, n, p + add, M, ngroups,
                                                         family, group_weights, group_idx,
                                                         dynamic_rho, irls_tol, irls_maxit,
                                                         eps_abs, eps_rel);
@@ -471,11 +535,10 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
 
                     beta_unpen(j) = betaunivar(1);
                 }
-            } else if (family(0) == "coxph")
-            {
-
             }
             // reserved for wide data case
+
+            d = C * beta_unpen;
         }
 
 
@@ -502,6 +565,16 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
             solver_wide->update_adaptive_group_weights(group_weights);
         }
 
+        // the adaptive weights change lambda_max
+        if (lambda_auto)
+        {
+            double lmax = lambda_max_overlap(null_grad, C, group_idx, group_weights, ngroups);
+            if (!(lmax > 0)) lmax = 1e-6;
+            double lmin = as<double>(lambda_min_ratio_) * lmax;
+            lambda.setLinSpaced(as<int>(nlambda_), std::log(lmax), std::log(lmin));
+            lambda = lambda.exp();
+        }
+
     }
 
     //   =======================================   //
@@ -524,9 +597,10 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
             // get computed beta
             VectorXd res = solver_tall->get_gamma();
             
-            double nselected = solver_tall->get_nselected(res);
+            // number of nonzero coefficients, not counting the intercept column
+            int nselected = solver_tall->get_nselected(res) - ((add == 1 && res(0) != 0) ? 1 : 0);
             
-            if (nselected <= n || i < 2)
+            if (dfmax < 0 || nselected <= dfmax || i < 1)
             {
                 // get associated loss
                 loss(i) = solver_tall->get_loss();
@@ -565,9 +639,10 @@ RcppExport SEXP admm_oglasso_dense(SEXP x_,
             // get computed beta
             VectorXd res = solver_wide->get_gamma();
             
-            double nselected = solver_wide->get_nselected(res);
+            // number of nonzero coefficients, not counting the intercept column
+            int nselected = solver_wide->get_nselected(res) - ((add == 1 && res(0) != 0) ? 1 : 0);
             
-            if (nselected <= n || i < 2)
+            if (dfmax < 0 || nselected <= dfmax || i < 1)
             {
                 // get associated loss
                 loss(i) = solver_wide->get_loss();

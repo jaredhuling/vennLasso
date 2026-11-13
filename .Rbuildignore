@@ -11,8 +11,13 @@ README_files
 ^CONTRIBUTING\.md$
 ^NEWS$
 src/old
-^NEWS\.md$
-^.*\docs$
 ^\_pkgdown\.yml$
 docs
 ^_pkgdown\.yml$
+^vignettes/.*\.log$
+^vignettes/using_the_vennLasso_package\.pdf$
+^vignettes/using_the_vennLasso_package\.R$
+^vignettes/readme_figs$
+^README\.rmd$
+^\.gitignore$
+^\.github$

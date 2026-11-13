@@ -39,7 +39,9 @@ plot.cv.vennLasso <- function(x, sign.lambda = 1, ...)
 {
     # compute total number of selected variables for each
     # tuning parameter 
-    nzero <- apply(x$vennLasso.fit$beta[,-1,], 3, function(bb) sum(bb != 0))
+    ## do not count intercepts
+    not.int <- dimnames(x$vennLasso.fit$beta)[[2]] != "(Intercept)"
+    nzero <- apply(x$vennLasso.fit$beta[, not.int, , drop = FALSE], 3, function(bb) sum(bb != 0, na.rm = TRUE))
     
     xlab <- expression(log(lambda))
     if(sign.lambda<0)xlab <- paste("-", xlab, sep="")
