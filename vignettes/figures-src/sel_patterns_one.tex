@@ -1,0 +1,128 @@
+% Source of vignettes/figures/sel_patterns_one.png, taken from the earlier PDF version of the vignette.
+% Rendered with vignettes/figures-src/render.sh (pdflatex, pdfcrop, Ghostscript).
+\documentclass{article}
+\usepackage[margin=1in,paperwidth=8.5in,paperheight=11in]{geometry} % text width as in the PDF vignette
+\usepackage{xcolor}
+%\PassOptionsToPackage{svgnames}{xcolor}
+
+
+\usepackage{amsmath,bbm,amssymb}
+\usepackage{bm}
+\usepackage{amsthm}
+%\usepackage{xcolor}
+% natbib is not loaded: citations are processed by pandoc (citeproc), and
+% natbib's author-year check failed on CRAN (archived 2023-09-21)
+
+\usepackage[eulergreek]{sansmath}
+\usepackage{tikz} % for venn diagrams
+\usetikzlibrary{shapes,backgrounds,shapes.misc,decorations.pathreplacing, positioning,shapes.geometric,arrows,matrix,fit,calc,arrows.meta, trees, hobby}
+\usepackage[outline]{contour}
+\contourlength{0.5pt}
+
+\definecolor{DimGray}{rgb}{0.75, 0.75, 0.75}
+
+\newcommand{\bmath}[1]{\mbox{ \boldmath $\!#1\!$ \unboldmath}}
+\newcommand{\alert}[1]{\textcolor{red}{\!#1\!}}
+
+\tikzset{
+    buffer/.style={
+        isosceles triangle,
+        isosceles triangle apex angle=66,
+        shape border rotate=90,
+        draw,
+        thick,
+        fill=blue!20,
+        node distance=5cm,
+        rounded corners=60pt,
+        opacity=0.6,
+        minimum height=6.25cm
+    }
+}
+
+\pgfdeclarelayer{foreground}
+\pgfdeclarelayer{background}
+   \pgfsetlayers{background,%
+                 main,%
+                 foreground%
+                 }
+
+\def\v{\mathbf}
+\def\m{\boldsymbol}
+\def\vb{\bm{\upbeta}}\def\ve{\bm{\upvarepsilon}}\def\vg{\bm{\upgamma}}\def\vl{\bm{\uplambda}}\def\vp{\bm{\upphi}}\def\vpsi{\bm{\uppsi}}\def\vpi{\bm{\uppi}}
+\def\vt{\bm{\uptheta}}\def\vx{\bm{\upxi}}\def\vd{\bm{\updelta}}\def\va{\bm{\upalpha}}
+\def\coef{\boldsymbol \beta}
+\def\hcoef{\hat{\boldsymbol \beta}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bnu{\boldsymbol \nu}
+\def\boldeta{\boldsymbol \eta}
+\def\betahat{\hat{\boldsymbol \beta}}
+\def\betatrue{\boldsymbol \beta^0}
+\def\coeftheta{\boldsymbol \theta}
+\def\hcoeftheta{\hat{\boldsymbol \theta}}
+\def\hbeta{\hat{\beta}}
+\def\bfy{\mathbf y}
+\def\bfY{\mathbf Y}
+\def\bfF{\mathbf F}
+\def\bfu{\mathbf u}
+\def\bfX{\mathbf X}
+\def\bfZ{\mathbf Z}
+\def\bfW{\mathbf W}
+\def\bfx{\mathbf x}
+\def\bfu{\mathbf u}
+\def\bfzero{\mathbf 0}
+\def\bzero{\boldsymbol 0}
+\def\bfg{\mathbf g}
+\def\bQ{\boldsymbol Q}
+\def\bfQ{\mathbf Q}
+\def\blnorm{\biggr\lVert}
+\def\brnorm{\biggr\lVert}
+\def\bfI{\mathbf I}
+\def\bfM{\mathbf M}
+\def\bfT{\mathbf T}
+
+\def\P{\mathrm{P}}
+\def\E{\mathrm{E}}
+\def\V{\mathrm{Var}}
+\def\Cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\d{\mathrm{d}}
+\pagestyle{empty}
+\begin{document}
+\begin{center}
+
+%\resizebox{0.95\textwidth}{!}{% <------ Don't forget this %
+\hspace{-20pt}
+\resizebox{0.95\textwidth}{!}{% <------ Don't forget this %
+\begin{minipage}[b]{0.25 \linewidth}% just slightly shrunk to show the separation
+\begin{flushleft}
+\begin{tikzpicture}[edge from parent/.style={draw,-Implies,line width=1pt,double distance=2pt},
+every node/.style={},level 1/.style={sibling distance=20mm},level 2/.style={sibling distance=10mm}
+]
+\node(HP) {$\boldsymbol\beta_{HD, j} = 0$}
+    child { node (H) {$\boldsymbol\beta_{H, j} = 0$\ \footnotesize{\textcolor{red}{and}} }  edge from parent[double]
+  }
+    child { node (D) {\ $\boldsymbol\beta_{D, j} = 0$} edge from parent[double]
+  };
+\end{tikzpicture}
+\end{flushleft}
+\end{minipage}
+\hspace{2 cm}
+\begin{minipage}[b]{0.325 \linewidth}% just slightly shrunk to show the separation
+\begin{flushright}
+\begin{tikzpicture}[edge from parent/.style={draw,line width=1pt},
+every node/.style={},level 1/.style={sibling distance=20mm},level 2/.style={sibling distance=10mm}
+]
+\node(HP) {$\boldsymbol\beta_{HD, j} \neq 0$}
+    child { node (H) {$\boldsymbol\beta_{H, j}\neq 0$\quad \footnotesize{\alert{or}}} edge from parent[draw,Implies-,double distance=2pt]
+  }
+    child { node (D) {\, $\boldsymbol\beta_{D, j} \neq 0$} edge from parent[draw,Implies-,double distance=2pt]
+  };
+\end{tikzpicture}
+\end{flushright}
+\end{minipage}
+}
+
+
+\end{center}
+\end{document}

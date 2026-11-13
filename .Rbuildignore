@@ -21,3 +21,5 @@ docs
 ^README\.rmd$
 ^\.gitignore$
 ^\.github$
+^vignettes/figures-src$
+^legacy$

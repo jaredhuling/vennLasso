@@ -17,8 +17,8 @@ obj_binomial <- function(b0, b, x, y, lambda, groups, w) {
 }
 
 ## Test designs. The reference objective values used in the tests were computed once for
-## these designs with CVXR 1.8.2 and the ECOS solver (tolerances 1e-10); the script is not
-## part of the package.
+## these designs with CVXR 1.8.2 and the ECOS solver (tolerances 1e-10) by
+## inst/reference/make_refs.R; CVXR is not needed to run the tests.
 
 ## wide design (p = 2500 > n, so the wide solvers are used); variables 3 to 10 are in two
 ## groups, and the small window weights make them active

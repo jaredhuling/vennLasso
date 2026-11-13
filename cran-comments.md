@@ -5,7 +5,8 @@ The issues on the CRAN check page at the time of archival were:
 
 * ERROR (r-devel-linux-x86_64-fedora-clang, and the M1mac additional check): re-building the
   vignette failed with "Package natbib Error: Bibliography not compatible with author-year
-  citations". The vignette no longer loads natbib; citations are processed by pandoc.
+  citations". The vignette is now an HTML vignette (rmarkdown::html_vignette) with
+  citations processed by pandoc, so it needs no LaTeX at all.
 * NOTE (all flavors): 'LazyData' is specified without a 'data' directory. Removed.
 * NOTE (macOS flavors): installed size 27.3Mb, libs 26.8Mb. This comes from the debug symbols
   of the compiled Eigen code in CRAN's macOS builds.
@@ -20,7 +21,8 @@ registers its native routines, is compatible with Eigen 5, and adds a testthat s
   \donttest, ran with no report
 * R-hub: linux (R-devel), windows (R-devel), macos-arm64 (R-devel), clang-asan
   [RESULTS TO BE FILLED IN]
-* win-builder: R-devel and R-release [RESULTS TO BE FILLED IN]
+* win-builder: R-release (R 4.6.2): 1 NOTE (see below), for the previous build of 0.2.0 with the
+  PDF vignette; R-devel [RESULTS TO BE FILLED IN]
 
 ## R CMD check results
 
@@ -32,4 +34,12 @@ Local check: 0 errors | 0 warnings | 2 notes
   Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
   (local tool)
 
-R-hub and win-builder: [RESULTS TO BE FILLED IN]
+win-builder R-release: 0 errors | 0 warnings | 1 note
+
+* checking CRAN incoming feasibility ... NOTE
+  New submission. Package was archived on CRAN.
+  Possibly misspelled words in DESCRIPTION: Huling, et, al.
+  These are the first author's surname and "et al." in the citation
+  Huling et al. (2018) <doi:10.1111/biom.12769>.
+
+R-hub and win-builder R-devel: [RESULTS TO BE FILLED IN]

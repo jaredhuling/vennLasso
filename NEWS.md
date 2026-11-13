@@ -6,6 +6,11 @@ obtains; those are marked **(changes results)**.
 
 ## CRAN issues
 
+* The vignette is now an HTML vignette (`rmarkdown::html_vignette`) with pandoc citations, so
+  building it needs no LaTeX installation. Its TikZ figures are included as images; their
+  sources are in `vignettes/figures-src` in the package repository.
+* CVXR is no longer a suggested package: the tests compare with objective values computed once
+  with CVXR, stored in the tests; the script that computed them is `inst/reference/make_refs.R`.
 * The vignette no longer loads `natbib`. Citations are processed by pandoc, and natbib's author-year
   check stopped the vignette from building on CRAN (archived 2023-09-21).
 * Removed `LazyData` from `DESCRIPTION` (the package has no data directory).
