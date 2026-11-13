@@ -19,10 +19,9 @@ registers its native routines, is compatible with Eigen 5, and adds a testthat s
 * local macOS Sequoia 15.7 (aarch64), R 4.5.1, Apple clang 17, with an empty user Makevars
 * local build with -fsanitize=address (AddressSanitizer): the tests and all examples, including
   \donttest, ran with no report
-* R-hub: linux (R-devel), windows (R-devel), macos-arm64 (R-devel), clang-asan
-  [RESULTS TO BE FILLED IN]
-* win-builder: R-release (R 4.6.2): 1 NOTE (see below), for the previous build of 0.2.0 with the
-  PDF vignette; R-devel [RESULTS TO BE FILLED IN]
+* R-hub: linux (R-devel), windows (R-devel), macos-arm64 (R-devel), clang-asan: all passed
+  (Status: OK on linux, windows and clang-asan; macos-arm64 passed with no error or warning)
+* win-builder: R-release (R 4.6.2) and R-devel (2026-11-12 r90881): 1 NOTE each (see below)
 
 ## R CMD check results
 
@@ -34,7 +33,7 @@ Local check: 0 errors | 0 warnings | 2 notes
   Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
   (local tool)
 
-win-builder R-release: 0 errors | 0 warnings | 1 note
+win-builder R-release and R-devel: 0 errors | 0 warnings | 1 note
 
 * checking CRAN incoming feasibility ... NOTE
   New submission. Package was archived on CRAN.
@@ -42,4 +41,4 @@ win-builder R-release: 0 errors | 0 warnings | 1 note
   These are the first author's surname and "et al." in the citation
   Huling et al. (2018) <doi:10.1111/biom.12769>.
 
-R-hub and win-builder R-devel: [RESULTS TO BE FILLED IN]
+R-hub (linux, windows, macos-arm64, clang-asan): 0 errors | 0 warnings.
