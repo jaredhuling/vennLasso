@@ -23,3 +23,4 @@ docs
 ^\.github$
 ^vignettes/figures-src$
 ^legacy$
+^CRAN-SUBMISSION$
